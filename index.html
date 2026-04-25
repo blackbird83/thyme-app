@@ -1,0 +1,2100 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="thyme">
+<meta name="theme-color" content="#3D5A3E">
+<title>thyme</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --cream:#1A1208;--parchment:#221A0E;--border:#2E2416;
+  --thyme:#5C7F5D;--thyme-mid:#7FA882;--gold:#B8973A;
+  --bark:#F0E8D8;--smoke:#8A9E8B;
+  --bg-grad: linear-gradient(160deg,#2A1E10 0%,#1A1208 50%,#0A0A08 100%);
+}
+body.light-mode{
+  --cream:#F5F0E8;--parchment:#EDE5D0;--border:#E0D9CC;
+  --thyme:#3D5A3E;--thyme-mid:#5C7F5D;--gold:#B8973A;
+  --bark:#2C1F14;--smoke:#6B7B6C;
+  --bg-grad: linear-gradient(160deg,#F5F0E8 0%,#EDE5D0 100%);
+}
+body.light-mode .cat-sheet { background: #F5F0E8; }
+body.light-mode .cat-sheet-title { color: #2C1F14; }
+body.light-mode .cat-sheet-name { color: #2C1F14; }
+body.light-mode .cat-sheet-item.active .cat-sheet-name { color: #B8973A; }
+body.light-mode .cat-sheet-item { border-bottom-color: #E0D9CC; }
+body.light-mode .cat-sheet-handle { background: #C8BFAD; }
+body.light-mode .sub-header { background: #F5F0E8 !important; border-bottom-color: #E0D9CC; }
+body.light-mode .sub-title { color: #2C1F14; }
+body.light-mode .back-btn { color: #3D5A3E !important; }
+body.light-mode .header { background: #F5F0E8 !important; border-bottom-color: #E0D9CC; }
+body.light-mode .card { background: white; border-left-color: var(--thyme); }
+body.light-mode .card-title { color: #2C1F14; }
+body.light-mode .badge { color: #6B7B6C; }
+body.light-mode .search-wrap { background: transparent; border-bottom-color: #E0D9CC; }
+body.light-mode .search-input { color: #2C1F14; }
+body.light-mode .detail-title { color: #2C1F14; }
+body.light-mode .detail-meta { color: #6B7B6C; }
+body.light-mode .ingredient-name { color: #2C1F14; }
+body.light-mode .ingredient-amount { color: #B8973A; }
+body.light-mode .section-label { color: #3D5A3E; }
+body.light-mode .instructions-text { color: #444; }
+body.light-mode .settings-section { background: #EDE5D0; border-color: #E0D9CC; }
+body.light-mode .form-input { background: #EDE5D0; border-color: #E0D9CC; color: #2C1F14; }
+body.light-mode .ing-input { background: #EDE5D0; border-color: #E0D9CC; color: #2C1F14; }
+body.light-mode .ing-select { background: #EDE5D0; border-color: #E0D9CC; color: #2C1F14; }
+body.light-mode .detail-actions-btn { color: #2C1F14; border-color: #E0D9CC; }
+body.light-mode .action-sheet-panel { background: #F5F0E8; border-color: #E0D9CC; }
+body.light-mode .action-sheet-item { color: #2C1F14; border-bottom-color: #E0D9CC; }
+body.light-mode .action-sheet-cancel { background: #F5F0E8; border-color: #E0D9CC; color: #6B7B6C; }
+body.light-mode .portions-ctrl { background: #EDE5D0; border-color: #E0D9CC; }
+body.light-mode .portions-num { color: #2C1F14; }
+body.light-mode #cat-active-bar { border-bottom-color: #E0D9CC; }
+body.light-mode .fab-menu-panel { background: #F5F0E8; border-color: #E0D9CC; }
+body.light-mode .fab-option { color: #2C1F14; border-bottom-color: #E0D9CC; }
+body.light-mode .recipe-photo-placeholder { background: #EDE5D0; border-color: #C8BFAD; }
+body{background:var(--bg-grad);background-attachment:fixed;font-family:'DM Sans',sans-serif;color:var(--bark);min-height:100vh}
+input,textarea{font-family:'DM Sans',sans-serif;font-size:15px;outline:none;-webkit-appearance:none}
+textarea{resize:vertical}
+
+/* ── TYPOGRAFIE HIERARCHIE ────────────────────────────── */
+/* Titel: gross, Serif, luftig */
+.detail-title{font-family:'Cormorant Garamond',serif;font-size:38px;font-weight:300;color:var(--bark);margin-bottom:4px;line-height:1.15;letter-spacing:0.5px}
+/* Meta: sehr klein, versaliert, gedämpft */
+.detail-meta{font-size:11px;color:var(--smoke);margin-bottom:16px;letter-spacing:2px;text-transform:uppercase}
+/* Section Labels: winzig, gold, viel Spacing */
+.section-label{font-size:9px;color:var(--gold);letter-spacing:3px;text-transform:uppercase;margin-bottom:10px;margin-top:24px;display:block;font-weight:600;opacity:0.9}
+/* Zutat Amount: sehr gross, Serif */
+.ingredient-amount{font-family:'Cormorant Garamond',serif;font-size:22px;color:var(--gold);font-weight:400;min-width:52px;text-align:right;flex-shrink:0;line-height:1.2}
+/* Zutat Unit: winzig */
+.ingredient-unit{min-width:36px;font-size:10px;color:var(--smoke);text-transform:uppercase;letter-spacing:1.5px;padding-top:4px;flex-shrink:0}
+/* Zutat Name: klar, etwas grösser */
+.ingredient-name{font-size:16px;color:var(--bark);flex:1;line-height:1.4}
+/* Karten-Titel: grösser, mehr Gewicht */
+.card-title{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:400;color:var(--bark);line-height:1.25;margin-bottom:8px;letter-spacing:0.3px}
+/* Badge: winzig, versaliert */
+.badge{background:transparent;border-radius:99px;padding:3px 0;font-size:10px;color:var(--smoke);display:inline-block;letter-spacing:2px;text-transform:uppercase}
+/* Sub-title im Header */
+.sub-title{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:300;color:var(--bark);letter-spacing:1px}
+/* Anweisungen */
+.instructions-text{font-size:15px;color:var(--smoke);line-height:1.85;white-space:pre-wrap;letter-spacing:0.2px}
+.app{max-width:900px;margin:0 auto}
+.screen{display:none}.screen.active{display:block;opacity:1;transform:translateY(0)}
+.screen.animating{opacity:0;transform:translateY(12px)}.screen.visible{opacity:1;transform:translateY(0)}
+/* Karten-Hover */
+.card{transition:transform .2s ease,box-shadow .2s ease}
+.card:hover{background:var(--cream)}
+.card:active{background:var(--cream)}
+/* Kategorie-Sheet */
+.cat-sheet{transition:transform .38s cubic-bezier(.32,0,.2,1)}
+/* Action Sheet */
+.action-sheet{transition:transform .32s cubic-bezier(.32,0,.2,1)}
+/* FAB */
+.fab-plus{transition:transform .22s ease,background .2s ease}
+/* Portionen Buttons */
+.portions-btn{transition:transform .15s ease,background .15s ease}
+.portions-btn:active{transform:scale(0.88)}
+/* Ingredient rows */
+.ingredient{transition:background .15s ease}
+.ingredient:hover{background:rgba(184,151,58,.05)}
+
+.mode-badge{display:flex;align-items:center;gap:5px;font-size:10px;font-weight:700;letter-spacing:1px;padding:5px 10px;border-radius:99px}
+.mode-badge.online{background:#1E2E1E;color:#7FA882}
+.mode-badge.offline{background:#2A2010;color:#B8973A}
+.mode-dot{width:6px;height:6px;border-radius:50%}
+.mode-badge.online .mode-dot{background:#3D5A3E}
+.mode-badge.offline .mode-dot{background:#B8973A}
+.sub-header{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--border);background:var(--cream);position:sticky;top:0;z-index:10}
+.back-btn{font-size:14px;font-weight:600;color:var(--thyme);background:none;border:none;cursor:pointer;padding:4px 0}
+.sub-title{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--bark)}
+.search-wrap{display:flex;align-items:center;margin:10px 16px;background:transparent;border-radius:0;border:none;border-bottom:1.5px solid var(--border);padding:0 4px;transition:border-color .25s ease}
+.search-wrap:focus-within{border-bottom-color:var(--gold)}
+.search-icon{font-size:15px;margin-right:10px;color:var(--smoke);opacity:0.5;transition:opacity .2s}
+.search-wrap:focus-within .search-icon{opacity:1;color:var(--gold)}
+.search-input{flex:1;border:none;background:transparent;padding:13px 0;font-size:16px;color:var(--bark);letter-spacing:0.3px;font-family:'Cormorant Garamond',serif;font-weight:300}
+.search-input::placeholder{color:var(--smoke);opacity:0.5;font-family:'DM Sans',sans-serif;font-size:13px;letter-spacing:1.5px;text-transform:uppercase}
+.search-clear{background:none;border:none;color:var(--smoke);font-size:14px;cursor:pointer;padding:0 4px;opacity:0;transition:opacity .15s;line-height:1}
+.search-clear.visible{opacity:0.5}
+.search-clear:hover{opacity:1;color:var(--gold)}
+.cat-scroll{overflow-x:auto;padding:8px 16px;border-bottom:1px solid var(--border);display:flex;gap:8px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.cat-scroll::-webkit-scrollbar{display:none}
+.pill{padding:6px 16px;border-radius:99px;border:1px solid var(--border);background:transparent;font-size:11px;color:var(--smoke);cursor:pointer;white-space:nowrap;font-family:'DM Sans',sans-serif;transition:all .2s ease;letter-spacing:1px;text-transform:uppercase}
+.pill:hover{border-color:var(--thyme);color:var(--thyme)}
+.pill.active{background:var(--thyme);border-color:var(--thyme);color:white;font-weight:500;letter-spacing:1px}
+.grid{display:flex;flex-direction:column;gap:0;padding:0 0 120px;border-top:1px solid var(--border)}
+.card{background:var(--parchment);border-radius:0;padding:14px 20px;border-left:none;border-bottom:1px solid var(--border);cursor:pointer;transition:background .18s ease;position:relative;display:flex;align-items:center;gap:16px;overflow:hidden}
+.card:active{background:var(--cream)}
+.card-emoji{display:none}
+/* Karte mit Foto — etwas höher */
+.card.has-photo{padding:0;flex-direction:column;align-items:stretch;gap:0}
+.card.has-photo .card-photo-hero{width:100%;height:160px;object-fit:cover;display:block}
+.card.has-photo .card-body{padding:12px 20px 14px;display:flex;align-items:center;gap:12px}
+.card.has-photo .card-title{margin-bottom:2px;font-size:20px}
+/* Karte ohne Foto — Farbstreifen links */
+.card-stripe{position:absolute;left:0;top:0;bottom:0;width:5px;border-radius:0;opacity:0.9}
+.card-body{flex:1;min-width:0}
+.card-title{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:400;color:var(--bark);line-height:1.25;margin-bottom:3px;letter-spacing:0.2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card-arrow{color:var(--border);font-size:16px;flex-shrink:0;opacity:0.4;transition:opacity .15s}
+.card:active .card-arrow{opacity:0.8}
+.badge{background:transparent;padding:0;font-size:10px;color:var(--smoke);display:inline-block;letter-spacing:2px;text-transform:uppercase}
+.empty{text-align:center;color:var(--smoke);padding:60px 20px;font-size:15px}
+/* ── ZULETZT VERWENDET ───────────────────────────────── */
+.recent-section{padding:24px 20px 0}
+.recent-label{font-size:9px;color:var(--smoke);letter-spacing:3px;text-transform:uppercase;margin-bottom:14px;display:block;opacity:0.7}
+.recent-scroll{display:flex;gap:12px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.recent-scroll::-webkit-scrollbar{display:none}
+.recent-card{flex-shrink:0;width:140px;cursor:pointer;border-radius:12px;overflow:hidden;background:var(--parchment);border:1px solid var(--border);transition:transform .2s ease}
+.recent-card:active{transform:scale(0.96)}
+.recent-card-photo{width:100%;height:80px;object-fit:cover;display:block}
+.recent-card-color{width:100%;height:80px;display:block;opacity:0.7}
+.recent-card-body{padding:10px 12px}
+.recent-card-title{font-family:'Cormorant Garamond',serif;font-size:15px;font-weight:400;color:var(--bark);line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.recent-card-cat{font-size:9px;color:var(--smoke);letter-spacing:1.5px;text-transform:uppercase;margin-top:3px}
+.recent-divider{height:1px;background:var(--border);margin:20px 0 0}
+/* ── FAVORITEN ────────────────────────────────────────── */
+.fav-btn{background:none;border:none;cursor:pointer;font-size:20px;padding:4px 6px;line-height:1;transition:transform .2s ease, color .2s ease;flex-shrink:0}
+.fav-btn:active{transform:scale(1.3)}
+.fav-btn.active{color:#B8973A}
+.fav-btn.inactive{color:rgba(255,255,255,0.35)}
+body.light-mode .fav-btn.inactive{color:rgba(0,0,0,0.2)}
+/* Favoriten-Tab in Header */
+.fav-tab{display:flex;align-items:center;gap:6px;background:none;border:none;cursor:pointer;padding:6px 10px;border-radius:99px;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:600;letter-spacing:1px;color:var(--smoke);transition:all .2s}
+.fav-tab.active{background:rgba(184,151,58,.12);color:#B8973A}
+.fav-tab-icon{font-size:14px}
+/* FAB - zentriert unten */
+.fab-center-wrap{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);z-index:21;display:flex;flex-direction:column;align-items:center;gap:12px}
+.fab-plus{height:52px;padding:0 28px;border-radius:99px;background:var(--thyme);border:none;cursor:pointer;font-size:14px;font-family:'DM Sans',sans-serif;font-weight:500;letter-spacing:1px;color:white;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 4px 24px rgba(61,90,62,.5);transition:transform .2s,background .2s,box-shadow .2s;white-space:nowrap}
+.fab-plus:active{transform:scale(0.95)}
+.fab-plus.open{background:var(--bark)}
+.fab-plus-icon{font-size:20px;transition:transform .25s ease;display:inline-block;line-height:1}
+.fab-plus.open .fab-plus-icon{transform:rotate(45deg)}
+/* Einstellungen - unten rechts */
+.fab-settings{position:fixed;bottom:32px;right:24px;width:44px;height:44px;border-radius:50%;background:#221A0E;border:1.5px solid #2E2416;cursor:pointer;font-size:20px;display:flex;align-items:center;justify-content:center;z-index:21;box-shadow:0 2px 8px rgba(0,0,0,.4)}
+/* Optionen-Faecher */
+.fab-menu{display:flex;flex-direction:column;align-items:center;gap:12px;opacity:0;pointer-events:none;transform:translateY(8px);transition:opacity .2s,transform .2s}
+.fab-menu.open{opacity:1;pointer-events:all;transform:translateY(0)}
+.fab-menu-panel{background:#1E1610;border:1px solid #2E2416;border-radius:16px;overflow:hidden;min-width:180px;box-shadow:0 8px 32px rgba(0,0,0,.5)}
+.fab-option{display:flex;align-items:center;gap:12px;background:transparent;border:none;border-bottom:1px solid #2A2010;padding:14px 20px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:400;color:var(--bark);white-space:nowrap;width:100%;text-align:left;letter-spacing:0.5px;transition:background .15s}
+.fab-option:last-child{border-bottom:none}
+.fab-option:active{background:#2A2010}
+.fab-option-icon{width:20px;height:20px;text-align:center;opacity:0.9;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center}.fab-option-icon svg{width:20px;height:20px}
+.fab-option-label{color:var(--bark)}
+/* Overlay */
+.fab-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:20;backdrop-filter:blur(4px)}
+.fab-overlay.open{display:block}
+.detail-body{padding:28px 28px 100px;max-width:680px}
+.recipe-hero{width:calc(100% + 40px);margin:-24px -20px 20px;height:240px;object-fit:cover;display:block}
+.recipe-hero-placeholder{width:calc(100% + 40px);margin:-24px -20px 20px;height:120px;background:var(--parchment);display:flex;align-items:center;justify-content:center;cursor:pointer;border-bottom:1px solid var(--border)}
+.recipe-hero-placeholder span{font-size:11px;color:var(--smoke);letter-spacing:2px;text-transform:uppercase}
+.recipe-photo{width:100%;height:240px;object-fit:cover;border-radius:0;margin-bottom:16px;display:block}
+.recipe-photo-placeholder{width:100%;height:120px;background:var(--parchment);border-radius:0;margin-bottom:16px;display:flex;align-items:center;justify-content:center;cursor:pointer;border-bottom:1px solid var(--border)}
+.recipe-photo-placeholder span{font-size:11px;color:var(--smoke);letter-spacing:2px;text-transform:uppercase}
+.detail-stripe{height:3px;width:100%;margin-bottom:24px;display:block}
+.detail-emoji{font-size:52px;margin-bottom:10px;display:block}
+.detail-title{font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:600;color:var(--bark);margin-bottom:6px;line-height:1.2}
+.detail-meta{font-size:13px;color:var(--smoke);margin-bottom:16px}
+.meta-chips{display:flex;gap:12px;margin-bottom:24px;flex-wrap:wrap;align-items:center}
+/* Portionen-Rechner — prominent */
+.portions-wrap{display:flex;flex-direction:column;gap:6px}
+.portions-label{font-size:9px;color:var(--smoke);letter-spacing:3px;text-transform:uppercase;opacity:0.7}
+.portions-ctrl{display:flex;align-items:center;gap:0;background:var(--parchment);border-radius:12px;overflow:hidden;border:1px solid var(--border)}
+.portions-btn{background:none;border:none;color:var(--gold);font-size:24px;width:48px;height:48px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-weight:300;transition:background .15s,transform .1s}
+.portions-btn:active{background:var(--border);transform:scale(0.9)}
+.portions-divider{width:1px;height:32px;background:var(--border)}
+.portions-center{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 20px;min-width:80px}
+.portions-num{font-family:'Cormorant Garamond',serif;font-size:28px;color:var(--bark);text-align:center;font-weight:300;transition:transform .15s ease,opacity .15s ease;display:block;line-height:1}
+.portions-num.bump{transform:scale(1.3);opacity:0.7}
+.portions-unit{font-size:9px;color:var(--smoke);letter-spacing:2px;text-transform:uppercase;margin-top:2px}
+.meta-chip{background:var(--parchment);border-radius:99px;padding:6px 14px;font-size:13px;color:var(--thyme);font-weight:500}
+.section-label{font-size:10px;color:var(--thyme);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;margin-top:20px;display:block}
+.ingredient{display:flex;flex-direction:row;align-items:baseline;gap:8px;padding:11px 0;border-bottom:1px solid #2A2010}
+.ingredient-amount{font-family:'Cormorant Garamond',serif;font-size:19px;color:#B8973A;font-weight:400;min-width:44px;text-align:right;flex-shrink:0}
+.ingredient-unit{font-size:12px;color:var(--smoke);letter-spacing:1px;text-transform:uppercase;min-width:32px;flex-shrink:0}
+.ingredient-name{font-size:16px;color:var(--bark);flex:1}
+.ing-row{display:grid;grid-template-columns:64px 90px 1fr 32px;gap:6px;margin-bottom:8px;align-items:center}
+.ing-input{background:#221A0E;border:1px solid #3D3020;border-radius:8px;padding:10px 10px;font-size:14px;color:var(--bark);font-family:'DM Sans',sans-serif;width:100%;outline:none}
+.ing-input:focus{border-color:#B8973A}
+.ing-select{background:#221A0E;border:1px solid #3D3020;border-radius:8px;padding:10px 6px;font-size:13px;color:var(--smoke);font-family:'DM Sans',sans-serif;width:100%;outline:none;-webkit-appearance:none;cursor:pointer}
+.ing-select:focus{border-color:#B8973A}
+.ing-del{background:none;border:none;color:#5C3A3A;font-size:18px;cursor:pointer;padding:4px;width:32px;text-align:center}
+.add-ing-btn{width:100%;background:transparent;border:1px dashed #3D3020;border-radius:8px;padding:12px;font-size:13px;color:var(--smoke);cursor:pointer;margin-top:4px;letter-spacing:1px;font-family:'DM Sans',sans-serif}
+.add-ing-btn:active{border-color:#B8973A;color:#B8973A}
+.instructions-text{font-size:14px;color:#555;line-height:1.7;white-space:pre-wrap}
+.notes-text{font-size:13px;color:#888;font-style:italic}
+.detail-actions{margin-top:28px}
+.detail-actions-btn{width:100%;background:transparent;border:1px solid #2E2416;border-radius:10px;padding:14px 18px;font-size:13px;font-weight:400;color:var(--smoke);cursor:pointer;letter-spacing:1px;font-family:'DM Sans',sans-serif;text-align:left;display:flex;align-items:center;gap:12px;transition:background .15s}
+.detail-actions-btn:active{background:#221A0E}
+/* Action Sheet */
+.action-sheet-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:50;backdrop-filter:blur(4px)}
+.action-sheet-overlay.open{display:block}
+.action-sheet{position:fixed;bottom:0;left:0;right:0;max-width:900px;margin:0 auto;z-index:51;transform:translateY(100%);transition:transform .3s cubic-bezier(.4,0,.2,1)}
+.action-sheet.open{transform:translateY(0)}
+.action-sheet-panel{background:#1E1610;border-radius:20px 20px 0 0;border:1px solid #2E2416;border-bottom:none;overflow:hidden}
+.action-sheet-item{display:flex;align-items:center;gap:14px;padding:16px 24px;border-bottom:1px solid #2A2010;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:400;color:var(--bark);transition:background .15s;background:transparent;border-left:none;border-right:none;width:100%;text-align:left}
+.action-sheet-item:last-child{border-bottom:none}
+.action-sheet-item:active{background:#2A2010}
+.action-sheet-item.danger{color:#8B4040}
+.action-sheet-item-icon{font-size:16px;width:24px;text-align:center;opacity:0.8}
+.action-sheet-cancel{display:block;width:100%;margin:8px 0 0;background:#1E1610;border:1px solid #2E2416;border-radius:14px;padding:16px;font-size:15px;font-weight:500;color:var(--smoke);cursor:pointer;font-family:'DM Sans',sans-serif;transition:background .15s}
+.action-sheet-cancel:active{background:#2A2010}
+@page { size: A4; margin: 48px 56px; }
+@media print {
+  body * { visibility: hidden; }
+  #print-area, #print-area * { visibility: visible; }
+  #print-area {
+    position: absolute; left: 0; top: 0; width: 100%;
+    background: white; color: #1A1208;
+    font-family: 'DM Sans', Helvetica, sans-serif;
+    padding: 48px 56px;
+    box-sizing: border-box;
+  }
+  #print-area .print-title {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 32px; font-weight: 300; letter-spacing: 2px; margin-bottom: 16px;
+  }
+  #print-area .print-divider { border: none; border-top: 1px solid #C8BFAD; margin-bottom: 14px; }
+  #print-area .print-cat { font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: #6B7B6C; margin-bottom: 6px; text-align: right; }
+  #print-area .print-portions { font-size: 13px; color: #2C1F14; margin-bottom: 20px; }
+  #print-area .print-label { font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: #2C1F14; margin: 20px 0 10px; display: block; font-weight: 600; }
+  #print-area .print-ing { display: flex; align-items: baseline; gap: 10px; padding: 7px 0; border-bottom: 1px solid #F0EBE0; font-size: 13px; }
+  #print-area .print-ing-amount { min-width: 44px; text-align: right; font-family: 'Cormorant Garamond', Georgia, serif; font-size: 15px; color: #2C1F14; }
+  #print-area .print-ing-unit { min-width: 32px; font-size: 10px; color: #2C1F14; text-transform: uppercase; letter-spacing: 1px; }
+  #print-area .print-ing-name { font-size: 13px; color: #2C1F14; }
+  #print-area .print-instructions { font-size: 13px; line-height: 1.9; white-space: pre-wrap; color: #444; margin-top: 4px; }
+  #print-area .print-spacer { display: block; }
+  #print-area .print-footer {
+    text-align: center;
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    border-top: 1px solid #E0D9CC; padding: 14px 0 0;
+  }
+  #print-area .print-footer svg { width: 44px; height: auto; margin-bottom: 4px; }
+  #print-area .print-footer-logo { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 18px; font-weight: 300; letter-spacing: 6px; color: #3D5A3E; display: block; }
+  #print-area .print-footer-sub { font-size: 8px; letter-spacing: 4px; text-transform: uppercase; color: #8FAE90; }
+}
+.form-body{padding:20px;max-width:680px;padding-bottom:60px}
+.form-group{margin-bottom:16px}
+.form-label{font-size:10px;color:var(--thyme);letter-spacing:2px;text-transform:uppercase;display:block;margin-bottom:6px}
+.form-input{width:100%;background:var(--parchment);border:1.5px solid var(--border);border-radius:12px;padding:13px 14px;font-size:15px;color:var(--bark);transition:border-color .2s}
+.form-input:focus{border-color:var(--thyme-mid)}
+.form-input::placeholder{color:#b0a898}
+.form-row{display:flex;gap:12px}
+.ing-row{display:flex;gap:6px;align-items:center;margin-bottom:8px}
+.ing-amount{width:64px;background:#2A2010;border:1px solid #3D3020;border-radius:8px;padding:10px 8px;font-size:14px;color:var(--bark);text-align:center;font-family:'DM Sans',sans-serif}
+.ing-unit{width:72px;background:#2A2010;border:1px solid #3D3020;border-radius:8px;padding:10px 6px;font-size:13px;color:var(--smoke);font-family:'DM Sans',sans-serif;cursor:pointer;-webkit-appearance:none;appearance:none}
+.ing-unit option{background:#2A2010;color:var(--bark)}
+.ing-name{flex:1;background:#2A2010;border:1px solid #3D3020;border-radius:8px;padding:10px 10px;font-size:14px;color:var(--bark);font-family:'DM Sans',sans-serif}
+.ing-amount:focus,.ing-unit:focus,.ing-name:focus{outline:none;border-color:#5C7F5D}
+.ing-del{background:none;border:none;color:#4A3020;cursor:pointer;font-size:18px;padding:4px;flex-shrink:0}
+.ing-del:active{color:#8B4040}
+.add-ing-btn{width:100%;background:none;border:1px dashed #3D3020;border-radius:8px;padding:10px;font-size:13px;color:#5C7F5D;cursor:pointer;font-family:'DM Sans',sans-serif;letter-spacing:1px;margin-top:4px}
+.add-ing-btn:active{background:#2A2010}
+.ing-display{display:flex;gap:12px;padding:8px 0;border-bottom:1px solid #2E2416;align-items:baseline}
+.ing-display-amount{font-family:'Cormorant Garamond',serif;font-size:18px;color:#B8973A;min-width:50px;text-align:right;font-weight:400}
+.ing-display-unit{font-size:12px;color:var(--smoke);min-width:32px;letter-spacing:1px}
+.ing-display-name{font-size:15px;color:var(--bark);flex:1}
+.form-row .form-group{flex:1}
+.cat-picker{display:flex;gap:8px;flex-wrap:wrap;padding:4px 0}
+.form-actions{display:flex;gap:10px;margin-top:20px}
+.btn-cancel{flex:1;background:var(--parchment);border:none;border-radius:12px;padding:14px;font-size:15px;color:var(--smoke);cursor:pointer}
+.btn-save{flex:2;background:var(--thyme);border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:600;color:white;cursor:pointer}
+.upload-box{background:var(--parchment);border-radius:16px;padding:32px;text-align:center;border:2px dashed var(--border);margin-bottom:20px}
+.upload-box p{font-size:14px;color:var(--smoke);margin:10px 0 16px}
+.file-btn{background:var(--thyme);color:white;border:none;border-radius:12px;padding:13px 28px;font-size:15px;font-weight:600;cursor:pointer;display:inline-block}
+.scan-preview{width:100%;max-height:260px;object-fit:contain;border-radius:12px;margin-bottom:16px}
+.scanning-box{text-align:center;padding:32px;color:var(--smoke);font-size:15px}
+.spinner{display:block;font-size:36px;margin-bottom:14px;animation:spin 1.5s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.cat-list-item{display:flex;align-items:center;padding:13px 0;border-bottom:1px solid var(--border)}
+.cat-list-emoji{font-size:26px;margin-right:14px}
+.cat-list-name{flex:1;font-size:15px;font-weight:500}
+.cat-delete{background:#FFE8E8;border:none;border-radius:50%;width:30px;height:30px;color:#CC3333;font-weight:700;cursor:pointer;font-size:13px}
+.new-cat-row{display:flex;gap:10px;align-items:center}
+.import-section{margin-bottom:32px}
+.import-desc{font-size:13px;color:#888;margin-bottom:12px;line-height:1.5}
+.btn-import{width:100%;background:var(--thyme);color:white;border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:600;cursor:pointer;margin-top:8px}
+.btn-import-secondary{background:var(--thyme-mid)}
+.notice{background:#2A2010;border:1px solid #3D3020;border-radius:12px;padding:12px 16px;font-size:13px;color:#B8973A;margin-bottom:16px}
+.settings-section{background:#221A0E;border-radius:16px;padding:18px;margin-bottom:16px;border:1px solid #2E2416}
+.settings-section h3{font-size:11px;font-weight:700;color:var(--thyme);margin-bottom:10px;letter-spacing:2px;text-transform:uppercase}
+.key-status{font-size:12px;margin-top:8px;font-weight:500}
+.key-status.ok{color:#3D5A3E}
+.key-status.missing{color:#CC3333}
+
+/* ── SPLASH SCREEN ─────────────────────────────── */
+#splash{position:fixed;inset:0;background:#1A1208;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:100;transition:opacity .8s ease}
+#splash.hide{opacity:0;pointer-events:none}
+#splash svg{width:280px;height:auto}
+
+/* ── BUCHCOVER (Home ohne Kategorie) ────────────── */
+#book-cover{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px 20px 80px;cursor:pointer;min-height:70vh}
+#book-cover-inner{display:flex;flex-direction:column;align-items:center;border:1px solid #2E2416;border-radius:16px;padding:40px 48px 32px;background:rgba(34,26,14,0.4)}
+#book-cover svg{width:380px;height:auto;margin-bottom:4px}
+#book-cover-hint{font-family:'DM Sans',sans-serif;font-size:10px;color:#4A6741;letter-spacing:3px;text-transform:uppercase;margin-top:12px}
+
+/* ── HEADER mit anklickbarem Logo ──────────────── */
+.header{display:flex;justify-content:space-between;align-items:center;padding:12px 20px;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--cream);z-index:10;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+.app-name{display:flex;align-items:center;gap:0;cursor:pointer;user-select:none;text-decoration:none}
+.app-name svg{height:32px;width:auto}
+.header-right{display:flex;gap:8px;align-items:center}
+.lang-btn{background:var(--parchment);border:none;border-radius:99px;padding:6px 12px;font-size:11px;font-weight:600;color:var(--thyme);letter-spacing:1px;cursor:pointer}
+.header-icon-btn{background:none;border:none;color:var(--smoke);font-size:18px;cursor:pointer;padding:4px 6px;opacity:0.7;transition:opacity .2s;line-height:1}
+.header-icon-btn:hover{opacity:1;color:var(--thyme)}
+
+/* ── KATEGORIE SHEET ────────────────────────────── */
+.cat-sheet-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.3);z-index:40;backdrop-filter:blur(3px)}
+.cat-sheet-overlay.open{display:block}
+.cat-sheet{position:fixed;bottom:0;left:0;right:0;max-width:900px;margin:0 auto;background:#1E1610;border-radius:24px 24px 0 0;z-index:41;transform:translateY(100%);transition:transform .35s cubic-bezier(.4,0,.2,1);max-height:80vh;overflow:hidden;display:flex;flex-direction:column}
+.cat-sheet.open{transform:translateY(0)}
+.cat-sheet-handle{width:36px;height:4px;background:var(--border);border-radius:99px;margin:14px auto 0}
+.cat-sheet-title{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:600;color:var(--bark);padding:16px 24px 8px;text-align:center}
+.cat-sheet-list{overflow-y:auto;padding:8px 16px 40px;-webkit-overflow-scrolling:touch}
+.cat-sheet-item{display:flex;align-items:center;gap:18px;padding:16px 28px;cursor:pointer;transition:background .15s;border-bottom:1px solid #221A0E}
+.cat-sheet-item:active{background:#221A0E}
+.cat-sheet-dot{width:7px;height:7px;border-radius:50%;background:#2E2416;border:1.5px solid #4A3820;flex-shrink:0;transition:all .2s}
+.cat-sheet-item.active .cat-sheet-dot{background:#B8973A;border-color:#B8973A;box-shadow:0 0 6px rgba(184,151,58,.4)}
+.cat-sheet-icon svg{transition:opacity .2s;width:28px;height:28px;opacity:0.75}
+.cat-sheet-item.active .cat-sheet-icon svg{opacity:1}
+.cat-sheet-name{font-family:'Cormorant Garamond',serif;font-size:21px;font-weight:300;color:var(--bark);flex:1;letter-spacing:1px}
+.cat-sheet-item.active .cat-sheet-name{color:#B8973A}
+.cat-sheet-all{color:var(--smoke)}
+
+/* ── PULL TO REFRESH ─────────────────────────────────── */
+#ptr-indicator{position:fixed;top:0;left:0;right:0;height:56px;display:flex;align-items:flex-end;justify-content:center;padding-bottom:10px;transform:translateY(-100%);transition:transform .25s ease;z-index:30;pointer-events:none}
+#ptr-indicator.visible{transform:translateY(0)}
+#ptr-spinner{width:22px;height:22px;border:2px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:ptr-spin .7s linear infinite}
+@keyframes ptr-spin{to{transform:rotate(360deg)}}
+#ptr-label{font-size:11px;color:var(--smoke);letter-spacing:2px;margin-left:8px}
+
+/* ── TOAST / SNACKBAR ────────────────────────────────────────────────── */
+#toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%) translateY(20px);
+  background:#2A2010;border:1px solid #3D3020;border-radius:12px;
+  padding:13px 22px;font-size:13px;color:var(--bark);letter-spacing:0.3px;
+  opacity:0;pointer-events:none;transition:opacity .25s ease,transform .25s ease;
+  z-index:200;white-space:nowrap;max-width:90vw;text-align:center;
+  box-shadow:0 4px 24px rgba(0,0,0,.5)}
+#toast.success{border-color:#3D5A3E;color:#7FA882}
+#toast.error{border-color:#6B2020;color:#E07070}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+body.light-mode #toast{background:#F5F0E8;border-color:#C8BFAD;color:#2C1F14}
+body.light-mode #toast.success{border-color:#3D5A3E;color:#3D5A3E}
+body.light-mode #toast.error{border-color:#CC3333;color:#CC3333}
+
+/* ── CONFIRM SHEET ───────────────────────────────────────────────────── */
+#confirm-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);
+  z-index:300;backdrop-filter:blur(4px)}
+#confirm-overlay.open{display:flex;align-items:flex-end;justify-content:center}
+#confirm-panel{background:#1E1610;border-radius:16px 16px 0 0;padding:24px 20px 40px;
+  width:100%;max-width:900px;border-top:1px solid #2E2416}
+#confirm-msg{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:300;
+  color:var(--bark);text-align:center;margin-bottom:20px;letter-spacing:0.3px}
+#confirm-btns{display:flex;flex-direction:column;gap:10px}
+#confirm-ok{background:#8B2020;border:none;border-radius:12px;padding:15px;
+  font-size:15px;font-weight:500;color:white;cursor:pointer;font-family:'DM Sans',sans-serif}
+#confirm-cancel{background:transparent;border:1px solid var(--border);border-radius:12px;
+  padding:15px;font-size:15px;color:var(--smoke);cursor:pointer;font-family:'DM Sans',sans-serif}
+body.light-mode #confirm-panel{background:#F5F0E8;border-color:#E0D9CC}
+</style>
+</head>
+<body>
+<!-- SPLASH -->
+<div id="splash">
+  <svg viewBox="0 0 340 300" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="splL" x1="100%" y1="0%" x2="0%" y2="0%">
+        <stop offset="0%" stop-color="#3D5A3E"/><stop offset="100%" stop-color="#5C7F5D"/>
+      </linearGradient>
+      <linearGradient id="splR" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" stop-color="#6B9E6E"/><stop offset="100%" stop-color="#9DC49D"/>
+      </linearGradient>
+      <linearGradient id="splS" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" stop-color="#6B9E6E"/><stop offset="100%" stop-color="#9DC49D"/>
+      </linearGradient>
+    </defs>
+    <!-- Stamm -->
+    <line x1="170" y1="190" x2="170" y2="105" stroke="#3D5A3E" stroke-width="2.8" stroke-linecap="round"/>
+    <!-- Goldknospe -->
+    <circle cx="170" cy="97" r="7" fill="#B8973A"/>
+    <circle cx="170" cy="97" r="4.5" fill="#C9A84C"/>
+    <circle cx="170" cy="97" r="2" fill="#DDB85A"/>
+    <circle cx="161" cy="100" r="3.2" fill="#C9A84C"/>
+    <circle cx="180" cy="102" r="2.8" fill="#DDB85A" opacity="0.85"/>
+    <!-- Blattpaar oben -->
+    <path d="M169 118 Q148 108 134 113 Q148 124 169 118Z" fill="url(#splL)"/>
+    <path d="M171 118 Q192 106 206 111 Q192 122 171 118Z" fill="url(#splR)"/>
+    <!-- Blattpaar Mitte -->
+    <path d="M169 138 Q146 127 131 132 Q146 143 169 138Z" fill="url(#splL)"/>
+    <path d="M171 138 Q194 126 209 131 Q194 142 171 138Z" fill="url(#splR)"/>
+    <!-- Blattpaar unten -->
+    <path d="M169 158 Q148 147 134 152 Q148 163 169 158Z" fill="url(#splL)"/>
+    <path d="M171 158 Q192 146 206 151 Q192 162 171 158Z" fill="url(#splR)"/>
+    <!-- Seitenast -->
+    <path d="M170 176 Q188 168 206 174" stroke="#5C7F5D" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+    <path d="M185 167 Q194 157 202 160 Q197 170 185 167Z" fill="url(#splS)"/>
+    <path d="M196 172 Q205 163 212 167 Q207 176 196 172Z" fill="url(#splS)"/>
+    <circle cx="213" cy="171" r="5" fill="#B8973A"/>
+    <circle cx="213" cy="171" r="3" fill="#C9A84C"/>
+    <circle cx="213" cy="171" r="1.5" fill="#DDB85A"/>
+    <!-- Trennlinie -->
+    <line x1="85" y1="210" x2="255" y2="210" stroke="#2A2010" stroke-width="0.8"/>
+    <!-- Schriftzug Gold -->
+    <text x="170" y="240" text-anchor="middle" font-family="Cormorant Garamond, Georgia, serif" font-size="40" font-weight="300" fill="#B8973A" letter-spacing="6">thyme</text>
+    <!-- Subline Grün -->
+    <text x="170" y="262" text-anchor="middle" font-family="DM Sans, Helvetica, sans-serif" font-size="8" font-weight="400" fill="#6B9E6E" letter-spacing="4">RECIPE ARCHIVE</text>
+  </svg>
+</div>
+
+<!-- KATEGORIE SHEET -->
+<div class="cat-sheet-overlay" id="cat-sheet-overlay" onclick="closeCatSheet()"></div>
+<div class="cat-sheet" id="cat-sheet">
+  <div class="cat-sheet-handle"></div>
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 24px 0">
+    <div onclick="closeCatSheet()" style="cursor:pointer;font-size:18px;color:#5C7F5D">&#8592;</div>
+    <div class="cat-sheet-title" style="padding:0">Kategorien</div>
+    <div onclick="closeCatSheet();showScreen('home')" style="cursor:pointer;display:flex;align-items:center;gap:5px">
+      <span style="font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:300;color:#B8973A;letter-spacing:3px">thyme</span>
+      <span style="font-size:13px;color:#B8973A;opacity:0.8">&#8962;</span>
+    </div>
+  </div>
+  <div class="cat-sheet-list" id="cat-sheet-list"></div>
+</div>
+
+<div id="print-area" style="display:none"></div>
+
+<div id="ptr-indicator"><div id="ptr-spinner"></div><span id="ptr-label">SYNCHRONISIEREN</span></div>
+<div class="app">
+
+<!-- HOME -->
+<div id="screen-home" class="screen active">
+  <div class="header">
+    <div class="app-name" onclick="showScreen('home')">
+      <svg viewBox="0 0 120 36" xmlns="http://www.w3.org/2000/svg" style="height:32px;width:auto">
+        <defs>
+          <linearGradient id="hL" x1="100%" y1="0%" x2="0%" y2="0%">
+            <stop offset="0%" stop-color="#3D5A3E"/><stop offset="100%" stop-color="#5C7F5D"/>
+          </linearGradient>
+          <linearGradient id="hR" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#5C7F5D"/><stop offset="100%" stop-color="#8FAE90"/>
+          </linearGradient>
+        </defs>
+        <!-- Thymianzweig mini -->
+        <line x1="22" y1="30" x2="22" y2="8" stroke="#3D5A3E" stroke-width="1.8" stroke-linecap="round"/>
+        <circle cx="22" cy="5" r="3.5" fill="#B8973A"/>
+        <circle cx="22" cy="5" r="2" fill="#C9A84C"/>
+        <path d="M21.5 12 Q16 9 12 10.5 Q16 14 21.5 12Z" fill="url(#hL)"/>
+        <path d="M22.5 12 Q28 9 32 10.5 Q28 14 22.5 12Z" fill="url(#hR)"/>
+        <path d="M21.5 18 Q15 15 11 16.5 Q15 20.5 21.5 18Z" fill="url(#hL)"/>
+        <path d="M22.5 18 Q29 15 33 16.5 Q29 20.5 22.5 18Z" fill="url(#hR)"/>
+        <path d="M21.5 24 Q16 21 12 22.5 Q16 26.5 21.5 24Z" fill="url(#hL)"/>
+        <path d="M22.5 24 Q28 21 32 22.5 Q28 26.5 22.5 24Z" fill="url(#hR)"/>
+        <!-- thyme Text -->
+        <text x="42" y="25" font-family="Cormorant Garamond, Georgia, serif" font-size="22" font-weight="300" fill="#5C7F5D" letter-spacing="3">thyme</text>
+      </svg>
+    </div>
+    <div class="header-right">
+      <button class="fav-tab" id="fav-tab" onclick="toggleFavView()">
+        <span class="fav-tab-icon">★</span>
+        <span id="fav-tab-label">Favoriten</span>
+      </button>
+      <div id="mode-badge" class="mode-badge online">
+        <span class="mode-dot"></span>
+        <span id="mode-label">ONLINE</span>
+      </div>
+      <button class="header-icon-btn" onclick="showScreen('settings')" title="Einstellungen">&#9881;</button>
+    </div>
+  </div>
+  <div class="search-wrap" id="search-wrap">
+    <span class="search-icon">&#128269;</span>
+    <input class="search-input" id="search-input" oninput="onSearchInput()" placeholder="Rezept suchen">
+    <button class="search-clear" id="search-clear" onclick="clearSearch()">&#10005;</button>
+  </div>
+  <div id="cat-active-bar" style="display:none;align-items:center;justify-content:space-between;padding:10px 20px;border-bottom:1px solid #2E2416">
+    <button onclick="setActiveCat('all')" style="background:none;border:none;cursor:pointer;font-size:18px;color:#5C7F5D">&#8592;</button>
+    <span id="cat-active-name" style="font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:300;color:var(--bark);letter-spacing:2px"></span>
+    <div onclick="setActiveCat('all');showScreen('home')" style="cursor:pointer;display:flex;align-items:center;gap:5px">
+      <span style="font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:300;color:#B8973A;letter-spacing:3px">thyme</span>
+      <span style="font-size:13px;color:#B8973A;opacity:0.8">&#8962;</span>
+    </div>
+  </div>
+  <div class="cat-scroll" id="cat-scroll"></div>
+  <div id="book-cover" onclick="openCatSheet()" style="display:none"><div id="book-cover-inner">
+    <svg viewBox="0 0 340 300" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="bcL" x1="100%" y1="0%" x2="0%" y2="0%">
+          <stop offset="0%" stop-color="#3D5A3E"/><stop offset="100%" stop-color="#5C7F5D"/>
+        </linearGradient>
+        <linearGradient id="bcR" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#6B9E6E"/><stop offset="100%" stop-color="#9DC49D"/>
+        </linearGradient>
+        <linearGradient id="bcS" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#6B9E6E"/><stop offset="100%" stop-color="#9DC49D"/>
+        </linearGradient>
+      </defs>
+      <line x1="170" y1="190" x2="170" y2="105" stroke="#3D5A3E" stroke-width="2.8" stroke-linecap="round"/>
+      <circle cx="170" cy="97" r="7" fill="#B8973A"/>
+      <circle cx="170" cy="97" r="4.5" fill="#C9A84C"/>
+      <circle cx="170" cy="97" r="2" fill="#DDB85A"/>
+      <circle cx="161" cy="100" r="3.2" fill="#C9A84C"/>
+      <circle cx="180" cy="102" r="2.8" fill="#DDB85A" opacity="0.85"/>
+      <path d="M169 118 Q148 108 134 113 Q148 124 169 118Z" fill="url(#bcL)"/>
+      <path d="M171 118 Q192 106 206 111 Q192 122 171 118Z" fill="url(#bcR)"/>
+      <path d="M169 138 Q146 127 131 132 Q146 143 169 138Z" fill="url(#bcL)"/>
+      <path d="M171 138 Q194 126 209 131 Q194 142 171 138Z" fill="url(#bcR)"/>
+      <path d="M169 158 Q148 147 134 152 Q148 163 169 158Z" fill="url(#bcL)"/>
+      <path d="M171 158 Q192 146 206 151 Q192 162 171 158Z" fill="url(#bcR)"/>
+      <path d="M170 176 Q188 168 206 174" stroke="#5C7F5D" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+      <path d="M185 167 Q194 157 202 160 Q197 170 185 167Z" fill="url(#bcS)"/>
+      <path d="M196 172 Q205 163 212 167 Q207 176 196 172Z" fill="url(#bcS)"/>
+      <circle cx="213" cy="171" r="5" fill="#B8973A"/>
+      <circle cx="213" cy="171" r="3" fill="#C9A84C"/>
+      <circle cx="213" cy="171" r="1.5" fill="#DDB85A"/>
+      <line x1="85" y1="220" x2="255" y2="220" stroke="#C8BFAD" stroke-width="0.8"/>
+      <text x="170" y="258" text-anchor="middle" font-family="Cormorant Garamond, Georgia, serif" font-size="40" font-weight="300" fill="#B8973A" letter-spacing="6">thyme</text>
+      <text x="170" y="284" text-anchor="middle" font-family="DM Sans, Helvetica, sans-serif" font-size="8" font-weight="400" fill="#6B9E6E" letter-spacing="4">RECIPE ARCHIVE</text>
+    </svg>
+    </div><div id="book-cover-hint">Kategorie wählen</div>
+  </div>
+  <!-- ZULETZT VERWENDET -->
+  <div id="recent-section" style="display:none;padding:24px 20px 0">
+    <span style="font-size:9px;color:var(--smoke);letter-spacing:3px;text-transform:uppercase;margin-bottom:14px;display:block;opacity:0.7">Zuletzt verwendet</span>
+    <div id="recent-scroll" style="display:flex;gap:12px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none"></div>
+    <div style="height:1px;background:var(--border);margin:20px 0 0"></div>
+  </div>
+  <div id="recipe-grid" class="grid"></div>
+  <!-- FAB Bereich -->
+
+  <div class="fab-center-wrap">
+    <div class="fab-menu" id="fab-menu"><div class="fab-menu-panel">
+      <button class="fab-option" onclick="closeFabMenu();openAdd()">
+        <span class="fab-option-icon" style="width:20px;height:20px;display:inline-flex"><svg viewBox="0 0 40 40" fill="none" stroke="#B8973A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M24 10 L28 14 L16 26 L10 26 L10 20 Z"/><line x1="22" y1="12" x2="26" y2="16"/><line x1="8" y1="32" x2="32" y2="32"/></svg></span>
+        <span class="fab-option-label">Manuell</span>
+      </button>
+      <button class="fab-option" onclick="closeFabMenu();showScreen('scan')">
+        <span class="fab-option-icon" style="width:20px;height:20px;display:inline-flex"><svg viewBox="0 0 40 40" fill="none" stroke="#B8973A" stroke-width="1.5" stroke-linecap="round"><path d="M10 16 L10 10 L16 10"/><path d="M24 10 L30 10 L30 16"/><path d="M30 24 L30 30 L24 30"/><path d="M16 30 L10 30 L10 24"/><line x1="8" y1="20" x2="32" y2="20"/></svg></span>
+        <span class="fab-option-label">Scannen</span>
+      </button>
+      <button class="fab-option" onclick="closeFabMenu();showImportOption('url')">
+        <span class="fab-option-icon" style="width:20px;height:20px;display:inline-flex"><svg viewBox="0 0 40 40" fill="none" stroke="#B8973A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 22 Q14 18 16 13 Q18 8 24 10 L26 12"/><path d="M22 18 Q26 22 24 27 Q22 32 16 30 L14 28"/><line x1="17" y1="22" x2="23" y2="18"/></svg></span>
+        <span class="fab-option-label">URL</span>
+      </button>
+      <button class="fab-option" onclick="closeFabMenu();showImportOption('file')">
+        <span class="fab-option-icon" style="width:20px;height:20px;display:inline-flex"><svg viewBox="0 0 40 40" fill="none" stroke="#B8973A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 34 L12 8 Q12 6 14 6 L24 6 L28 10 L28 34 Q28 36 26 36 L14 36 Q12 36 12 34Z"/><path d="M24 6 L24 10 L28 10"/><text x="20" y="26" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="7" fill="#B8973A" stroke="none" letter-spacing="0.5">PDF</text></svg></span>
+        <span class="fab-option-label">Datei / PDF</span>
+      </button>
+    </div></div>
+    <button class="fab-plus" id="fab-plus" onclick="toggleFabMenu()" title="Hinzufuegen">
+      <span class="fab-plus-icon" id="fab-plus-icon">+</span>
+      <span id="fab-plus-label">Rezept hinzufügen</span>
+    </button>
+  </div>
+  <div class="fab-overlay" id="fab-overlay" onclick="closeFabMenu()"></div>
+</div>
+
+<!-- DETAIL -->
+<div id="screen-detail" class="screen">
+  <div class="sub-header">
+    <button class="back-btn" onclick="goBack()" style="font-size:18px;color:#5C7F5D">&#8592;</button>
+    <span class="sub-title" id="detail-header-title"></span>
+    <div class="app-name-small" onclick="showScreen('home')" style="cursor:pointer;display:flex;align-items:center;gap:6px;justify-content:flex-end;width:80px"><span style="font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:300;color:#B8973A;letter-spacing:4px">thyme</span><span style="font-size:13px;color:#B8973A;opacity:0.7">&#8962;</span></div>
+  </div>
+  <div class="detail-body" id="detail-body"></div>
+</div>
+
+<!-- ADD/EDIT -->
+<div id="screen-add" class="screen">
+  <div class="sub-header">
+    <button class="back-btn" id="form-back-btn" style="font-size:18px;color:#5C7F5D">&#8592;</button>
+    <span class="sub-title" id="form-screen-title">Neues Rezept</span>
+    <div onclick="showScreen('home')" style="cursor:pointer;display:flex;align-items:center;gap:6px;justify-content:flex-end;width:80px"><span style="font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:300;color:#B8973A;letter-spacing:4px">thyme</span><span style="font-size:13px;color:#B8973A;opacity:0.7">&#8962;</span></div>
+  </div>
+  <div class="form-body">
+    <div class="form-group">
+      <label class="form-label">Titel</label>
+      <input class="form-input" id="f-title" placeholder="Rezeptname...">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Kategorie</label>
+      <div class="cat-picker" id="cat-picker"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Portionen</label>
+        <input class="form-input" id="f-portions" placeholder="4 Personen">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Zeit</label>
+        <input class="form-input" id="f-time" placeholder="45 Min">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Zutaten</label>
+      <div id="f-ingredients-list"></div>
+      <button class="add-ing-btn" onclick="addIngredientRow()">+ Zutat hinzufuegen</button>
+      <input type="hidden" id="f-ingredients">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Zubereitung</label>
+      <textarea class="form-input" id="f-instructions" rows="7" placeholder="Schritt fuer Schritt..."></textarea>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Notizen</label>
+      <textarea class="form-input" id="f-notes" rows="3" placeholder="Tipps, Variationen..."></textarea>
+    </div>
+    <div class="form-actions">
+      <button class="btn-cancel" id="form-cancel-btn">Abbrechen</button>
+      <button class="btn-save" onclick="saveRecipe()">&#128190; Speichern</button>
+    </div>
+  </div>
+</div>
+
+<!-- SCAN -->
+<div id="screen-scan" class="screen">
+  <div class="sub-header">
+    <button class="back-btn" onclick="showScreen('home')" style="font-size:18px;color:#5C7F5D">&#8592;</button>
+    <span class="sub-title">Rezept scannen</span>
+    <div onclick="showScreen('home')" style="cursor:pointer;display:flex;align-items:center;gap:6px;justify-content:flex-end;width:80px"><span style="font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:300;color:#B8973A;letter-spacing:4px">thyme</span><span style="font-size:13px;color:#B8973A;opacity:0.7">&#8962;</span></div>
+  </div>
+  <div class="form-body">
+    <div id="scan-offline-notice" class="notice" style="display:none">
+      &#9888;&#65039; Scan benoetigt Internetverbindung und Claude API Key.
+    </div>
+    <div class="upload-box" id="scan-upload-box">
+      <div style="font-size:48px">&#128444;&#65039;</div>
+      <p>Foto eines handgeschriebenen oder gedruckten Rezepts auswaehlen</p>
+      <label class="file-btn">
+        &#128247; Foto auswaehlen
+        <input type="file" accept="image/*" capture="environment" style="display:none" onchange="handleScan(this)">
+      </label>
+    </div>
+    <img id="scan-preview" class="scan-preview" style="display:none">
+    <div id="scan-status" class="scanning-box" style="display:none">
+      <span class="spinner">&#8987;</span>
+      Claude liest dein Rezept...
+    </div>
+    <div id="scan-form" style="display:none">
+      <div class="form-group">
+        <label class="form-label">Kategorie</label>
+        <div class="cat-picker" id="scan-cat-picker"></div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Titel</label>
+        <input class="form-input" id="sf-title">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Portionen</label>
+          <input class="form-input" id="sf-portions">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Zeit</label>
+          <input class="form-input" id="sf-time">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Zutaten</label>
+        <textarea class="form-input" id="sf-ingredients" rows="7"></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Zubereitung</label>
+        <textarea class="form-input" id="sf-instructions" rows="6"></textarea>
+      </div>
+      <div class="form-actions">
+        <button class="btn-cancel" onclick="showScreen('home')">Abbrechen</button>
+        <button class="btn-save" onclick="saveScan()">&#128190; Speichern</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- IMPORT -->
+<div id="screen-import" class="screen">
+  <div class="sub-header">
+    <button class="back-btn" onclick="showScreen('home')" style="font-size:18px;color:#5C7F5D">&#8592;</button>
+    <span class="sub-title">Importieren</span>
+    <div onclick="showScreen('home')" style="cursor:pointer;display:flex;align-items:center;gap:6px;justify-content:flex-end;width:80px"><span style="font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:300;color:#B8973A;letter-spacing:4px">thyme</span><span style="font-size:13px;color:#B8973A;opacity:0.7">&#8962;</span></div>
+  </div>
+  <div class="form-body">
+    <div id="import-offline-notice" class="notice" style="display:none">
+      &#9888;&#65039; Import benoetigt Internetverbindung.
+    </div>
+    <div class="import-section">
+      <span class="form-label">&#127760; Von URL importieren</span>
+      <p class="import-desc">Rezept-URL eingeben -- App extrahiert alles automatisch</p>
+      <input class="form-input" id="import-url" type="url" placeholder="https://...">
+      <button class="btn-import" id="import-url-btn" onclick="importFromUrl()">&#127760; URL importieren</button>
+    </div>
+    <div class="import-section">
+      <span class="form-label">&#128206; Textdatei importieren</span>
+      <p class="import-desc">Textdatei (.txt) importieren</p>
+      <div class="upload-box">
+        <div style="font-size:40px;margin-bottom:10px">&#128206;</div>
+        <label class="file-btn btn-import-secondary">
+          Datei auswaehlen
+          <input type="file" accept=".txt" style="display:none" onchange="handleFileImport(this)">
+        </label>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- KATEGORIEN -->
+<div id="screen-cats" class="screen">
+  <div class="sub-header">
+    <button class="back-btn" onclick="showScreen('home')" style="font-size:18px;color:#5C7F5D">&#8592;</button>
+    <span class="sub-title">Kategorien</span>
+    <div onclick="showScreen('home')" style="cursor:pointer;display:flex;align-items:center;gap:6px;justify-content:flex-end;width:80px"><span style="font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:300;color:#B8973A;letter-spacing:4px">thyme</span><span style="font-size:13px;color:#B8973A;opacity:0.7">&#8962;</span></div>
+  </div>
+  <div class="form-body">
+    <div id="cat-list"></div>
+    <div class="form-group" style="margin-top:24px">
+      <label class="form-label">Neue Kategorie</label>
+      <div class="new-cat-row">
+        <input class="form-input" id="new-cat-emoji" placeholder="&#127869;" maxlength="4" style="width:64px;text-align:center">
+        <input class="form-input" id="new-cat-name" placeholder="Kategoriename" style="flex:1">
+      </div>
+    </div>
+    <button class="btn-save" onclick="addCategory()" style="width:100%;margin-top:8px">+ Kategorie hinzufuegen</button>
+  </div>
+</div>
+
+<!-- EINSTELLUNGEN -->
+<div id="screen-settings" class="screen">
+  <div class="sub-header">
+    <button class="back-btn" onclick="showScreen('home')" style="font-size:18px;color:#5C7F5D">&#8592;</button>
+    <span class="sub-title">Einstellungen</span>
+    <div onclick="showScreen('home')" style="cursor:pointer;display:flex;align-items:center;gap:6px;justify-content:flex-end;width:80px"><span style="font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:300;color:#B8973A;letter-spacing:4px">thyme</span><span style="font-size:13px;color:#B8973A;opacity:0.7">&#8962;</span></div>
+  </div>
+  <div class="form-body">
+    <div class="settings-section">
+      <h3>&#128273; Claude API Key</h3>
+      <p style="font-size:13px;color:#888;margin-bottom:10px">Benoetigt fuer Scan und URL-Import. Wird sicher lokal gespeichert.</p>
+      <input class="form-input" id="claude-key-input" type="password" placeholder="sk-ant-...">
+      <div id="claude-key-status" class="key-status missing">&#9888; Kein Key hinterlegt</div>
+      <div style="display:flex;gap:10px;margin-top:12px">
+        <button class="btn-save" onclick="saveClaudeKey()">Speichern</button>
+        <button class="btn-cancel" onclick="clearClaudeKey()">Loeschen</button>
+      </div>
+    </div>
+    <div class="settings-section">
+      <h3>&#128260; Synchronisation</h3>
+      <p style="font-size:13px;color:#888;margin-bottom:10px">Daten werden lokal gespeichert und bei Internetverbindung mit der Cloud synchronisiert.</p>
+      <button class="btn-import" onclick="syncNow()">&#8635; Jetzt synchronisieren</button>
+    </div>
+    <div class="settings-section">
+      <h3>&#127763; Darstellung</h3>
+      <button id="theme-toggle-btn" onclick="toggleTheme()" style="width:100%;background:transparent;border:1px solid var(--border);border-radius:8px;padding:12px;font-size:13px;color:var(--bark);cursor:pointer;font-family:'DM Sans',sans-serif;letter-spacing:1px;text-align:left">☀️ &nbsp;Hellmodus aktivieren</button>
+    </div>
+    <div class="settings-section">
+      <h3>&#128241; Als App installieren (iPhone/iPad)</h3>
+      <p style="font-size:13px;color:#888">In Safari: Teilen-Button &#128085; antippen dann "Zum Home-Bildschirm" auswaehlen.</p>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<script>
+
+// ─── TOAST & CONFIRM ───────────────────────────────────────────────────────
+var _toastTimer = null;
+function showToast(msg, type, duration) {
+  var el = document.getElementById('toast');
+  if (!el) return;
+  el.textContent = msg;
+  el.className = 'show' + (type ? ' ' + type : '');
+  if (_toastTimer) clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(function() { el.className = ''; }, duration || 2800);
+}
+
+var _confirmCallback = null;
+function showConfirm(msg, okLabel, cb) {
+  document.getElementById('confirm-msg').textContent = msg;
+  document.getElementById('confirm-ok').textContent = okLabel || 'Löschen';
+  _confirmCallback = cb;
+  document.getElementById('confirm-overlay').classList.add('open');
+}
+function closeConfirm() {
+  document.getElementById('confirm-overlay').classList.remove('open');
+  _confirmCallback = null;
+}
+document.addEventListener('DOMContentLoaded', function() {
+  document.getElementById('confirm-ok').addEventListener('click', function() {
+    closeConfirm();
+    if (_confirmCallback) _confirmCallback();
+  });
+  document.getElementById('confirm-overlay').addEventListener('click', function(e) {
+    if (e.target === this) closeConfirm();
+  });
+});
+
+
+// ─── CLAUDE API (direkt, kein Proxy nötig) ────────────────────────────────
+async function callClaude(payload) {
+  const key = getClaudeKey();
+  if (!key) { showToast('Bitte API Key in Einstellungen hinterlegen', 'error'); showScreen('settings'); throw new Error('Kein API Key'); }
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': key,
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-access': 'true'
+    },
+    body: JSON.stringify(payload)
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error?.message || 'API Fehler ' + res.status);
+  }
+  return res.json();
+}
+
+
+
+// ─── KONFIGURATION ─────────────────────────────────────────────────────────
+const SUPABASE_URL  = 'https://gzfthrcubvafdkgacrkn.supabase.co';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd6ZnRocmN1YnZhZmRrZ2FjcmtuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU1NzA5NzMsImV4cCI6MjA5MTE0Njk3M30.-4uUhFwlGz3xhXkKwGPWZukeQ1REhLKyP-QezwcPVqc';
+
+function getClaudeKey() { return localStorage.getItem('thyme_claude_key') || ''; }
+
+function saveClaudeKey() {
+  const k = document.getElementById('claude-key-input').value.trim();
+  if (!k) return;
+  localStorage.setItem('thyme_claude_key', k);
+  document.getElementById('claude-key-input').value = '';
+  updateKeyStatus();
+  showToast('API Key gespeichert', 'success');
+}
+
+function clearClaudeKey() {
+  showConfirm('API Key wirklich löschen?', 'Löschen', function() { localStorage.removeItem('thyme_claude_key'); updateKeyStatus(); });
+}
+
+function updateKeyStatus() {
+  const el = document.getElementById('claude-key-status');
+  if (!el) return;
+  if (getClaudeKey()) {
+    el.textContent = 'Key gespeichert (sk-ant-***)';
+    el.className = 'key-status ok';
+  } else {
+    el.textContent = 'Kein Key hinterlegt';
+    el.className = 'key-status missing';
+  }
+}
+
+// ─── STANDARD-KATEGORIEN ───────────────────────────────────────────────────
+const DEFAULT_CATS = [
+  {id:'c1',name:'Snacks',emoji:'&#127823;',color:'#B8973A',sort_order:1},
+  {id:'c2',name:'Vorspeisen',emoji:'&#127807;',color:'#7A9E5C',sort_order:2},
+  {id:'c3',name:'Suppen',emoji:'&#127836;',color:'#5C8A7A',sort_order:3},
+  {id:'c4',name:'Fleisch',emoji:'&#129385;',color:'#8B4A3A',sort_order:4},
+  {id:'c5',name:'Fisch',emoji:'&#128031;',color:'#3A6B8C',sort_order:5},
+  {id:'c6',name:'Gefluegel',emoji:'&#128020;',color:'#A0864A',sort_order:6},
+  {id:'c7',name:'Gemuese',emoji:'&#129382;',color:'#4A7A3D',sort_order:7},
+  {id:'c8',name:'Vegetarisch',emoji:'&#127807;',color:'#5C7F5D',sort_order:8},
+  {id:'c9',name:'Pasta & Risotto',emoji:'&#127837;',color:'#9E7A3A',sort_order:9},
+  {id:'c10',name:'Backen & Patisserie',emoji:'&#127874;',color:'#7A5C3A',sort_order:10},
+  {id:'c11',name:'Desserts',emoji:'&#127856;',color:'#8C4A6B',sort_order:11},
+  {id:'c12',name:'Fruehstueck',emoji:'&#129379;',color:'#C4954A',sort_order:12},
+  {id:'c13',name:'Getraenke & Cocktails',emoji:'&#127864;',color:'#4A6B8C',sort_order:13},
+  {id:'c14',name:'Saucen & Fonds',emoji:'&#129474;',color:'#6B7A3A',sort_order:14},
+  {id:'c15',name:'Salate',emoji:'&#127825;',color:'#3D7A5A',sort_order:15},
+  {id:'c16',name:'Hauptgang',emoji:'&#127869;',color:'#3D5A3E',sort_order:16}
+];
+
+// ─── STATE ─────────────────────────────────────────────────────────────────
+let recipes = [], categories = [], activeCat = 'all', lang = 'de';
+var _prevCat = null; // Kategorie vor Rezept-Öffnen
+let currentRecipe = null, editId = null, scanCat = '';
+let isOnline = navigator.onLine, db = null;
+
+// ─── LOKALER SPEICHER ──────────────────────────────────────────────────────
+function localLoad() {
+  try {
+    const r = localStorage.getItem('thyme_recipes');
+    const c = localStorage.getItem('thyme_categories');
+    recipes = r ? JSON.parse(r) : [];
+    categories = c ? JSON.parse(c) : DEFAULT_CATS;
+  } catch(e) { recipes = []; categories = DEFAULT_CATS; }
+}
+
+function localSave() {
+  try {
+    localStorage.setItem('thyme_recipes', JSON.stringify(recipes));
+    localStorage.setItem('thyme_categories', JSON.stringify(categories));
+  } catch(e) { console.warn('Speicher voll:', e); }
+}
+
+// ─── CLOUD SYNC ────────────────────────────────────────────────────────────
+async function syncToCloud() {
+  if (!db || !isOnline) return;
+  try {
+    const [rRes, cRes] = await Promise.all([
+      db.from('recipes').select('*').order('created_at', {ascending: false}),
+      db.from('categories').select('*').order('sort_order')
+    ]);
+    if (rRes.data) recipes = rRes.data;
+    if (cRes.data && cRes.data.length > 0) categories = cRes.data;
+    localSave();
+    var savedCat = activeCat; var savedPrevCat = _prevCat; renderCatScroll(); activeCat = savedCat; _prevCat = savedPrevCat; renderGrid(); renderCatList(); renderCatPicker('');
+  } catch(e) { console.warn('Sync Fehler:', e); }
+}
+
+async function syncNow() {
+  if (!isOnline) { showToast('Keine Internetverbindung', 'error'); return; }
+  if (!db) { showToast('Cloud nicht verfügbar', 'error'); return; }
+  await syncToCloud();
+  showToast('Synchronisation abgeschlossen', 'success');
+}
+
+// ─── ONLINE/OFFLINE ────────────────────────────────────────────────────────
+function updateModeBadge() {
+  const badge = document.getElementById('mode-badge');
+  const label = document.getElementById('mode-label');
+  if (!badge) return;
+  badge.className = 'mode-badge ' + (isOnline ? 'online' : 'offline');
+  label.textContent = isOnline ? 'ONLINE' : 'OFFLINE';
+  const sn = document.getElementById('scan-offline-notice');
+  const in2 = document.getElementById('import-offline-notice');
+  if (sn) sn.style.display = isOnline ? 'none' : 'block';
+  if (in2) in2.style.display = isOnline ? 'none' : 'block';
+}
+
+window.addEventListener('online',  () => { isOnline = true;  updateModeBadge(); if (db) syncToCloud(); });
+window.addEventListener('offline', () => { isOnline = false; updateModeBadge(); });
+
+// ─── INIT ──────────────────────────────────────────────────────────────────
+async function init() {
+  applyTheme();
+  isOnline = navigator.onLine;
+  showSplash();
+  localLoad();
+  renderCatScroll(); renderGrid(); renderCatList(); renderCatPicker('');
+  updateKeyStatus(); updateModeBadge();
+
+  if (isOnline && typeof supabase !== 'undefined' && supabase.createClient) {
+    try {
+      db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+      await syncToCloud();
+    } catch(e) { console.warn('Supabase nicht verfuegbar:', e); db = null; }
+  }
+}
+
+// ─── NAVIGATION ────────────────────────────────────────────────────────────
+function showScreen(name) {
+  if (name === 'home') {
+    activeCat = 'all';
+    _prevCat = null;
+    renderGrid();
+    setTimeout(function() { renderRecent(); }, 80);
+  }
+  document.querySelectorAll('.screen').forEach(function(s) {
+    s.classList.remove('active');
+    s.classList.remove('animating');
+    s.style.transition = '';
+    s.style.opacity = '';
+    s.style.transform = '';
+  });
+  var next = document.getElementById('screen-' + name);
+  if (next) {
+    // Sofort sichtbar setzen — Animation als Enhancement
+    next.classList.add('active');
+    next.style.opacity = '0';
+    next.style.transform = 'translateY(10px)';
+    requestAnimationFrame(function() {
+      requestAnimationFrame(function() {
+        next.style.transition = 'opacity .28s ease, transform .28s cubic-bezier(.2,0,.2,1)';
+        next.style.opacity = '1';
+        next.style.transform = 'translateY(0)';
+      });
+    });
+  }
+  window.scrollTo(0, 0);
+  if (name === 'scan') resetScan();
+  if (name === 'cats') renderCatList();
+  if (name === 'settings') updateKeyStatus();
+  updateModeBadge();
+}
+
+function toggleLang() {
+  lang = lang === 'de' ? 'en' : 'de';
+  document.getElementById('lang-btn').textContent = lang === 'de' ? 'EN' : 'DE';
+  document.getElementById('tagline-text').textContent = lang === 'de' ? 'Dein Rezept-Archiv' : 'Your Recipe Archive';
+  document.getElementById('search-input').placeholder = lang === 'de' ? 'Rezepte durchsuchen...' : 'Search recipes...';
+}
+
+// ─── KATEGORIEN LEISTE ─────────────────────────────────────────────────────
+function renderCatScroll() {
+  const all = [{id:'all', name: lang === 'de' ? 'Alle' : 'All', emoji:'&#127869;'}, ...categories];
+  document.getElementById('cat-scroll').innerHTML = all.map(c =>
+    '<button class="pill ' + (activeCat === c.id ? 'active' : '') + '" onclick="setActiveCat(\'' + c.id + '\')">' + c.name + '</button>'
+  ).join('');
+}
+
+function setActiveCat(id) { activeCat = id; renderCatScroll(); renderGrid(); }
+
+// ─── GRID ──────────────────────────────────────────────────────────────────
+function renderGrid() {
+  const search = (document.getElementById('search-input').value || '').toLowerCase();
+  const catName = (categories.find(c => c.id === activeCat) || {}).name;
+  const filtered = recipes.filter(r =>
+    (activeCat === 'all' || r.category === catName)
+    && r.title.toLowerCase().includes(search)
+    && (!showingFavs || r.favorite)
+  );
+  const el = document.getElementById('recipe-grid');
+  const cover = document.getElementById('book-cover');
+  // Buchcover: sichtbar wenn keine Kategorie + keine Suche + keine Favoriten-Ansicht
+  const showCover = activeCat === 'all' && !search && !showingFavs;
+  if (cover) cover.style.display = showCover ? 'flex' : 'none';
+  if (showCover) { renderRecent(); } else { var rs = document.getElementById('recent-section'); if (rs) rs.style.display = 'none'; }
+  // Cat active bar
+  var catBar = document.getElementById('cat-active-bar');
+  var catBarName = document.getElementById('cat-active-name');
+  if (catBar) {
+    if (!showCover) {
+      catBar.style.display = 'flex';
+      var activeCatObj = categories.find(function(c) { return c.id === activeCat; });
+      if (catBarName) catBarName.textContent = activeCatObj ? activeCatObj.name : (search ? 'Suche' : '');
+    } else {
+      catBar.style.display = 'none';
+    }
+  }
+  // Rezepte: nur zeigen wenn Kategorie gewählt oder Suche aktiv
+  if (showCover) { el.innerHTML = ''; return; }
+  if (!filtered.length) {
+    var emptyMsg = showingFavs
+      ? '<div class="empty" style="padding:60px 20px"><div style="font-size:32px;margin-bottom:12px">★</div><div>Noch keine Favoriten</div><div style="font-size:12px;margin-top:8px;letter-spacing:1px">Rezept öffnen und ★ antippen</div></div>'
+      : '<div class="empty">Keine Rezepte gefunden.</div>';
+    el.innerHTML = emptyMsg;
+    return;
+  }
+  el.innerHTML = '';
+  filtered.forEach(r => {
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.dataset.color = r.color || '#3D5A3E';
+    var isFav = r.favorite ? true : false;
+    var thumbHtml = r.photo
+      ? '<img class="card-thumb" src="' + r.photo + '" alt="">'
+      : '<div class="card-thumb-placeholder" style="border-left-color:' + (r.color || '#3D5A3E') + '"></div>';
+    card.innerHTML = thumbHtml
+      + '<div class="card-body">'
+      + '<div class="card-title">' + r.title + '</div>'
+      + '<span class="badge">' + (r.category || '') + '</span>'
+      + '</div>'
+      + '<button class="fav-btn ' + (isFav ? 'active' : 'inactive') + '" data-id="' + r.id + '" onclick="event.stopPropagation();toggleFavorite(this,&quot;' + r.id + '&quot;)">' + (isFav ? '&#9733;' : '&#9734;') + '</button>'
+      + '<span class="card-arrow">›</span>';
+    (function(recipe, cat) {
+      card.addEventListener('click', function() {
+        haptic('light');
+        _prevCat = cat;
+        openDetail(recipe);
+      });
+    })(r, activeCat);
+    el.appendChild(card);
+  });
+}
+
+// ─── DETAIL ────────────────────────────────────────────────────────────────
+function openDetail(r) {
+  currentRecipe = r;
+  addToRecent(r.id);
+  document.getElementById('detail-header-title').textContent = r.title;
+  var bar = document.getElementById('detail-stripe-bar');
+  if (bar) { bar.style.background = r.color || '#3D5A3E'; bar.style.display = 'block'; }
+  var ings = (r.ingredients || []).map(function(i) {
+    return '<div class="ingredient">' + formatIngredientDisplay(i) + '</div>';
+  }).join('');
+  // Portionen-Rechner
+  var basePortions = 1;
+  var portionsStr = r.portions ? String(r.portions) : '';
+  var portionsMatch = portionsStr.match(/(\d+(?:\.\d+)?)/);
+  if (portionsMatch) basePortions = parseFloat(portionsMatch[1]);
+  if (basePortions < 1) basePortions = 1;
+  window._currentRecipePortions = basePortions;
+  window._basePortions = basePortions;
+  window._baseIngredients = r.ingredients || [];
+
+  var hasIngredients = (r.ingredients && r.ingredients.length > 0);
+  let chips = '<div class="meta-chips">';
+  chips += '<div class="portions-wrap">'
+    + '<span class="portions-label">Portionen</span>'
+    + '<div class="portions-ctrl">'
+    + '<button class="portions-btn" onclick="changePortions(-1)" style="font-size:20px">&#8722;</button>'
+    + '<div class="portions-divider"></div>'
+    + '<div class="portions-center">'
+    + '<span class="portions-num" id="portions-display">' + basePortions + '</span>'
+    + '</div>'
+    + '<div class="portions-divider"></div>'
+    + '<button class="portions-btn" onclick="changePortions(1)" style="font-size:20px">&#43;</button>'
+    + '</div>'
+    + '</div>';
+  if (r.time) chips += '<div class="portions-wrap"><span class="portions-label">Zeit</span><span class="meta-chip" style="border-radius:12px;height:48px;display:flex;align-items:center">&#9201; ' + r.time + '</span></div>';
+  chips += '</div>';
+  var photoHtml = '';
+  if (currentRecipe && currentRecipe.photo) {
+    photoHtml = '<img class="recipe-hero" id="recipe-photo-el" src="' + currentRecipe.photo + '">';
+  } else {
+    photoHtml = '<div class="recipe-hero-placeholder" id="recipe-photo-placeholder" onclick="addPhotoToRecipe()"><span>+ Foto hinzufügen</span></div>';
+  }
+  document.getElementById('detail-body').innerHTML =
+    photoHtml + '<span class="detail-emoji"' + (r.emoji || '&#127869;') + '</span>'
+    + '<div class="detail-title">' + r.title + '</div>'
+    + '<div class="detail-meta" style="display:flex;align-items:center;gap:10px">'
+    + '<span>' + (r.category || '') + ' &middot; ' + (r.source || '') + '</span>'
+    + '<button class="fav-btn ' + (r.favorite ? 'active' : 'inactive') + '" id="detail-fav-btn" onclick="toggleFavorite(this,&quot;' + r.id + '&quot;)" style="font-size:20px;padding:0">' + (r.favorite ? '&#9733;' : '&#9734;') + '</button>'
+    + '</div>'
+    + chips
+    + (ings ? '<span class="section-label">Zutaten</span><div id="ingredients-list">' + ings + '</div>' : '')
+    + (r.instructions ? '<span class="section-label">Zubereitung</span><div class="instructions-text">' + r.instructions + '</div>' : '')
+    + (r.notes ? '<span class="section-label">Notizen</span><div class="notes-text">' + r.notes + '</div>' : '')
+    + '<div class="detail-actions">'
+    + '<button class="detail-actions-btn" id="detail-menu-btn">&#8943; &nbsp; Aktionen</button>'
+    + '</div>';
+  document.getElementById('detail-menu-btn').addEventListener('click', function() { openActionSheet(); });
+  showScreen('detail');
+}
+
+// ─── FORMULAR ──────────────────────────────────────────────────────────────
+function openAdd() {
+  editId = null;
+  document.getElementById('form-screen-title').textContent = 'Neues Rezept';
+  ['f-title','f-portions','f-time','f-instructions','f-notes'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  loadIngredientsIntoForm([]);
+  renderCatPicker(categories.length ? categories[0].name : '');
+  document.getElementById('form-back-btn').onclick = () => showScreen('home');
+  document.getElementById('form-cancel-btn').onclick = () => showScreen('home');
+  showScreen('add');
+}
+
+function openEdit(r) {
+  editId = r.id;
+  document.getElementById('form-screen-title').textContent = 'Bearbeiten';
+  document.getElementById('f-title').value = r.title || '';
+  document.getElementById('f-portions').value = r.portions || '';
+  document.getElementById('f-time').value = r.time || '';
+  document.getElementById('f-instructions').value = r.instructions || '';
+  document.getElementById('f-notes').value = r.notes || '';
+  loadIngredientsIntoForm(r.ingredients || []);
+  renderCatPicker(r.category || '');
+  document.getElementById('form-back-btn').onclick = () => openDetail(r);
+  document.getElementById('form-cancel-btn').onclick = () => openDetail(r);
+  showScreen('add');
+}
+
+function renderCatPicker(selected) {
+  document.getElementById('cat-picker').innerHTML = categories.map(c =>
+    '<button class="pill ' + (selected === c.name ? 'active' : '') + '" onclick="selectPill(this,\'cat-picker\')">' + c.name + '</button>'
+  ).join('');
+}
+
+function selectPill(btn, pickerId) {
+  document.querySelectorAll('#' + pickerId + ' .pill').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+async function saveRecipe() {
+  const title = document.getElementById('f-title').value.trim();
+  if (!title) { showToast('Bitte Rezeptname eingeben', 'error'); return; }
+  const activePill = document.querySelector('#cat-picker .pill.active');
+  const categoryName = activePill
+    ? ((categories.find(c => activePill.textContent.includes(c.name)) || categories[0] || {}).name || '')
+    : (categories.length ? categories[0].name : '');
+  const cat = categories.find(c => c.name === categoryName) || {};
+  const ingData = getIngredients().map(function(s){ try{ var o=JSON.parse(s); return {amount:o.a,unit:o.u,name:o.n}; }catch(e){ return {amount:"",unit:"",name:s}; } });
+  const payload = {
+    title, category: categoryName,
+    emoji: cat.emoji || '&#127869;',
+    color: cat.color || '#3D5A3E',
+    source: editId ? ((currentRecipe || {}).source || 'Manuell') : 'Manuell',
+    portions: document.getElementById('f-portions').value,
+    time: document.getElementById('f-time').value,
+    ingredients: ingData.map(function(i) { return JSON.stringify({a: i.amount ? String(i.amount) : '', u: i.unit, n: i.name}); }),
+    instructions: document.getElementById('f-instructions').value,
+    notes: document.getElementById('f-notes').value
+  };
+
+  if (editId) {
+    recipes = recipes.map(r => r.id === editId ? Object.assign({}, r, payload) : r);
+    localSave();
+    if (db && isOnline) db.from('recipes').update(payload).eq('id', editId).select();
+  } else {
+    const tempId = 'local-' + Date.now();
+    const newR = Object.assign({id: tempId, created_at: new Date().toISOString()}, payload);
+    recipes = [newR, ...recipes];
+    localSave();
+    if (db && isOnline) {
+      db.from('recipes').insert([payload]).select().then(res => {
+        if (res.data && res.data[0]) {
+          recipes = recipes.map(r => r.id === tempId ? res.data[0] : r);
+          localSave();
+        }
+      });
+    }
+  }
+  renderGrid(); showScreen('home');
+}
+
+async function deleteRecipe(id) {
+  showConfirm('Rezept wirklich löschen?', 'Löschen', function() { recipes = recipes.filter(r => r.id !== id); localSave(); if (db && isOnline) db.from('recipes').delete().eq('id', id); renderGrid(); showScreen('home'); });
+}
+
+// ─── SCAN MIT CLAUDE (direktes Bild-Upload) ────────────────────────────────
+function resetScan() {
+  document.getElementById('scan-upload-box').style.display = 'block';
+  document.getElementById('scan-preview').style.display = 'none';
+  document.getElementById('scan-status').style.display = 'none';
+  document.getElementById('scan-form').style.display = 'none';
+  updateModeBadge();
+}
+
+async function handleScan(input) {
+  const file = input.files[0];
+  if (!file) return;
+  if (!isOnline) { showToast('Scan benötigt Internetverbindung', 'error'); return; }
+  if (!getClaudeKey()) { showToast('Bitte API Key in Einstellungen hinterlegen', 'error'); showScreen('settings'); return; }
+
+  document.getElementById('scan-upload-box').style.display = 'none';
+  const preview = document.getElementById('scan-preview');
+  preview.src = URL.createObjectURL(file);
+  preview.style.display = 'block';
+  document.getElementById('scan-status').style.display = 'block';
+
+  const reader = new FileReader();
+  reader.onload = async function(e) {
+    const base64 = e.target.result.split(',')[1];
+    const mediaType = file.type || 'image/jpeg';
+    try {
+      const d = await callClaude({
+          model: 'claude-haiku-4-5-20251001',
+          max_tokens: 1500,
+          messages: [{
+            role: 'user',
+            content: [
+              { type: 'image', source: { type: 'base64', media_type: mediaType, data: base64 } },
+              { type: 'text', text: 'Lies dieses Rezept-Foto (handgeschrieben oder gedruckt, auf Deutsch, Franzoesisch, Italienisch oder Englisch) und extrahiere alle Informationen. Antworte NUR mit JSON, kein Markdown, keine Erklaerungen:\n{"title":"...","category":"...","emoji":"...","portions":"...","time":"...","ingredients":"Zutat 1\\nZutat 2\\n...","instructions":"Schritt 1.\\nSchritt 2.","notes":""}\n\nKategorie muss eine von diesen sein: Snacks, Vorspeisen, Suppen, Fleisch, Fisch, Gefluegel, Gemuese, Vegetarisch, Pasta & Risotto, Backen & Patisserie, Desserts, Fruehstueck, Getraenke & Cocktails, Saucen & Fonds, Salate, Hauptgang\n\nWaehle ein passendes Emoji fuer das Gericht.' }
+            ]
+          }]
+        });
+      if (!d.content || !d.content[0]) throw new Error('Keine Antwort vom Server');
+      const raw = d.content[0].text.replace(/```json|```/g, '').trim();
+      const r = JSON.parse(raw);
+      scanCat = r.category || '';
+      document.getElementById('sf-title').value = r.title || '';
+      document.getElementById('sf-portions').value = r.portions || '';
+      document.getElementById('sf-time').value = r.time || '';
+      document.getElementById('sf-ingredients').value = r.ingredients || '';
+      document.getElementById('sf-instructions').value = r.instructions || '';
+      document.getElementById('scan-cat-picker').innerHTML = categories.map(c =>
+        '<button class="pill ' + (scanCat === c.name ? 'active' : '') + '" onclick="scanCat=\'' + c.name + '\';selectPill(this,\'scan-cat-picker\')">' + c.name + '</button>'
+      ).join('');
+      document.getElementById('scan-status').style.display = 'none';
+      document.getElementById('scan-form').style.display = 'block';
+    } catch(err) {
+      document.getElementById('scan-status').style.display = 'none';
+      showToast('Fehler: ' + err.message, 'error');
+      resetScan();
+    }
+  };
+  reader.readAsDataURL(file);
+}
+
+async function saveScan() {
+  const title = document.getElementById('sf-title').value.trim();
+  if (!title) { showToast('Bitte Titel eingeben', 'error'); return; }
+  const cat = categories.find(c => c.name === scanCat) || {};
+  const payload = {
+    title, category: scanCat,
+    emoji: cat.emoji || '&#127869;',
+    color: cat.color || '#B8973A',
+    source: 'Scan',
+    portions: document.getElementById('sf-portions').value,
+    time: document.getElementById('sf-time').value,
+    ingredients: document.getElementById('sf-ingredients').value.split('\n').filter(l => l.trim()),
+    instructions: document.getElementById('sf-instructions').value,
+    notes: ''
+  };
+  const tempId = 'local-' + Date.now();
+  recipes = [Object.assign({id: tempId, created_at: new Date().toISOString()}, payload), ...recipes];
+  localSave();
+  if (db && isOnline) {
+    db.from('recipes').insert([payload]).select().then(res => {
+      if (res.data && res.data[0]) {
+        recipes = recipes.map(r => r.id === tempId ? res.data[0] : r);
+        localSave();
+      }
+    });
+  }
+  renderGrid(); showScreen('home');
+}
+
+// ─── IMPORT ────────────────────────────────────────────────────────────────
+async function importFromUrl() {
+  if (!isOnline) { showToast('Keine Internetverbindung', 'error'); return; }
+  if (!getClaudeKey()) { showToast('Bitte API Key in Einstellungen hinterlegen', 'error'); showScreen('settings'); return; }
+  const url = document.getElementById('import-url').value.trim();
+  if (!url) return;
+  const btn = document.getElementById('import-url-btn');
+  btn.textContent = 'Importiere...'; btn.disabled = true;
+  try {
+    // CORS-Proxy (temporär via allorigins.win — später Supabase Edge Function)
+    const proxyUrl = 'https://api.allorigins.win/get?url=' + encodeURIComponent(url);
+    const proxy = await fetch(proxyUrl);
+    const proxyData = await proxy.json();
+    if (!proxyData.contents) throw new Error('Seite konnte nicht geladen werden');
+    const text = proxyData.contents.replace(/<script[^>]*>.*?<\/script>/gis, '')
+      .replace(/<style[^>]*>.*?<\/style>/gis, '')
+      .replace(/<[^>]+>/g, ' ')
+      .replace(/\s+/g, ' ').trim().substring(0, 6000);
+    await extractWithClaude(text, url);
+  } catch(e) { showToast('Import fehlgeschlagen', 'error'); }
+  btn.textContent = '&#127760; URL importieren'; btn.disabled = false;
+}
+
+function handleFileImport(input) {
+  const file = input.files[0];
+  if (!file) return;
+  if (!isOnline) { showToast('Keine Internetverbindung', 'error'); return; }
+  if (!getClaudeKey()) { showToast('Bitte API Key in Einstellungen hinterlegen', 'error'); showScreen('settings'); return; }
+  const reader = new FileReader();
+  reader.onload = async function(e) {
+    await extractWithClaude(e.target.result.substring(0, 4000), file.name);
+  };
+  reader.readAsText(file);
+}
+
+async function extractWithClaude(text, source) {
+  const prompt = 'Extrahiere aus folgendem Rezept-Text diese Felder auf Deutsch und antworte NUR mit JSON:\n'
+    + '{"title":"...","category":"...","emoji":"...","portions":"...","time":"...","ingredients":"Zutat 1\\nZutat 2\\n...","instructions":"Schritt 1.\\nSchritt 2.","notes":""}\n\n'
+    + 'Kategorie: Snacks, Vorspeisen, Suppen, Fleisch, Fisch, Gefluegel, Gemuese, Vegetarisch, Pasta & Risotto, Backen & Patisserie, Desserts, Fruehstueck, Getraenke & Cocktails, Saucen & Fonds, Salate, Hauptgang\n\nText:\n'
+    + text;
+  try {
+    const d = await callClaude({ model: 'claude-haiku-4-5-20251001', max_tokens: 1000, messages: [{ role: 'user', content: prompt }] });
+    if (!d.content || !d.content[0]) throw new Error('Keine Antwort');
+    const r = JSON.parse(d.content[0].text.replace(/```json|```/g, '').trim());
+    editId = null;
+    document.getElementById('f-title').value = r.title || '';
+    document.getElementById('f-ingredients').value = r.ingredients || '';
+    document.getElementById('f-instructions').value = r.instructions || '';
+    document.getElementById('f-portions').value = r.portions || '';
+    document.getElementById('f-time').value = r.time || '';
+    document.getElementById('f-notes').value = r.notes || ('Quelle: ' + source);
+    renderCatPicker(r.category || '');
+    document.getElementById('form-screen-title').textContent = 'Import bearbeiten';
+    document.getElementById('form-back-btn').onclick = () => showScreen('import');
+    document.getElementById('form-cancel-btn').onclick = () => showScreen('import');
+    showScreen('add');
+  } catch(e) { showToast('Extraktion fehlgeschlagen', 'error'); }
+}
+
+// ─── KATEGORIEN VERWALTUNG ─────────────────────────────────────────────────
+function renderCatList() {
+  document.getElementById('cat-list').innerHTML = categories.map(c =>
+    '<div class="cat-list-item">'
+    + '<span class="cat-list-emoji">' + c.emoji + '</span>'
+    + '<span class="cat-list-name">' + c.name + '</span>'
+    + '<button class="cat-delete" onclick="deleteCategory(\'' + c.id + '\')">&#10005;</button>'
+    + '</div>'
+  ).join('');
+}
+
+async function addCategory() {
+  const name = document.getElementById('new-cat-name').value.trim();
+  const emoji = document.getElementById('new-cat-emoji').value.trim() || '&#127869;';
+  if (!name) return;
+  const newCat = { id: 'cat-' + Date.now(), name, emoji, color: '#3D5A3E', sort_order: categories.length + 1 };
+  categories.push(newCat);
+  localSave();
+  if (db && isOnline) {
+    db.from('categories').insert([{name, emoji, color: '#3D5A3E', sort_order: newCat.sort_order}]).select().then(res => {
+      if (res.data && res.data[0]) { categories = categories.map(c => c.id === newCat.id ? res.data[0] : c); localSave(); }
+    });
+  }
+  renderCatList(); renderCatScroll(); renderCatPicker('');
+  document.getElementById('new-cat-name').value = '';
+  document.getElementById('new-cat-emoji').value = '';
+}
+
+async function deleteCategory(id) {
+  showConfirm('Kategorie löschen?', 'Löschen', function() { categories = categories.filter(c => c.id !== id); localSave(); if (db && isOnline) db.from('categories').delete().eq('id', id); renderCatList(); renderCatScroll(); renderCatPicker(''); });
+}
+
+// ─── START ─────────────────────────────────────────────────────────────────
+// SPLASH SCREEN
+function showSplash() {
+  const splash = document.getElementById('splash');
+  splash.classList.remove('hide');
+  setTimeout(() => {
+    splash.classList.add('hide');
+  }, 1600);
+}
+
+// KATEGORIE SHEET
+function openCatSheet() {
+  renderCatSheet();
+  document.getElementById('cat-sheet').classList.add('open');
+  document.getElementById('cat-sheet-overlay').classList.add('open');
+}
+
+function closeCatSheet() {
+  document.getElementById('cat-sheet').classList.remove('open');
+  document.getElementById('cat-sheet-overlay').classList.remove('open');
+}
+
+function renderCatSheet() {
+  var list = document.getElementById('cat-sheet-list');
+  var out = '';
+  var allActive = activeCat === 'all' ? 'active' : '';
+  out += '<div class="cat-sheet-item ' + allActive + '" onclick="selectCatFromSheet(&#39;all&#39;)">';
+  out += '<span class="cat-sheet-dot"></span>';
+  out += '<span class="cat-sheet-name cat-sheet-all">Alle Rezepte</span></div>';
+  for (var i = 0; i < categories.length; i++) {
+    var c = categories[i];
+    var isActive = activeCat === c.id ? 'active' : '';
+    out += '<div class="cat-sheet-item ' + isActive + '" onclick="selectCatFromSheet(&#39;' + c.id + '&#39;)">';
+    out += '<span class="cat-sheet-dot"></span>';
+    out += '<span class="cat-sheet-name">' + c.name + '</span></div>';
+  }
+  list.innerHTML = out;
+}
+
+function selectCatFromSheet(id) {
+  activeCat = id;
+  _prevCat = null;
+  renderGrid();
+  closeCatSheet();
+}
+
+// EINHEITEN
+// STRUKTURIERTE ZUTATEN
+var UNITS = ['g','kg','ml','l','EL','TL','Stk','Prise','Bund','Zehe','Scheibe','Dose','Pkg','nach Belieben',''];
+
+function makeUnitsSelect(selected) {
+  var opts = UNITS.map(function(u) {
+    return '<option value="' + u + '"' + (u === selected ? ' selected' : '') + '>' + (u || '—') + '</option>';
+  }).join('');
+  return '<select class="ing-select">' + opts + '</select>';
+}
+
+function addIngredientRow(amount, unit, name) {
+  var list = document.getElementById('f-ingredients-list');
+  if (!list) return;
+  var row = document.createElement('div');
+  row.className = 'ing-row';
+  row.innerHTML = '<input class="ing-input ing-amount" type="text" placeholder="Menge" value="' + (amount || '') + '" style="text-align:right">'
+    + makeUnitsSelectWithClass(unit || '')
+    + '<input class="ing-input ing-name" type="text" placeholder="Zutat" value="' + (name || '') + '">'
+    + '<button class="ing-del" onclick="this.parentNode.remove()">&#215;</button>';
+  list.appendChild(row);
+}
+
+function makeUnitsSelectWithClass(selected) {
+  var opts = UNITS.map(function(u) {
+    return '<option value="' + u + '"' + (u === selected ? ' selected' : '') + '>' + (u || '—') + '</option>';
+  }).join('');
+  return '<select class="ing-select ing-unit">' + opts + '</select>';
+}
+
+function getIngredients() {
+  var rows = document.querySelectorAll('#f-ingredients-list .ing-row');
+  var result = [];
+  rows.forEach(function(row) {
+    var inputs = row.querySelectorAll('input');
+    var select = row.querySelector('select');
+    var amount = inputs[0] ? inputs[0].value.trim() : '';
+    var unit = select ? select.value : '';
+    var name = inputs[1] ? inputs[1].value.trim() : '';
+    if (name) result.push(JSON.stringify({a: amount, u: unit, n: name}));
+  });
+  return result;
+}
+
+function parseIngredient(str) {
+  // Versuche JSON zu parsen (neues Format)
+  try {
+    var obj = JSON.parse(str);
+    if (obj.n !== undefined) return obj;
+  } catch(e) {}
+  // Altes Format: "500g Mehl" oder "3 Eier"
+  var m = str.match(/^([\d.,\/]+)?\s*([a-zA-ZäöüÄÖÜ]+)?\s+(.+)$/);
+  if (m) return {a: m[1] || '', u: m[2] || '', n: m[3] || str};
+  return {a: '', u: '', n: str};
+}
+
+function loadIngredientsIntoForm(ingredients) {
+  var list = document.getElementById('f-ingredients-list');
+  if (!list) return;
+  list.innerHTML = '';
+  if (!ingredients || !ingredients.length) {
+    addIngredientRow('', '', '');
+    return;
+  }
+  ingredients.forEach(function(ing) {
+    try {
+      var obj = JSON.parse(ing);
+      if (obj && obj.n !== undefined) {
+        addIngredientRow(obj.a || '', obj.u || '', obj.n);
+        return;
+      }
+    } catch(e) {}
+    // Altes Format
+    var parsed = parseIngredient(ing);
+    addIngredientRow(parsed.a || '', parsed.u || '', parsed.n || ing);
+  });
+}
+
+function formatIngredientDisplay(str) {
+  try {
+    var obj = JSON.parse(str);
+    if (obj && obj.n !== undefined) {
+      return '<span class="ingredient-amount">' + (obj.a || '') + '</span>'
+        + '<span class="ingredient-unit">' + (obj.u || '') + '</span>'
+        + '<span class="ingredient-name">' + obj.n + '</span>';
+    }
+  } catch(e) {}
+  // Altes Format parsen: "500 g Mehl" oder "500g Mehl"
+  var m = str.match(/^([\d.,\/\s]+)?\s*([a-zA-ZäöüÄÖÜ]{1,4})?\s+(.+)$/);
+  if (m && m[3]) {
+    return '<span class="ingredient-amount">' + (m[1] ? m[1].trim() : '') + '</span>'
+      + '<span class="ingredient-unit">' + (m[2] || '') + '</span>'
+      + '<span class="ingredient-name">' + m[3] + '</span>';
+  }
+  return '<span class="ingredient-amount"></span><span class="ingredient-unit"></span><span class="ingredient-name">' + str + '</span>';
+}
+
+// PORTIONEN RECHNER
+function scaleAmount(str, factor) {
+  // Erkennt: 500g, 2 EL, 1/2, 0.5, 3-4, ca. 200
+  return str.replace(/(\d+(?:[.,]\d+)?(?:\/\d+)?)/g, function(match) {
+    // Brüche umrechnen: 1/2 → 0.5
+    var num;
+    if (match.indexOf('/') > -1) {
+      var parts = match.split('/');
+      num = parseFloat(parts[0]) / parseFloat(parts[1]);
+    } else {
+      num = parseFloat(match.replace(',', '.'));
+    }
+    if (isNaN(num)) return match;
+    var scaled = num * factor;
+    // Schön runden
+    if (scaled === Math.floor(scaled)) return String(Math.floor(scaled));
+    // Auf sinnvolle Stellen runden
+    var rounded = Math.round(scaled * 4) / 4; // auf 0.25 runden
+    if (rounded === Math.floor(rounded)) return String(Math.floor(rounded));
+    // Brüche zurück: 0.25→1/4, 0.5→1/2, 0.75→3/4
+    var frac = {0.25:'1/4', 0.5:'1/2', 0.75:'3/4', 0.33:'1/3', 0.67:'2/3'};
+    var dec = rounded - Math.floor(rounded);
+    var decRound = Math.round(dec * 100) / 100;
+    if (frac[decRound]) return (Math.floor(rounded) > 0 ? Math.floor(rounded) + ' ' : '') + frac[decRound];
+    return String(Math.round(scaled * 10) / 10).replace('.', ',');
+  });
+}
+
+function changePortions(delta) {
+  haptic('light');
+  var newVal = (window._currentRecipePortions || 1) + delta;
+  if (newVal < 1) return;
+  window._currentRecipePortions = newVal;
+  var display = document.getElementById('portions-display');
+  if (display) {
+    // Bump Animation
+    display.classList.remove('bump');
+    void display.offsetWidth; // reflow
+    display.classList.add('bump');
+    display.textContent = newVal;
+    setTimeout(function() { display.classList.remove('bump'); }, 150);
+  }
+  var factor = newVal / (window._basePortions || 1);
+  var list = document.getElementById('ingredients-list');
+  if (!list || !window._baseIngredients) return;
+  var html = '';
+  window._baseIngredients.forEach(function(ing) {
+    try {
+      var obj = JSON.parse(ing);
+      if (obj && obj.n !== undefined) {
+        var scaledAmount = obj.a ? scaleAmount(String(obj.a), factor) : '';
+        html += '<div class="ingredient">'
+          + '<span class="ingredient-amount">' + scaledAmount + '</span>'
+          + '<span class="ingredient-unit">' + (obj.u || '') + '</span>'
+          + '<span class="ingredient-name">' + obj.n + '</span>'
+          + '</div>';
+        return;
+      }
+    } catch(e) {}
+    // Altes Format — Zahl direkt skalieren
+    var parsed = parseIngredient(ing);
+    var scaledA = parsed.a ? scaleAmount(String(parsed.a), factor) : '';
+    html += '<div class="ingredient">'
+      + '<span class="ingredient-amount">' + scaledA + '</span>'
+      + '<span class="ingredient-unit">' + (parsed.u || '') + '</span>'
+      + '<span class="ingredient-name">' + (parsed.n || ing) + '</span>'
+      + '</div>';
+  });
+  list.innerHTML = html;
+}
+
+// TEILEN & DRUCKEN
+function shareRecipe(r) {
+  var text = r.title + '\n\n';
+  if (r.portions) text += 'Portionen: ' + r.portions + '\n';
+  if (r.time) text += 'Zeit: ' + r.time + '\n';
+  text += '\nZUTATEN\n';
+  (r.ingredients || []).forEach(function(ing) {
+    try {
+      var obj = JSON.parse(ing);
+      if (obj && obj.n) {
+        text += (obj.a ? obj.a + ' ' : '') + (obj.u ? obj.u + ' ' : '') + obj.n + '\n';
+        return;
+      }
+    } catch(e) {}
+    text += ing + '\n';
+  });
+  if (r.instructions) text += '\nZUBEREITUNG\n' + r.instructions + '\n';
+  if (r.notes) text += '\nNOTIZEN\n' + r.notes;
+
+  if (navigator.share && /iPhone|iPad|iPod/.test(navigator.userAgent)) {
+    // iOS — natives Share Sheet
+    navigator.share({ title: r.title, text: text }).catch(function() {});
+  } else {
+    // Mac/andere — in Zwischenablage kopieren
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function() {
+        var btn = document.getElementById('share-btn');
+        if (btn) {
+          var orig = btn.innerHTML;
+          btn.innerHTML = '&#10003; Kopiert!';
+          btn.style.color = '#5C7F5D';
+          btn.style.borderColor = '#5C7F5D';
+          setTimeout(function() {
+            btn.innerHTML = orig;
+            btn.style.color = '';
+            btn.style.borderColor = '';
+          }, 2000);
+        }
+      }).catch(function() {
+        fallbackCopy(text);
+      });
+    } else {
+      fallbackCopy(text);
+    }
+  }
+}
+
+function openActionSheet() {
+  document.getElementById('action-sheet').classList.add('open');
+  document.getElementById('action-sheet-overlay').classList.add('open');
+}
+function closeActionSheet() {
+  document.getElementById('action-sheet').classList.remove('open');
+  document.getElementById('action-sheet-overlay').classList.remove('open');
+}
+
+// FOTO
+function addPhotoToRecipe() {
+  var input = document.createElement('input');
+  input.type = 'file';
+  input.accept = 'image/*';
+  input.onchange = function(e) {
+    var file = e.target.files[0];
+    if (!file || !currentRecipe) return;
+    var reader = new FileReader();
+    reader.onload = function(ev) {
+      var photoData = ev.target.result;
+      // Rezept updaten
+      currentRecipe.photo = photoData;
+      recipes = recipes.map(function(r) {
+        return r.id === currentRecipe.id ? Object.assign({}, r, {photo: photoData}) : r;
+      });
+      localSave();
+      if (db && isOnline) {
+        db.from('recipes').update({photo: photoData}).eq('id', currentRecipe.id);
+      }
+      // Foto sofort anzeigen
+      var existing = document.getElementById('recipe-photo-el');
+      if (existing) {
+        existing.src = photoData;
+      } else {
+        var ph = document.getElementById('recipe-photo-placeholder');
+        if (ph) {
+          var img = document.createElement('img');
+          img.className = 'recipe-photo';
+          img.id = 'recipe-photo-el';
+          img.src = photoData;
+          ph.parentNode.replaceChild(img, ph);
+        }
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+  input.click();
+}
+
+// HELL/DUNKEL MODUS
+function toggleTheme() {
+  var isLight = document.body.classList.toggle('light-mode');
+  localStorage.setItem('thyme_theme', isLight ? 'light' : 'dark');
+  var btn = document.getElementById('theme-toggle-btn');
+  if (btn) btn.innerHTML = isLight ? '🌙 &nbsp;Dunkelmodus aktivieren' : '☀️ &nbsp;Hellmodus aktivieren';
+}
+
+function applyTheme() {
+  var saved = localStorage.getItem('thyme_theme');
+  if (saved === 'light') {
+    document.body.classList.add('light-mode');
+    setTimeout(function() {
+      var btn = document.getElementById('theme-toggle-btn');
+      if (btn) btn.innerHTML = '🌙 &nbsp;Dunkelmodus aktivieren';
+    }, 100);
+  }
+}
+
+function fallbackCopy(text) {
+  var ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.position = 'fixed';
+  ta.style.opacity = '0';
+  document.body.appendChild(ta);
+  ta.focus();
+  ta.select();
+  try { document.execCommand('copy'); showToast('Rezept kopiert', 'success'); }
+  catch(e) { showToast('Bitte manuell kopieren', 'error'); }
+  document.body.removeChild(ta);
+}
+
+function printRecipe(r) {
+  var html = '<div class="print-content-inner">';
+  // Titel
+  html += '<div class="print-title">' + r.title + '</div>';
+  // Linie
+  html += '<hr class="print-divider">';
+  // Kategorie
+  if (r.category) html += '<div class="print-cat">' + r.category + '</div>';
+  // Portionen & Zeit
+  var portInfo = '';
+  if (r.portions) portInfo += r.portions;
+  if (r.time) portInfo += (portInfo ? ' &nbsp;&middot;&nbsp; ' : '') + r.time;
+  if (r.portions) {
+    var pNum = r.portions.replace(/[^0-9]/g, '') || r.portions;
+    html += '<div class="print-portions">' + pNum + ' Portionen' + (r.time ? ' &nbsp;&middot;&nbsp; ' + r.time : '') + '</div>';
+  } else if (r.time) {
+    html += '<div class="print-portions">' + r.time + '</div>';
+  }
+  // Zutaten
+  html += '<span class="print-label">Zutaten</span>';
+  (r.ingredients || []).forEach(function(ing) {
+    try {
+      var obj = JSON.parse(ing);
+      if (obj && obj.n) {
+        html += '<div class="print-ing">'
+          + '<span class="print-ing-amount">' + (obj.a || '') + '</span>'
+          + '<span class="print-ing-unit">' + (obj.u || '') + '</span>'
+          + '<span class="print-ing-name">' + obj.n + '</span>'
+          + '</div>';
+        return;
+      }
+    } catch(e) {}
+    var p = parseIngredient(ing);
+    html += '<div class="print-ing">'
+      + '<span class="print-ing-amount">' + (p.a || '') + '</span>'
+      + '<span class="print-ing-unit">' + (p.u || '') + '</span>'
+      + '<span class="print-ing-name">' + (p.n || ing) + '</span>'
+      + '</div>';
+  });
+  // Zubereitung
+  if (r.instructions) {
+    html += '<span class="print-label">Zubereitung</span>';
+    html += '<div class="print-instructions">' + r.instructions + '</div>';
+  }
+  // Notizen
+  if (r.notes) {
+    html += '<span class="print-label">Notizen</span>';
+    html += '<div class="print-instructions">' + r.notes + '</div>';
+  }
+  // Content Ende
+  html += '</div>'; // print-content-inner
+  // Spacer — wird per JS berechnet
+  html += '<div class="print-spacer" id="print-spacer"></div>';
+  // Fusszeile
+  html += '<div class="print-footer">'
+    + '<svg viewBox="0 0 200 160" xmlns="http://www.w3.org/2000/svg">'
+    + '<defs>'
+    + '<linearGradient id="pL" x1="100%" y1="0%" x2="0%" y2="0%"><stop offset="0%" stop-color="#3D5A3E"/><stop offset="100%" stop-color="#5C7F5D"/></linearGradient>'
+    + '<linearGradient id="pR" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#6B9E6E"/><stop offset="100%" stop-color="#9DC49D"/></linearGradient>'
+    + '<linearGradient id="pS" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#6B9E6E"/><stop offset="100%" stop-color="#9DC49D"/></linearGradient>'
+    + '</defs>'
+    + '<line x1="100" y1="130" x2="100" y2="60" stroke="#3D5A3E" stroke-width="2" stroke-linecap="round"/>'
+    + '<circle cx="100" cy="53" r="5" fill="#B8973A"/><circle cx="100" cy="53" r="3" fill="#C9A84C"/><circle cx="100" cy="53" r="1.5" fill="#DDB85A"/>'
+    + '<circle cx="94" cy="56" r="2.2" fill="#C9A84C"/><circle cx="107" cy="57" r="2" fill="#DDB85A" opacity="0.85"/>'
+    + '<path d="M99 68 Q87 62 79 65 Q87 72 99 68Z" fill="url(#pL)"/>'
+    + '<path d="M101 68 Q113 61 121 64 Q113 71 101 68Z" fill="url(#pR)"/>'
+    + '<path d="M99 80 Q86 74 78 77 Q86 85 99 80Z" fill="url(#pL)"/>'
+    + '<path d="M101 80 Q114 73 122 76 Q114 84 101 80Z" fill="url(#pR)"/>'
+    + '<path d="M99 92 Q87 86 79 89 Q87 97 99 92Z" fill="url(#pL)"/>'
+    + '<path d="M101 92 Q113 85 121 88 Q113 96 101 92Z" fill="url(#pR)"/>'
+    + '<path d="M100 108 Q111 103 122 107" stroke="#5C7F5D" stroke-width="1.4" fill="none" stroke-linecap="round"/>'
+    + '<path d="M109 101 Q115 94 121 96 Q117 104 109 101Z" fill="url(#pS)"/>'
+    + '<path d="M116 105 Q122 98 127 101 Q123 108 116 105Z" fill="url(#pS)"/>'
+    + '<circle cx="128" cy="104" r="3.5" fill="#B8973A"/><circle cx="128" cy="104" r="2" fill="#C9A84C"/>'
+    + '</svg>'
+    + '<span class="print-footer-logo">thyme</span>'
+    + '<span class="print-footer-sub">Recipe Archive</span>'
+    + '</div>';
+
+  var area = document.getElementById('print-area');
+  area.innerHTML = html;
+  area.style.display = 'block';
+
+  // Spacer berechnen nach Rendering
+  requestAnimationFrame(function() {
+    requestAnimationFrame(function() {
+      // A4 Seite ohne Margins: 297mm - 2*48px ≈ 1026px bei 96dpi
+      // Aber Safari verwendet 96dpi für print preview
+      var pageH = Math.round(297 * 3.7795); // mm zu px
+      var marginH = 96; // 48px top + 48px bottom
+      var usable = pageH - marginH;
+      var contentInner = area.querySelector('.print-content-inner');
+      var footer = area.querySelector('.print-footer');
+      var contentH = contentInner ? contentInner.offsetHeight : 0;
+      var footerH = footer ? footer.offsetHeight : 80;
+      var spacerH = usable - contentH - footerH - 20;
+      var spacer = area.querySelector('#print-spacer');
+      if (spacer && spacerH > 0) {
+        spacer.style.height = spacerH + 'px';
+      }
+      window.print();
+      setTimeout(function() { area.style.display = 'none'; }, 800);
+    });
+  });
+}
+
+// NAVIGATION
+function goBack() {
+  var currentScreen = document.querySelector('.screen.active');
+  var currentId = currentScreen ? currentScreen.id : '';
+
+  if (currentId === 'screen-detail') {
+    var savedCat = _prevCat;
+    // Screen sofort wechseln
+    document.querySelectorAll('.screen').forEach(function(s) { s.classList.remove('active'); });
+    document.getElementById('screen-home').classList.add('active');
+    window.scrollTo(0, 0);
+    if (savedCat && savedCat !== 'all') {
+      // Kategorie wiederherstellen im nächsten Tick
+      activeCat = savedCat;
+      renderCatScroll();
+      renderGrid();
+      updateModeBadge();
+    } else {
+      activeCat = 'all';
+      renderGrid();
+      updateModeBadge();
+      setTimeout(function() { openCatSheet(); }, 150);
+    }
+  } else if (currentId === 'screen-home' && activeCat !== 'all') {
+    // Aus Rezeptliste → zurück zum Kategorie-Sheet
+    activeCat = 'all';
+    _prevCat = null;
+    renderCatScroll();
+    renderGrid();
+    updateModeBadge();
+    setTimeout(function() { openCatSheet(); }, 150);
+  } else {
+    showScreen('home');
+  }
+}
+
+// FAVORITEN
+var showingFavs = false;
+
+function toggleFavorite(btn, id) {
+  haptic('light');
+  var r = recipes.find(function(x) { return x.id === id; });
+  if (!r) return;
+  r.favorite = !r.favorite;
+  // Alle Sterne für diese ID aktualisieren
+  document.querySelectorAll('.fav-btn[data-id="' + id + '"]').forEach(function(b) {
+    b.className = 'fav-btn ' + (r.favorite ? 'active' : 'inactive');
+    b.textContent = r.favorite ? '★' : '☆';
+  });
+  // Detail-Stern
+  var detBtn = document.getElementById('detail-fav-btn');
+  if (detBtn) {
+    detBtn.className = 'fav-btn ' + (r.favorite ? 'active' : 'inactive');
+    detBtn.textContent = r.favorite ? '★' : '☆';
+  }
+  localSave();
+  if (db && isOnline) db.from('recipes').update({favorite: r.favorite}).eq('id', id);
+  // Favoritenliste aktualisieren wenn aktiv
+  if (showingFavs) renderGrid();
+}
+
+function toggleFavView() {
+  showingFavs = !showingFavs;
+  var tab = document.getElementById('fav-tab');
+  var label = document.getElementById('fav-tab-label');
+  if (tab) tab.classList.toggle('active', showingFavs);
+  if (label) label.textContent = showingFavs ? 'Alle' : 'Favoriten';
+  if (showingFavs) {
+    activeCat = 'all';
+    _prevCat = null;
+  }
+  renderGrid();
+}
+
+// ZULETZT VERWENDET
+var MAX_RECENT = 5;
+
+function addToRecent(id) {
+  var recent = JSON.parse(localStorage.getItem('thyme_recent') || '[]');
+  recent = recent.filter(function(r) { return r !== id; });
+  recent.unshift(id);
+  if (recent.length > MAX_RECENT) recent = recent.slice(0, MAX_RECENT);
+  localStorage.setItem('thyme_recent', JSON.stringify(recent));
+}
+
+function renderRecent() {
+  var recent = JSON.parse(localStorage.getItem('thyme_recent') || '[]');
+  var recentRecipes = recent.map(function(id) {
+    return recipes.find(function(r) { return r.id === id; });
+  }).filter(Boolean);
+
+  var section = document.getElementById('recent-section');
+  var scroll = document.getElementById('recent-scroll');
+
+  if (!section || !scroll) return;
+  if (recentRecipes.length === 0) { section.style.display = 'none'; return; }
+  section.style.display = 'block';
+  scroll.innerHTML = recentRecipes.map(function(r) {
+    var imgHtml = r.photo
+      ? '<img class="recent-card-photo" src="' + r.photo + '" alt="">'
+      : '<div class="recent-card-color" style="background:' + (r.color || '#3D5A3E') + '"></div>';
+    return '<div class="recent-card" data-id="' + r.id + '">'
+      + imgHtml
+      + '<div class="recent-card-body">'
+      + '<div class="recent-card-title">' + r.title + '</div>'
+      + '<div class="recent-card-cat">' + (r.category || '') + '</div>'
+      + '</div></div>';
+  }).join('');
+  // Click-Handler für recent cards
+  scroll.querySelectorAll('.recent-card').forEach(function(card) {
+    card.addEventListener('click', function() {
+      var id = card.dataset.id;
+      var r = recipes.find(function(x) { return x.id === id; });
+      if (r) { haptic('light'); _prevCat = activeCat; openDetail(r); }
+    });
+  });
+}
+
+// HAPTIC FEEDBACK
+function haptic(style) {
+  if (window.navigator && window.navigator.vibrate) {
+    if (style === 'light') window.navigator.vibrate(10);
+    else if (style === 'medium') window.navigator.vibrate(20);
+    else if (style === 'heavy') window.navigator.vibrate([30, 10, 30]);
+  }
+}
+
+// SUCHE
+function onSearchInput() {
+  var val = document.getElementById('search-input').value;
+  var btn = document.getElementById('search-clear');
+  if (btn) btn.classList.toggle('visible', val.length > 0);
+  renderGrid();
+}
+function clearSearch() {
+  var input = document.getElementById('search-input');
+  if (input) input.value = '';
+  var btn = document.getElementById('search-clear');
+  if (btn) btn.classList.remove('visible');
+  renderGrid();
+  input && input.focus();
+}
+
+
+
+
+// FAB Menu
+function toggleFabMenu() {
+  haptic('light');
+  const menu = document.getElementById('fab-menu');
+  const plus = document.getElementById('fab-plus');
+  const overlay = document.getElementById('fab-overlay');
+  const label = document.getElementById('fab-plus-label');
+  const isOpen = menu.classList.contains('open');
+  if (isOpen) {
+    menu.classList.remove('open');
+    plus.classList.remove('open');
+    overlay.classList.remove('open');
+    if (label) label.style.display = 'inline';
+  } else {
+    menu.classList.add('open');
+    plus.classList.add('open');
+    overlay.classList.add('open');
+    if (label) label.style.display = 'none';
+  }
+}
+
+function closeFabMenu() {
+  document.getElementById('fab-menu').classList.remove('open');
+  document.getElementById('fab-plus').classList.remove('open');
+  document.getElementById('fab-overlay').classList.remove('open');
+}
+
+function showImportOption(type) {
+  showScreen('import');
+  if (type === 'url') {
+    setTimeout(() => { const el = document.getElementById('import-url'); if(el) el.focus(); }, 300);
+  }
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', init);
+} else {
+  init();
+}
+</script>
+<!-- ACTION SHEET -->
+<div class="action-sheet-overlay" id="action-sheet-overlay" onclick="closeActionSheet()"></div>
+<div class="action-sheet" id="action-sheet">
+  <div class="action-sheet-panel">
+    <button class="action-sheet-item" onclick="closeActionSheet();addPhotoToRecipe()">
+      <span class="action-sheet-item-icon">&#128247;</span> Foto hinzufügen
+    </button>
+    <button class="action-sheet-item" onclick="closeActionSheet();openEdit(currentRecipe)">
+      <span class="action-sheet-item-icon">&#9999;&#65039;</span> Bearbeiten
+    </button>
+    <button class="action-sheet-item" onclick="closeActionSheet();shareRecipe(currentRecipe)">
+      <span class="action-sheet-item-icon">&#8599;</span> Teilen
+    </button>
+    <button class="action-sheet-item" onclick="closeActionSheet();printRecipe(currentRecipe)">
+      <span class="action-sheet-item-icon">&#9113;</span> Drucken
+    </button>
+    <button class="action-sheet-item danger" onclick="closeActionSheet();deleteRecipe(currentRecipe.id)">
+      <span class="action-sheet-item-icon">&#128465;&#65039;</span> Löschen
+    </button>
+  </div>
+  <button class="action-sheet-cancel" onclick="closeActionSheet()">Abbrechen</button>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+<!-- CONFIRM SHEET -->
+<div id="confirm-overlay">
+  <div id="confirm-panel">
+    <div id="confirm-msg"></div>
+    <div id="confirm-btns">
+      <button id="confirm-ok">Löschen</button>
+      <button id="confirm-cancel" onclick="closeConfirm()">Abbrechen</button>
+    </div>
+  </div>
+</div>
+</body>
+</html>
