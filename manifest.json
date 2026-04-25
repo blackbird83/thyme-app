@@ -1,0 +1,17 @@
+{
+  "name": "thyme",
+  "short_name": "thyme",
+  "description": "Recipe Archive",
+  "start_url": "/thyme/",
+  "display": "standalone",
+  "background_color": "#1A1208",
+  "theme_color": "#1A1208",
+  "icons": [
+    {
+      "src": "apple-touch-icon.png",
+      "sizes": "1024x1024",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
