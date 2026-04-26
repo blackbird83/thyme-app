@@ -15,7 +15,40 @@
 <meta name="theme-color" content="#3D5A3E">
 <title>thyme</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js">
+// ─── SERVICE WORKER ────────────────────────────────────────────────────────
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('/thyme/sw.js')
+      .then(function(reg) {
+        // Prüfe auf Updates
+        reg.addEventListener('updatefound', function() {
+          var newWorker = reg.installing;
+          newWorker.addEventListener('statechange', function() {
+            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+              // Neue Version verfügbar — Toast anzeigen und nach 2s neu laden
+              showToast('Update verfügbar — wird geladen…', 'success', 2000);
+              setTimeout(function() {
+                newWorker.postMessage('skipWaiting');
+                window.location.reload();
+              }, 2500);
+            }
+          });
+        });
+      })
+      .catch(function(err) {
+        console.log('SW Fehler:', err);
+      });
+
+    // Wenn SW übernimmt, Seite neu laden
+    var refreshing = false;
+    navigator.serviceWorker.addEventListener('controllerchange', function() {
+      if (!refreshing) { refreshing = true; window.location.reload(); }
+    });
+  });
+}
+
+</script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{
