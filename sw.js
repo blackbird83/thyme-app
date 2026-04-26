@@ -1,8 +1,14 @@
-// Service Worker deaktiviert
-self.addEventListener('install', () => self.skipWaiting());
-self.addEventListener('activate', e => {
+// Dieser Service Worker deregistriert sich selbst
+self.addEventListener('install', function() {
+  self.skipWaiting();
+});
+self.addEventListener('activate', function(e) {
   e.waitUntil(
-    caches.keys().then(keys => Promise.all(keys.map(k => caches.delete(k))))
+    Promise.all([
+      caches.keys().then(function(keys) {
+        return Promise.all(keys.map(function(k) { return caches.delete(k); }));
+      }),
+      self.registration.unregister()
+    ])
   );
-  self.clients.claim();
 });
