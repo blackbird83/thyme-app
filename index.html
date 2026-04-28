@@ -1260,9 +1260,8 @@ async function handleScan(input) {
     const base64 = e.target.result.split(',')[1];
     const mediaType = file.type || 'image/jpeg';
     try {
-      const d = await callClaude({model:'claude-haiku-4-5-20251001',max_tokens:1500,messages:[{role:'user',content:[{type:'image',source:{type:'base64',media_type:mediaType,data:base64}},{type:'text',text:'Lies dieses Rezept-Foto und extrahiere alle Informationen. Antworte NUR mit JSON:
-{"title":"...","category":"...","emoji":"...","portions":"...","time":"...","ingredients":"Zutat 1\nZutat 2","instructions":"Schritt 1.\nSchritt 2.","notes":""}
-Kategorie: Snacks, Vorspeisen, Suppen, Fleisch, Fisch, Gefluegel, Gemuese, Vegetarisch, Pasta & Risotto, Backen & Patisserie, Desserts, Fruehstueck, Getraenke & Cocktails, Saucen & Fonds, Hauptgang'}]}]});
+      const _scanPrompt = 'Lies dieses Rezept-Foto und extrahiere alle Informationen. Antworte NUR mit JSON ohne Markdown: {"title":"...","category":"...","emoji":"...","portions":"...","time":"...","ingredients":"Zutat 1\nZutat 2","instructions":"Schritt 1.\nSchritt 2.","notes":""}. Kategorien: Snacks, Vorspeisen, Suppen, Fleisch, Fisch, Gefluegel, Gemuese, Vegetarisch, Pasta & Risotto, Backen & Patisserie, Desserts, Fruehstueck, Getraenke & Cocktails, Saucen & Fonds, Hauptgang';
+      const d = await callClaude({model:'claude-haiku-4-5-20251001',max_tokens:1500,messages:[{role:'user',content:[{type:'image',source:{type:'base64',media_type:mediaType,data:base64}},{type:'text',text:_scanPrompt}]}]});
       if (!d.content || !d.content[0]) throw new Error('Keine Antwort vom Server');
       const raw = d.content[0].text.replace(/```json|```/g, '').trim();
       const r = JSON.parse(raw);
