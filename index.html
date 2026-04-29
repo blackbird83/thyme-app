@@ -1101,7 +1101,7 @@ window.addEventListener('offline', () => { isOnline = false; updateModeBadge(); 
 // ─── INIT ──────────────────────────────────────────────────────────────────
 async function init() {
   applyTheme();
-  setTimeout(updateBookCoverTheme, 100);
+  if(document.body.classList.contains("light-mode")){setTimeout(updateBookCoverTheme,100);}
   isOnline = navigator.onLine;
   showSplash();
   localLoad();
@@ -1950,19 +1950,14 @@ function updateBookCoverTheme() {
     var opacity = r.getAttribute('opacity');
 
     if (fill && fill.includes('bcBg')) {
-      // Haupthintergrund
       r.setAttribute('fill', isLight ? '#F0E8D8' : 'url(#bcBg)');
-    } else if (!fill || fill === 'none' || fill === '') {
-      // rect ohne fill (erster Schatten) → im Light-Mode transparent
-      r.setAttribute('fill', isLight ? 'transparent' : 'none');
     } else if (fill === '#000' && opacity) {
-      // Schwarze Schatten-Rects
+      r.style.display = isLight ? 'none' : '';
+    } else if (!fill || fill === '') {
+      r.setAttribute('fill', isLight ? '#F0E8D8' : 'none');
+    } else if (fill === 'none' && r.getAttribute('stroke') === '#000') {
       r.style.display = isLight ? 'none' : '';
     } else if (fill && fill.includes('rgba(255,240')) {
-      // Highlight
-      r.style.display = isLight ? 'none' : '';
-    } else if (fill === 'none' && r.getAttribute('stroke') === '#000') {
-      // Dunkle Innen-Kante
       r.style.display = isLight ? 'none' : '';
     }
   });
@@ -1980,9 +1975,8 @@ function updateBookCoverTheme() {
     }
   });
 
-  // Pfeil-Pfad
-  var paths = svg.querySelectorAll('path');
-  paths.forEach(function(p) {
+  // Pfeil
+  svg.querySelectorAll('path').forEach(function(p) {
     var stroke = p.getAttribute('stroke');
     if (stroke === '#5C7F5D' || stroke === '#3D5A3E') {
       p.setAttribute('stroke', isLight ? '#3D5A3E' : '#5C7F5D');
