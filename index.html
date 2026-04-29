@@ -1790,6 +1790,11 @@ function shareRecipe(r) {
 }
 
 function openActionSheet() {
+  // Foto-Buttons dynamisch
+  var hasPhoto = currentRecipe && currentRecipe.photo;
+  document.getElementById('action-photo-add').style.display = hasPhoto ? 'none' : '';
+  document.getElementById('action-photo-edit').style.display = hasPhoto ? '' : 'none';
+  document.getElementById('action-photo-delete').style.display = hasPhoto ? '' : 'none';
   document.getElementById('action-sheet').classList.add('open');
   document.getElementById('action-sheet-overlay').classList.add('open');
 }
@@ -1837,6 +1842,23 @@ function addPhotoToRecipe() {
   };
   input.click();
 }
+// ─── FOTO LÖSCHEN ─────────────────────────────────────────────────────────
+function deletePhotoFromRecipe() {
+  if (!currentRecipe) return;
+  showConfirm('Foto wirklich löschen?', 'Löschen', function() {
+    currentRecipe.photo = null;
+    recipes = recipes.map(function(r) {
+      return r.id === currentRecipe.id ? Object.assign({}, r, {photo: null}) : r;
+    });
+    localSave();
+    if (db && isOnline) {
+      db.from('recipes').update({photo: null}).eq('id', currentRecipe.id).then(function(){});
+    }
+    openDetail(currentRecipe.id);
+    showToast('Foto gelöscht', 'success');
+  });
+}
+
 
 // HELL/DUNKEL MODUS
 function toggleTheme() {
@@ -2166,8 +2188,14 @@ if (document.readyState === 'loading') {
 <div class="action-sheet-overlay" id="action-sheet-overlay" onclick="closeActionSheet()"></div>
 <div class="action-sheet" id="action-sheet">
   <div class="action-sheet-panel">
-    <button class="action-sheet-item" onclick="closeActionSheet();addPhotoToRecipe()">
+    <button class="action-sheet-item" id="action-photo-add" onclick="closeActionSheet();addPhotoToRecipe()">
       <span class="action-sheet-item-icon">&#128247;</span> Foto hinzufügen
+    </button>
+    <button class="action-sheet-item" id="action-photo-edit" onclick="closeActionSheet();addPhotoToRecipe()" style="display:none">
+      <span class="action-sheet-item-icon">&#128247;</span> Foto bearbeiten
+    </button>
+    <button class="action-sheet-item danger" id="action-photo-delete" onclick="closeActionSheet();deletePhotoFromRecipe()" style="display:none">
+      <span class="action-sheet-item-icon">&#128465;&#65039;</span> Foto löschen
     </button>
     <button class="action-sheet-item" onclick="closeActionSheet();openEdit(currentRecipe)">
       <span class="action-sheet-item-icon">&#9999;&#65039;</span> Bearbeiten
