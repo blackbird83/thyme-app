@@ -1178,10 +1178,8 @@ function localLoad() {
 }
 
 function localSave() {
-  try {
-    localStorage.setItem('thyme_recipes', JSON.stringify(recipes));
-    localStorage.setItem('thyme_categories', JSON.stringify(categories));
-  } catch(e) { console.warn('Speicher voll:', e); }
+  localStorage.setItem('thyme_recipes', JSON.stringify(recipes));
+  localStorage.setItem('thyme_categories', JSON.stringify(categories));
 }
 
 // ─── CLOUD SYNC ────────────────────────────────────────────────────────────
@@ -1944,6 +1942,54 @@ function closeActionSheet() {
 }
 
 // FOTO
+function compressPhoto(dataUrl, callback) {
+  var img = new Image();
+  img.onload = function() {
+    var MAX = 900;
+    var w = img.width, h = img.height;
+    if (w > MAX || h > MAX) {
+      if (w > h) { h = Math.round(h * MAX / w); w = MAX; }
+      else { w = Math.round(w * MAX / h); h = MAX; }
+    }
+    var canvas = document.createElement('canvas');
+    canvas.width = w; canvas.height = h;
+    canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+    callback(canvas.toDataURL('image/jpeg', 0.75));
+  };
+  img.src = dataUrl;
+}
+
+function savePhotoToRecipe(photoData) {
+  if (!currentRecipe) return;
+  currentRecipe.photo = photoData;
+  recipes = recipes.map(function(r) {
+    return r.id === currentRecipe.id ? Object.assign({}, r, {photo: photoData}) : r;
+  });
+  try {
+    localSave();
+    showToast('Foto gespeichert', 'success');
+  } catch(e) {
+    showToast('Speicher voll — Foto zu gross', 'error');
+    return;
+  }
+  if (db && isOnline) {
+    db.from('recipes').update({photo: photoData}).eq('id', currentRecipe.id);
+  }
+  var existing = document.getElementById('recipe-photo-el');
+  if (existing) {
+    existing.src = photoData;
+  } else {
+    var ph = document.getElementById('recipe-photo-placeholder');
+    if (ph) {
+      var img = document.createElement('img');
+      img.className = 'recipe-hero';
+      img.id = 'recipe-photo-el';
+      img.src = photoData;
+      ph.parentNode.replaceChild(img, ph);
+    }
+  }
+}
+
 function addPhotoToRecipe() {
   closeActionSheet();
   var input = document.createElement('input');
@@ -1954,30 +2000,9 @@ function addPhotoToRecipe() {
     if (!file || !currentRecipe) return;
     var reader = new FileReader();
     reader.onload = function(ev) {
-      var photoData = ev.target.result;
-      // Rezept updaten
-      currentRecipe.photo = photoData;
-      recipes = recipes.map(function(r) {
-        return r.id === currentRecipe.id ? Object.assign({}, r, {photo: photoData}) : r;
+      compressPhoto(ev.target.result, function(compressed) {
+        savePhotoToRecipe(compressed);
       });
-      localSave();
-      if (db && isOnline) {
-        db.from('recipes').update({photo: photoData}).eq('id', currentRecipe.id);
-      }
-      // Foto sofort anzeigen
-      var existing = document.getElementById('recipe-photo-el');
-      if (existing) {
-        existing.src = photoData;
-      } else {
-        var ph = document.getElementById('recipe-photo-placeholder');
-        if (ph) {
-          var img = document.createElement('img');
-          img.className = 'recipe-photo';
-          img.id = 'recipe-photo-el';
-          img.src = photoData;
-          ph.parentNode.replaceChild(img, ph);
-        }
-      }
     };
     reader.readAsDataURL(file);
   };
@@ -2025,31 +2050,35 @@ function editPhotoOfRecipe() {
     if (!file) return;
     var reader = new FileReader();
     reader.onload = function(ev) {
-      var photoData = ev.target.result;
-      // Altes Foto ersetzen
-      recipes = recipes.map(function(r) {
-        return r.id === id ? Object.assign({}, r, {photo: photoData}) : r;
-      });
-      currentRecipe = recipes.find(function(r) { return r.id === id; });
-      localSave();
-      if (db && isOnline) {
-        db.from('recipes').update({photo: photoData}).eq('id', id).then(function(){});
-      }
-      // Foto sofort in Detail-View aktualisieren
-      var existing = document.getElementById('recipe-photo-el');
-      if (existing) {
-        existing.src = photoData;
-      } else {
-        var ph = document.getElementById('recipe-photo-placeholder');
-        if (ph) {
-          var img = document.createElement('img');
-          img.className = 'recipe-hero';
-          img.id = 'recipe-photo-el';
-          img.src = photoData;
-          ph.parentNode.replaceChild(img, ph);
+      compressPhoto(ev.target.result, function(photoData) {
+        recipes = recipes.map(function(r) {
+          return r.id === id ? Object.assign({}, r, {photo: photoData}) : r;
+        });
+        currentRecipe = recipes.find(function(r) { return r.id === id; });
+        try {
+          localSave();
+        } catch(e) {
+          showToast('Speicher voll — Foto zu gross', 'error');
+          return;
         }
-      }
-      showToast('Foto aktualisiert', 'success');
+        if (db && isOnline) {
+          db.from('recipes').update({photo: photoData}).eq('id', id).then(function(){});
+        }
+        var existing = document.getElementById('recipe-photo-el');
+        if (existing) {
+          existing.src = photoData;
+        } else {
+          var ph = document.getElementById('recipe-photo-placeholder');
+          if (ph) {
+            var img = document.createElement('img');
+            img.className = 'recipe-hero';
+            img.id = 'recipe-photo-el';
+            img.src = photoData;
+            ph.parentNode.replaceChild(img, ph);
+          }
+        }
+        showToast('Foto aktualisiert', 'success');
+      });
     };
     reader.readAsDataURL(file);
   };
