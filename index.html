@@ -1929,6 +1929,10 @@ function applyTheme() {
   var saved = localStorage.getItem('thyme_theme');
   if (saved === 'light') {
     document.body.classList.add('light-mode');
+    var dark = document.getElementById('bc-dark');
+    var light = document.getElementById('bc-light');
+    if (dark) dark.style.display = 'none';
+    if (light) light.style.display = '';
     setTimeout(function() {
       var btn = document.getElementById('theme-toggle-btn');
       if (btn) btn.innerHTML = '🌙 &nbsp;Dunkelmodus aktivieren';
