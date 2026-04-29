@@ -435,9 +435,131 @@ body.light-mode #cat-scroll-wrap { background: #F5F0E8; border-color: #E0D9CC; }
 body.light-mode #bc-light { display: block !important; }
 body.light-mode #bc-dark { display: none !important; }
 
+
+/* ── ONBOARDING ──────────────────────────────────────────────────────────── */
+#onboarding{position:fixed;inset:0;background:#000;z-index:500;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 28px}
+#onboarding.hidden{display:none}
+.ob-slide{display:none;flex-direction:column;align-items:center;justify-content:space-between;width:100%;max-width:360px;min-height:80vh;text-align:center;padding:40px 0 20px}
+.ob-slide.active{display:flex}
+.ob-icon{flex:1;display:flex;align-items:center;justify-content:center}
+.ob-title{font-family:'Cormorant Garamond','Palatino Linotype',Georgia,serif;font-size:30px;font-weight:300;color:#F0E8D8;letter-spacing:1px;margin-bottom:12px;line-height:1.3}
+.ob-sub{font-size:14px;color:#B0C4B1;line-height:1.7;letter-spacing:0.2px;margin-bottom:24px}
+.ob-dots{display:flex;gap:8px;margin-bottom:24px;justify-content:center}
+.ob-dot{width:6px;height:6px;border-radius:50%;background:#2E2416;transition:background .3s}
+.ob-dot.active{background:#B8973A}
+.ob-btn-next{width:100%;padding:16px;background:#3D5A3E;border:none;border-radius:14px;color:#F0E8D8;font-family:'DM Sans',system-ui,sans-serif;font-size:15px;font-weight:500;letter-spacing:0.5px;cursor:pointer;margin-bottom:12px}
+.ob-btn-next.gold{background:#B8973A}
+.ob-btn-skip{font-size:11px;color:#5C7F5D;letter-spacing:2px;text-transform:uppercase;background:none;border:none;cursor:pointer;padding:8px}
+body.light-mode #onboarding{background:#F5F0E8}
+body.light-mode .ob-title{color:#2C1F14}
+body.light-mode .ob-sub{color:#6B7B6C}
+body.light-mode .ob-dot{background:#E0D9CC}
+body.light-mode .ob-btn-next{background:#3D5A3E}
+
 </style>
 </head>
 <body>
+
+<!-- ONBOARDING -->
+<div id="onboarding" class="hidden">
+
+  <!-- Slide 1: Willkommen -->
+  <div class="ob-slide active" id="ob0">
+    <div class="ob-icon">
+      <svg width="110" height="130" viewBox="0 0 100 120">
+        <line x1="50" y1="108" x2="50" y2="38" stroke="#3D5A3E" stroke-width="2.5" stroke-linecap="round"/>
+        <circle cx="50" cy="32" r="8" fill="#B8973A"/>
+        <circle cx="50" cy="32" r="5" fill="#C9A84C"/>
+        <circle cx="50" cy="32" r="2.2" fill="#DDB85A"/>
+        <circle cx="37" cy="37" r="4" fill="#C9A84C"/>
+        <circle cx="63" cy="41" r="3.5" fill="#DDB85A" opacity="0.85"/>
+        <path d="M48 52 Q32 42 20 47 Q32 58 48 52Z" fill="#3D5A3E"/>
+        <path d="M52 52 Q68 41 80 46 Q68 57 52 52Z" fill="#5C7F5D"/>
+        <path d="M48 66 Q30 55 18 60 Q30 71 48 66Z" fill="#3D5A3E"/>
+        <path d="M52 66 Q70 54 82 59 Q70 70 52 66Z" fill="#5C7F5D"/>
+        <path d="M48 80 Q32 69 20 74 Q32 85 48 80Z" fill="#3D5A3E"/>
+        <path d="M52 80 Q68 68 80 73 Q68 84 52 80Z" fill="#5C7F5D"/>
+        <path d="M50 96 Q62 90 74 94" stroke="#5C7F5D" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+        <circle cx="76" cy="95" r="5.5" fill="#B8973A"/>
+        <circle cx="76" cy="95" r="3.5" fill="#C9A84C"/>
+        <circle cx="76" cy="95" r="1.5" fill="#DDB85A"/>
+      </svg>
+    </div>
+    <div class="ob-title">Willkommen bei thyme</div>
+    <div class="ob-sub">Dein persönliches Premium-Rezeptarchiv — elegant, übersichtlich und immer griffbereit.</div>
+    <div class="ob-dots">
+      <div class="ob-dot active"></div><div class="ob-dot"></div><div class="ob-dot"></div><div class="ob-dot"></div>
+    </div>
+    <button class="ob-btn-next" onclick="obNext()">Weiter</button>
+    <button class="ob-btn-skip" onclick="obFinish()">Überspringen</button>
+  </div>
+
+  <!-- Slide 2: Erfassen -->
+  <div class="ob-slide" id="ob1">
+    <div class="ob-icon">
+      <svg width="100" height="100" viewBox="0 0 90 90">
+        <rect x="15" y="8" width="60" height="72" rx="8" fill="#1A1208" stroke="#3D3020" stroke-width="1.5"/>
+        <line x1="27" y1="28" x2="63" y2="28" stroke="#B8973A" stroke-width="1.2" opacity="0.7"/>
+        <line x1="27" y1="40" x2="63" y2="40" stroke="#5C7F5D" stroke-width="1" opacity="0.6"/>
+        <line x1="27" y1="52" x2="50" y2="52" stroke="#5C7F5D" stroke-width="1" opacity="0.6"/>
+        <rect x="50" y="56" width="24" height="24" rx="12" fill="#B8973A"/>
+        <line x1="62" y1="63" x2="62" y2="73" stroke="#000" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="57" y1="68" x2="67" y2="68" stroke="#000" stroke-width="2.5" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <div class="ob-title">Rezepte erfassen</div>
+    <div class="ob-sub">Tippe Rezepte manuell ein — oder fotografiere sie. Claude erkennt Handschrift, Bücher und gedruckte Rezepte automatisch.</div>
+    <div class="ob-dots">
+      <div class="ob-dot"></div><div class="ob-dot active"></div><div class="ob-dot"></div><div class="ob-dot"></div>
+    </div>
+    <button class="ob-btn-next" onclick="obNext()">Weiter</button>
+    <button class="ob-btn-skip" onclick="obFinish()">Überspringen</button>
+  </div>
+
+  <!-- Slide 3: Organisieren -->
+  <div class="ob-slide" id="ob2">
+    <div class="ob-icon">
+      <svg width="100" height="100" viewBox="0 0 90 90">
+        <rect x="8" y="18" width="34" height="40" rx="6" fill="#1A1208" stroke="#3D5A3E" stroke-width="1.5"/>
+        <rect x="48" y="18" width="34" height="40" rx="6" fill="#1A1208" stroke="#B8973A" stroke-width="1.5"/>
+        <rect x="8" y="62" width="34" height="20" rx="6" fill="#1A1208" stroke="#3D5A3E" stroke-width="1"/>
+        <rect x="48" y="62" width="34" height="20" rx="6" fill="#1A1208" stroke="#B8973A" stroke-width="1"/>
+        <text x="25" y="42" text-anchor="middle" font-family="Georgia,serif" font-size="9" fill="#5C7F5D">Fleisch</text>
+        <text x="65" y="42" text-anchor="middle" font-family="Georgia,serif" font-size="9" fill="#B8973A">Backen</text>
+        <text x="25" y="76" text-anchor="middle" font-family="Georgia,serif" font-size="8" fill="#5C7F5D">Suppen</text>
+        <text x="65" y="76" text-anchor="middle" font-family="Georgia,serif" font-size="8" fill="#B8973A">Desserts</text>
+      </svg>
+    </div>
+    <div class="ob-title">Alles organisiert</div>
+    <div class="ob-sub">Kategorien, Favoriten und Suche helfen dir jedes Rezept in Sekunden zu finden — egal wie gross dein Archiv wird.</div>
+    <div class="ob-dots">
+      <div class="ob-dot"></div><div class="ob-dot"></div><div class="ob-dot active"></div><div class="ob-dot"></div>
+    </div>
+    <button class="ob-btn-next" onclick="obNext()">Weiter</button>
+    <button class="ob-btn-skip" onclick="obFinish()">Überspringen</button>
+  </div>
+
+  <!-- Slide 4: Los geht's -->
+  <div class="ob-slide" id="ob3">
+    <div class="ob-icon">
+      <svg width="100" height="100" viewBox="0 0 90 90">
+        <circle cx="45" cy="45" r="30" fill="none" stroke="#B8973A" stroke-width="0.8" opacity="0.3"/>
+        <circle cx="45" cy="45" r="22" fill="none" stroke="#B8973A" stroke-width="1" opacity="0.5"/>
+        <circle cx="45" cy="45" r="14" fill="#B8973A" opacity="0.15"/>
+        <circle cx="45" cy="45" r="14" stroke="#B8973A" stroke-width="1.5" fill="none"/>
+        <path d="M38 45 L43 51 L55 38" stroke="#B8973A" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <div class="ob-title">Bereit loszulegen</div>
+    <div class="ob-sub">Dein Archiv wartet. Starte mit einem Rezept — tippe es ein oder fotografiere es direkt.</div>
+    <div class="ob-dots">
+      <div class="ob-dot"></div><div class="ob-dot"></div><div class="ob-dot"></div><div class="ob-dot active"></div>
+    </div>
+    <button class="ob-btn-next gold" onclick="obFinish()">Los geht's</button>
+  </div>
+
+</div>
+
 <!-- SPLASH -->
 <div id="splash">
   <svg viewBox="0 0 340 420" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:340px">
@@ -1084,6 +1206,7 @@ async function init() {
   setTimeout(updateBookCoverTheme, 50);
   isOnline = navigator.onLine;
   showSplash();
+  obShow();
   localLoad();
   renderCatScroll(); renderGrid(); renderCatList(); renderCatPicker('');
   updateKeyStatus(); updateModeBadge();
