@@ -1057,6 +1057,28 @@ body.light-mode .ob-btn-next{background:#3D5A3E}
 
 <script>
 
+// ─── ONBOARDING ────────────────────────────────────────────────────────────
+var _obCurrent = 0;
+
+function obShow() {
+  if (!localStorage.getItem('thyme_onboarding_done')) {
+    document.getElementById('onboarding').classList.remove('hidden');
+  }
+}
+
+function obNext() {
+  document.getElementById('ob' + _obCurrent).classList.remove('active');
+  _obCurrent = Math.min(_obCurrent + 1, 3);
+  document.getElementById('ob' + _obCurrent).classList.add('active');
+}
+
+function obFinish() {
+  localStorage.setItem('thyme_onboarding_done', '1');
+  document.getElementById('onboarding').classList.add('hidden');
+  _obCurrent = 0;
+}
+
+
 // ─── TOAST & CONFIRM ──────────────────────────────────────────────────────
 var _toastTimer = null;
 function showToast(msg, type, duration) {
