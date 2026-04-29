@@ -456,6 +456,36 @@ body.light-mode .ob-sub{color:#6B7B6C}
 body.light-mode .ob-dot{background:#E0D9CC}
 body.light-mode .ob-btn-next{background:#3D5A3E}
 
+
+/* ── EINKAUFSLISTE ───────────────────────────────────────────────────────── */
+#screen-shopping .sub-header{display:flex;align-items:center;justify-content:space-between;padding:12px 20px;border-bottom:1px solid var(--border)}
+.shop-filter-bar{display:flex;gap:8px;overflow-x:auto;padding:12px 20px;border-bottom:1px solid var(--border);scrollbar-width:none}
+.shop-filter-bar::-webkit-scrollbar{display:none}
+.shop-filter{font-size:11px;padding:5px 14px;border-radius:99px;border:1px solid var(--border);color:var(--smoke);white-space:nowrap;cursor:pointer;letter-spacing:0.5px;background:transparent;font-family:'DM Sans',sans-serif}
+.shop-filter.active{background:#3D5A3E;border-color:#3D5A3E;color:#F0E8D8}
+.shop-body{padding:0 20px 100px;overflow-y:auto}
+.shop-cat-title{font-size:9px;letter-spacing:2.5px;text-transform:uppercase;color:#B8973A;padding:16px 0 8px;display:flex;align-items:center;justify-content:space-between}
+.shop-cat-count{font-size:10px;color:var(--smoke);letter-spacing:0}
+.shop-item{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:0.5px solid var(--border)}
+.shop-item:last-child{border:none}
+.shop-cb{width:20px;height:20px;border-radius:50%;border:1.5px solid #3D5A3E;flex-shrink:0;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.shop-cb.done{background:#3D5A3E;border-color:#3D5A3E}
+.shop-cb.done::after{content:'';width:5px;height:9px;border:2px solid #F0E8D8;border-top:none;border-left:none;transform:rotate(45deg);margin-top:-2px;display:block}
+.shop-item-main{flex:1;min-width:0}
+.shop-item-name{font-size:14px;color:var(--bark);transition:color .2s}
+.shop-item-name.done{color:var(--border);text-decoration:line-through}
+.shop-item-src{font-size:10px;color:var(--smoke);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.shop-item-amt{font-size:12px;color:#5C7F5D;text-align:right;white-space:nowrap}
+.shop-merged{font-size:10px;color:#B8973A;margin-left:4px}
+.shop-empty{text-align:center;padding:60px 20px;color:var(--smoke);font-size:14px}
+.shop-footer{position:fixed;bottom:0;left:0;right:0;background:var(--cream);border-top:1px solid var(--border);padding:12px 20px 32px;display:flex;gap:10px;max-width:900px;margin:0 auto}
+.shop-footer-btn{flex:1;padding:12px;border-radius:12px;font-size:13px;font-weight:500;font-family:'DM Sans',sans-serif;cursor:pointer;letter-spacing:0.5px}
+.shop-btn-clear{background:transparent;border:1px solid var(--border);color:var(--smoke)}
+.shop-btn-export{background:#3D5A3E;border:none;color:#F0E8D8}
+.shop-add-btn{display:block;width:100%;padding:10px;background:transparent;border:1px dashed var(--border);border-radius:10px;color:var(--smoke);font-size:13px;letter-spacing:1px;cursor:pointer;margin-top:12px;font-family:'DM Sans',sans-serif}
+body.light-mode .shop-filter.active{background:#3D5A3E;color:#F5F0E8}
+body.light-mode .shop-footer{background:#F5F0E8}
+
 </style>
 </head>
 <body>
@@ -690,7 +720,7 @@ body.light-mode .ob-btn-next{background:#3D5A3E}
       </svg>
     </div>
     <div class="header-right">
-      <button class="fav-tab" id="fav-tab" onclick="toggleFavView()">
+      <button onclick="openShopList()" style="background:none;border:none;cursor:pointer;padding:4px 8px;display:flex;align-items:center;gap:4px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;color:var(--bark)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg></button><button class="fav-tab" id="fav-tab" onclick="toggleFavView()">
         <span class="fav-tab-icon">★</span>
         <span id="fav-tab-label">Favoriten</span>
       </button>
@@ -1228,6 +1258,7 @@ async function init() {
   showSplash();
   obShow();
   localLoad();
+  loadShopList();
   renderCatScroll(); renderGrid(); renderCatList(); renderCatPicker('');
   updateKeyStatus(); updateModeBadge();
 
@@ -1410,6 +1441,7 @@ function openDetail(r) {
     + (r.instructions ? '<span class="section-label">Zubereitung</span><div class="instructions-text">' + r.instructions + '</div>' : '')
     + (r.notes ? '<span class="section-label">Notizen</span><div class="notes-text">' + r.notes + '</div>' : '')
     + '<div class="detail-actions">'
+    + '<button class="detail-actions-btn" onclick="addCurrentRecipeToShop()" style="background:#1A2E1A;border-color:#3D5A3E;color:#7FA882">&#43; &nbsp; Einkaufsliste</button>'
     + '<button class="detail-actions-btn" id="detail-menu-btn">&#8943; &nbsp; Aktionen</button>'
     + '</div>';
   document.getElementById('detail-menu-btn').addEventListener('click', function() { openActionSheet(); });
@@ -2415,6 +2447,32 @@ if (document.readyState === 'loading') {
   init();
 }
 </script>
+
+<!-- SCREEN: EINKAUFSLISTE -->
+<div id="screen-shopping" class="screen">
+  <div class="sub-header">
+    <button class="back-btn" onclick="goBack()" style="font-size:18px;color:#5C7F5D">&#8592;</button>
+    <span class="sub-title" style="font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:300;letter-spacing:3px">Einkaufsliste</span>
+    <div style="display:flex;align-items:center;gap:10px;margin-left:auto">
+      <span id="shop-recipe-count" style="font-size:11px;color:#B8973A;letter-spacing:1px"></span>
+    </div>
+  </div>
+  <div class="shop-filter-bar" id="shop-filter-bar">
+    <button class="shop-filter active" onclick="setShopFilter('alle')" data-filter="alle">Alle</button>
+    <button class="shop-filter" onclick="setShopFilter('proteine')" data-filter="proteine">Proteine</button>
+    <button class="shop-filter" onclick="setShopFilter('milch')" data-filter="milch">Milchprodukte</button>
+    <button class="shop-filter" onclick="setShopFilter('gemuese')" data-filter="gemuese">Gemüse & Kräuter</button>
+    <button class="shop-filter" onclick="setShopFilter('kolonial')" data-filter="kolonial">Kolonialwaren</button>
+    <button class="shop-filter" onclick="setShopFilter('fisch')" data-filter="fisch">Fisch & Meeresfrüchte</button>
+    <button class="shop-filter" onclick="setShopFilter('sonstiges')" data-filter="sonstiges">Sonstiges</button>
+  </div>
+  <div class="shop-body" id="shop-body"></div>
+  <div class="shop-footer">
+    <button class="shop-footer-btn shop-btn-clear" onclick="shopClearDone()">Erledigte löschen</button>
+    <button class="shop-footer-btn shop-btn-export" onclick="shopExport()">Als Text exportieren</button>
+  </div>
+</div>
+
 <!-- ACTION SHEET -->
 <div class="action-sheet-overlay" id="action-sheet-overlay" onclick="closeActionSheet()"></div>
 <div class="action-sheet" id="action-sheet">
