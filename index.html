@@ -1847,19 +1847,28 @@ function addPhotoToRecipe() {
 function deletePhotoFromRecipe() {
   if (!currentRecipe) return;
   closeActionSheet();
-  showConfirm('Foto wirklich löschen?', 'Löschen', function() {
-    var id = currentRecipe.id;
-    recipes = recipes.map(function(r) {
-      return r.id === id ? Object.assign({}, r, {photo: null}) : r;
-    });
-    localSave();
-    if (db && isOnline) {
-      db.from('recipes').update({photo: null}).eq('id', id).then(function(){});
-    }
-    currentRecipe = recipes.find(function(r) { return r.id === id; });
-    openDetail(currentRecipe);
-    showToast('Foto gelöscht', 'success');
+  var id = currentRecipe.id;
+  var oldPhoto = currentRecipe.photo;
+  // Direkt löschen ohne Confirm (iOS Timing-Problem)
+  recipes = recipes.map(function(r) {
+    return r.id === id ? Object.assign({}, r, {photo: null}) : r;
   });
+  localSave();
+  if (db && isOnline) {
+    db.from('recipes').update({photo: null}).eq('id', id).then(function(){});
+  }
+  currentRecipe = recipes.find(function(r) { return r.id === id; });
+  // Foto sofort aus Detail-View entfernen
+  var photoEl = document.getElementById('recipe-photo-el');
+  if (photoEl) {
+    var placeholder = document.createElement('div');
+    placeholder.className = 'recipe-hero-placeholder';
+    placeholder.id = 'recipe-photo-placeholder';
+    placeholder.innerHTML = '<span style="color:var(--smoke);font-size:13px;letter-spacing:1px">Foto hinzufügen</span>';
+    placeholder.onclick = function() { addPhotoToRecipe(); };
+    photoEl.parentNode.replaceChild(placeholder, photoEl);
+  }
+  showToast('Foto gelöscht', 'success');
 }
 
 
