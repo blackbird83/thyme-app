@@ -1805,6 +1805,7 @@ function closeActionSheet() {
 
 // FOTO
 function addPhotoToRecipe() {
+  closeActionSheet();
   var input = document.createElement('input');
   input.type = 'file';
   input.accept = 'image/*';
@@ -1845,6 +1846,7 @@ function addPhotoToRecipe() {
 // ─── FOTO LÖSCHEN ─────────────────────────────────────────────────────────
 function deletePhotoFromRecipe() {
   if (!currentRecipe) return;
+  closeActionSheet();
   showConfirm('Foto wirklich löschen?', 'Löschen', function() {
     currentRecipe.photo = null;
     recipes = recipes.map(function(r) {
@@ -2188,13 +2190,13 @@ if (document.readyState === 'loading') {
 <div class="action-sheet-overlay" id="action-sheet-overlay" onclick="closeActionSheet()"></div>
 <div class="action-sheet" id="action-sheet">
   <div class="action-sheet-panel">
-    <button class="action-sheet-item" id="action-photo-add" onclick="closeActionSheet();addPhotoToRecipe()">
+    <button class="action-sheet-item" id="action-photo-add" onclick="addPhotoToRecipe()">
       <span class="action-sheet-item-icon">&#128247;</span> Foto hinzufügen
     </button>
-    <button class="action-sheet-item" id="action-photo-edit" onclick="closeActionSheet();addPhotoToRecipe()" style="display:none">
+    <button class="action-sheet-item" id="action-photo-edit" onclick="addPhotoToRecipe()" style="display:none">
       <span class="action-sheet-item-icon">&#128247;</span> Foto bearbeiten
     </button>
-    <button class="action-sheet-item danger" id="action-photo-delete" onclick="closeActionSheet();deletePhotoFromRecipe()" style="display:none">
+    <button class="action-sheet-item danger" id="action-photo-delete" onclick="deletePhotoFromRecipe()" style="display:none">
       <span class="action-sheet-item-icon">&#128465;&#65039;</span> Foto löschen
     </button>
     <button class="action-sheet-item" onclick="closeActionSheet();openEdit(currentRecipe)">
