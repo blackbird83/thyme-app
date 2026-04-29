@@ -32,10 +32,10 @@ async function callClaude(payload) {
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{
-  --cream:#1A1208;--parchment:#221A0E;--border:#4A3828;
+  --cream:#000000;--parchment:#0A0805;--border:#4A3828;
   --thyme:#5C7F5D;--thyme-mid:#7FA882;--gold:#B8973A;
   --bark:#F0E8D8;--smoke:#B0C4B1;
-  --bg-grad: linear-gradient(160deg,#2A1E10 0%,#1A1208 50%,#0A0A08 100%);
+  --bg-grad: #000000;
 }
 body.light-mode{
   --cream:#F5F0E8;--parchment:#EDE5D0;--border:#E0D9CC;
@@ -78,7 +78,7 @@ body.light-mode #cat-active-bar { border-bottom-color: #E0D9CC; }
 body.light-mode .fab-menu-panel { background: #F5F0E8; border-color: #E0D9CC; }
 body.light-mode .fab-option { color: #2C1F14; border-bottom-color: #E0D9CC; }
 body.light-mode .recipe-photo-placeholder { background: #EDE5D0; border-color: #C8BFAD; }
-body{background:var(--bg-grad);background-attachment:fixed;font-family:'DM Sans',sans-serif;color:var(--bark);min-height:100vh}
+body{background:#000;background-attachment:fixed;font-family:'DM Sans',sans-serif;color:var(--bark);min-height:100vh}
 input,textarea{font-family:'DM Sans',sans-serif;font-size:15px;outline:none;-webkit-appearance:none}
 textarea{resize:vertical}
 
@@ -147,7 +147,7 @@ textarea{resize:vertical}
 .pill:hover{border-color:var(--thyme);color:var(--thyme)}
 .pill.active{background:var(--thyme);border-color:var(--thyme);color:white;font-weight:500;letter-spacing:1px}
 .grid{display:flex;flex-direction:column;gap:0;padding:0 0 120px;border-top:1px solid var(--border)}
-.card{background:var(--parchment);border-radius:0;padding:14px 20px;border-left:none;border-bottom:1px solid var(--border);cursor:pointer;transition:background .18s ease;position:relative;display:flex;align-items:center;gap:16px;overflow:hidden}
+.card{background:#0A0805;border-radius:0;padding:14px 20px;border-left:none;border-bottom:1px solid var(--border);cursor:pointer;transition:background .18s ease;position:relative;display:flex;align-items:center;gap:16px;overflow:hidden}
 .card:active{background:var(--cream)}
 .card-emoji{display:none}
 /* Karte mit Foto — etwas höher */
@@ -168,7 +168,7 @@ textarea{resize:vertical}
 .recent-label{font-size:12px;color:var(--bark);letter-spacing:2px;text-transform:uppercase;margin-bottom:14px;display:block;opacity:0.9;font-weight:500}
 .recent-scroll{display:flex;gap:12px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
 .recent-scroll::-webkit-scrollbar{display:none}
-.recent-card{flex-shrink:0;width:140px;cursor:pointer;border-radius:12px;overflow:hidden;background:var(--parchment);border:1px solid var(--border);transition:transform .2s ease}
+.recent-card{flex-shrink:0;width:140px;cursor:pointer;border-radius:12px;overflow:hidden;background:#0A0805;border:1px solid var(--border);transition:transform .2s ease}
 .recent-card:active{transform:scale(0.96)}
 .recent-card-photo{width:100%;height:80px;object-fit:cover;display:block}
 .recent-card-color{width:100%;height:80px;display:block;opacity:0.7}
@@ -209,10 +209,10 @@ body.light-mode .fav-btn.inactive{color:rgba(0,0,0,0.2)}
 .fab-overlay.open{display:block}
 .detail-body{padding:28px 28px 100px;max-width:680px}
 .recipe-hero{width:calc(100% + 40px);margin:-24px -20px 20px;height:240px;object-fit:cover;display:block}
-.recipe-hero-placeholder{width:calc(100% + 40px);margin:-24px -20px 20px;height:120px;background:var(--parchment);display:flex;align-items:center;justify-content:center;cursor:pointer;border-bottom:1px solid var(--border)}
+.recipe-hero-placeholder{width:calc(100% + 40px);margin:-24px -20px 20px;height:120px;background:#0A0805;display:flex;align-items:center;justify-content:center;cursor:pointer;border-bottom:1px solid var(--border)}
 .recipe-hero-placeholder span{font-size:11px;color:var(--smoke);letter-spacing:2px;text-transform:uppercase}
 .recipe-photo{width:100%;height:240px;object-fit:cover;border-radius:0;margin-bottom:16px;display:block}
-.recipe-photo-placeholder{width:100%;height:120px;background:var(--parchment);border-radius:0;margin-bottom:16px;display:flex;align-items:center;justify-content:center;cursor:pointer;border-bottom:1px solid var(--border)}
+.recipe-photo-placeholder{width:100%;height:120px;background:#0A0805;border-radius:0;margin-bottom:16px;display:flex;align-items:center;justify-content:center;cursor:pointer;border-bottom:1px solid var(--border)}
 .recipe-photo-placeholder span{font-size:11px;color:var(--smoke);letter-spacing:2px;text-transform:uppercase}
 .detail-stripe{height:3px;width:100%;margin-bottom:24px;display:block}
 .detail-emoji{font-size:52px;margin-bottom:10px;display:block}
@@ -222,7 +222,7 @@ body.light-mode .fav-btn.inactive{color:rgba(0,0,0,0.2)}
 /* Portionen-Rechner — prominent */
 .portions-wrap{display:flex;flex-direction:column;gap:6px}
 .portions-label{font-size:9px;color:var(--smoke);letter-spacing:3px;text-transform:uppercase;opacity:0.7}
-.portions-ctrl{display:flex;align-items:center;gap:0;background:var(--parchment);border-radius:12px;overflow:hidden;border:1px solid var(--border)}
+.portions-ctrl{display:flex;align-items:center;gap:0;background:#0A0805;border-radius:12px;overflow:hidden;border:1px solid var(--border)}
 .portions-btn{background:none;border:none;color:var(--gold);font-size:24px;width:48px;height:48px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-weight:300;transition:background .15s,transform .1s}
 .portions-btn:active{background:var(--border);transform:scale(0.9)}
 .portions-divider{width:1px;height:32px;background:var(--border)}
@@ -230,7 +230,7 @@ body.light-mode .fav-btn.inactive{color:rgba(0,0,0,0.2)}
 .portions-num{font-family:'Cormorant Garamond',serif;font-size:28px;color:var(--bark);text-align:center;font-weight:300;transition:transform .15s ease,opacity .15s ease;display:block;line-height:1}
 .portions-num.bump{transform:scale(1.3);opacity:0.7}
 .portions-unit{font-size:9px;color:var(--smoke);letter-spacing:2px;text-transform:uppercase;margin-top:2px}
-.meta-chip{background:var(--parchment);border-radius:99px;padding:6px 14px;font-size:13px;color:var(--thyme);font-weight:500}
+.meta-chip{background:#0A0805;border-radius:99px;padding:6px 14px;font-size:13px;color:var(--thyme);font-weight:500}
 .section-label{font-size:10px;color:var(--thyme);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;margin-top:20px;display:block}
 .ingredient{display:flex;flex-direction:row;align-items:baseline;gap:8px;padding:11px 0;border-bottom:1px solid #2A2010}
 .ingredient-amount{font-family:'Cormorant Garamond',serif;font-size:19px;color:#B8973A;font-weight:400;min-width:44px;text-align:right;flex-shrink:0}
@@ -299,7 +299,7 @@ body.light-mode .fav-btn.inactive{color:rgba(0,0,0,0.2)}
 .form-body{padding:20px;max-width:680px;padding-bottom:60px}
 .form-group{margin-bottom:16px}
 .form-label{font-size:10px;color:var(--thyme);letter-spacing:2px;text-transform:uppercase;display:block;margin-bottom:6px}
-.form-input{width:100%;background:var(--parchment);border:1.5px solid var(--border);border-radius:12px;padding:13px 14px;font-size:15px;color:var(--bark);transition:border-color .2s}
+.form-input{width:100%;background:#0A0805;border:1.5px solid var(--border);border-radius:12px;padding:13px 14px;font-size:15px;color:var(--bark);transition:border-color .2s}
 .form-input:focus{border-color:var(--thyme-mid)}
 .form-input::placeholder{color:#b0a898}
 .form-row{display:flex;gap:12px}
@@ -320,9 +320,9 @@ body.light-mode .fav-btn.inactive{color:rgba(0,0,0,0.2)}
 .form-row .form-group{flex:1}
 .cat-picker{display:flex;gap:8px;flex-wrap:wrap;padding:4px 0}
 .form-actions{display:flex;gap:10px;margin-top:20px}
-.btn-cancel{flex:1;background:var(--parchment);border:none;border-radius:12px;padding:14px;font-size:15px;color:var(--smoke);cursor:pointer}
+.btn-cancel{flex:1;background:#0A0805;border:none;border-radius:12px;padding:14px;font-size:15px;color:var(--smoke);cursor:pointer}
 .btn-save{flex:2;background:var(--thyme);border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:600;color:white;cursor:pointer}
-.upload-box{background:var(--parchment);border-radius:16px;padding:32px;text-align:center;border:2px dashed var(--border);margin-bottom:20px}
+.upload-box{background:#0A0805;border-radius:16px;padding:32px;text-align:center;border:2px dashed var(--border);margin-bottom:20px}
 .upload-box p{font-size:14px;color:var(--smoke);margin:10px 0 16px}
 .file-btn{background:var(--thyme);color:white;border:none;border-radius:12px;padding:13px 28px;font-size:15px;font-weight:600;cursor:pointer;display:inline-block}
 .scan-preview{width:100%;max-height:260px;object-fit:contain;border-radius:12px;margin-bottom:16px}
@@ -352,7 +352,7 @@ body.light-mode .fav-btn.inactive{color:rgba(0,0,0,0.2)}
 
 /* ── BUCHCOVER (Home ohne Kategorie) ────────────── */
 #book-cover{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px 20px 80px;cursor:pointer;min-height:70vh}
-#book-cover-inner{display:flex;flex-direction:column;align-items:center;border:1px solid #2E2416;border-radius:16px;padding:40px 48px 32px;background:rgba(34,26,14,0.4)}
+#book-cover-inner{display:flex;flex-direction:column;align-items:center;padding:20px 0 0}
 #book-cover svg{width:380px;height:auto;margin-bottom:4px}
 #book-cover-hint{font-family:'DM Sans',sans-serif;font-size:10px;color:#4A6741;letter-spacing:3px;text-transform:uppercase;margin-top:12px}
 
@@ -361,7 +361,7 @@ body.light-mode .fav-btn.inactive{color:rgba(0,0,0,0.2)}
 .app-name{display:flex;align-items:center;gap:0;cursor:pointer;user-select:none;text-decoration:none}
 .app-name svg{height:32px;width:auto}
 .header-right{display:flex;gap:8px;align-items:center}
-.lang-btn{background:var(--parchment);border:none;border-radius:99px;padding:6px 12px;font-size:11px;font-weight:600;color:var(--thyme);letter-spacing:1px;cursor:pointer}
+.lang-btn{background:#0A0805;border:none;border-radius:99px;padding:6px 12px;font-size:11px;font-weight:600;color:var(--thyme);letter-spacing:1px;cursor:pointer}
 .header-icon-btn{background:none;border:none;color:var(--smoke);font-size:18px;cursor:pointer;padding:4px 6px;opacity:0.7;transition:opacity .2s;line-height:1}
 .header-icon-btn:hover{opacity:1;color:var(--thyme)}
 
@@ -573,7 +573,7 @@ body.light-mode #toast{background:#F5F0E8;border-color:#C8BFAD;color:#2C1F14}
   </div>
   <div class="cat-scroll" id="cat-scroll"></div>
   <div id="book-cover" onclick="openCatSheet()" style="display:none"><div id="book-cover-inner">
-    <svg viewBox="0 0 340 300" xmlns="http://www.w3.org/2000/svg">
+    <svg viewBox="0 0 340 480" xmlns="http://www.w3.org/2000/svg">
       <defs>
         <linearGradient id="bcL" x1="100%" y1="0%" x2="0%" y2="0%">
           <stop offset="0%" stop-color="#3D5A3E"/><stop offset="100%" stop-color="#5C7F5D"/>
@@ -584,28 +584,115 @@ body.light-mode #toast{background:#F5F0E8;border-color:#C8BFAD;color:#2C1F14}
         <linearGradient id="bcS" x1="0%" y1="0%" x2="100%" y2="0%">
           <stop offset="0%" stop-color="#6B9E6E"/><stop offset="100%" stop-color="#9DC49D"/>
         </linearGradient>
+        <!-- Gold Rahmen Verlauf -->
+        <linearGradient id="bcGoldT" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#8A6E20" opacity="0.6"/>
+          <stop offset="25%" stop-color="#DDB85A"/>
+          <stop offset="50%" stop-color="#F0CC6A"/>
+          <stop offset="75%" stop-color="#DDB85A"/>
+          <stop offset="100%" stop-color="#8A6E20" opacity="0.6"/>
+        </linearGradient>
+        <linearGradient id="bcGoldB" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#5A4510" opacity="0.4"/>
+          <stop offset="50%" stop-color="#B8973A" opacity="0.7"/>
+          <stop offset="100%" stop-color="#5A4510" opacity="0.4"/>
+        </linearGradient>
+        <linearGradient id="bcGoldL" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#DDB85A"/>
+          <stop offset="50%" stop-color="#9A7B28"/>
+          <stop offset="100%" stop-color="#5A4510" opacity="0.5"/>
+        </linearGradient>
+        <linearGradient id="bcGoldR" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#C9A84C"/>
+          <stop offset="50%" stop-color="#8A6E20"/>
+          <stop offset="100%" stop-color="#4A3510" opacity="0.5"/>
+        </linearGradient>
+        <!-- 3D Hintergrund Verlauf -->
+        <linearGradient id="bcBg" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#1E1508"/>
+          <stop offset="50%" stop-color="#0E0A04"/>
+          <stop offset="100%" stop-color="#060402"/>
+        </linearGradient>
+        <clipPath id="bcClip">
+          <rect x="50" y="16" width="240" height="400" rx="28"/>
+        </clipPath>
       </defs>
-      <line x1="170" y1="190" x2="170" y2="105" stroke="#3D5A3E" stroke-width="2.8" stroke-linecap="round"/>
-      <circle cx="170" cy="97" r="7" fill="#B8973A"/>
-      <circle cx="170" cy="97" r="4.5" fill="#C9A84C"/>
-      <circle cx="170" cy="97" r="2" fill="#DDB85A"/>
-      <circle cx="161" cy="100" r="3.2" fill="#C9A84C"/>
-      <circle cx="180" cy="102" r="2.8" fill="#DDB85A" opacity="0.85"/>
-      <path d="M169 118 Q148 108 134 113 Q148 124 169 118Z" fill="url(#bcL)"/>
-      <path d="M171 118 Q192 106 206 111 Q192 122 171 118Z" fill="url(#bcR)"/>
-      <path d="M169 138 Q146 127 131 132 Q146 143 169 138Z" fill="url(#bcL)"/>
-      <path d="M171 138 Q194 126 209 131 Q194 142 171 138Z" fill="url(#bcR)"/>
-      <path d="M169 158 Q148 147 134 152 Q148 163 169 158Z" fill="url(#bcL)"/>
-      <path d="M171 158 Q192 146 206 151 Q192 162 171 158Z" fill="url(#bcR)"/>
-      <path d="M170 176 Q188 168 206 174" stroke="#5C7F5D" stroke-width="1.8" fill="none" stroke-linecap="round"/>
-      <path d="M185 167 Q194 157 202 160 Q197 170 185 167Z" fill="url(#bcS)"/>
-      <path d="M196 172 Q205 163 212 167 Q207 176 196 172Z" fill="url(#bcS)"/>
-      <circle cx="213" cy="171" r="5" fill="#B8973A"/>
-      <circle cx="213" cy="171" r="3" fill="#C9A84C"/>
-      <circle cx="213" cy="171" r="1.5" fill="#DDB85A"/>
-      <line x1="85" y1="220" x2="255" y2="220" stroke="#C8BFAD" stroke-width="0.8"/>
-      <text x="170" y="258" text-anchor="middle" font-family="Cormorant Garamond, Georgia, serif" font-size="40" font-weight="300" fill="#B8973A" letter-spacing="6">thyme</text>
-      <text x="170" y="284" text-anchor="middle" font-family="DM Sans, Helvetica, sans-serif" font-size="8" font-weight="400" fill="#6B9E6E" letter-spacing="4">RECIPE ARCHIVE</text>
+
+      <!-- Äusserer Schatten (3D Tiefe) -->
+      <rect x="54" y="22" width="240" height="400" rx="27" fill="#000" opacity="0.7"/>
+      <rect x="52" y="20" width="240" height="400" rx="27" fill="#000" opacity="0.4"/>
+
+      <!-- Hauptrahmen Hintergrund -->
+      <rect x="50" y="16" width="240" height="400" rx="28" fill="url(#bcBg)"/>
+
+      <!-- Innere Reliefkante dunkel (unten/rechts — Schatten) -->
+      <rect x="50" y="16" width="240" height="400" rx="28" fill="none"
+        stroke="#000" stroke-width="6" opacity="0.5"/>
+
+      <!-- Goldrahmen — Oben (hell) -->
+      <line x1="78" y1="17" x2="262" y2="17" stroke="url(#bcGoldT)" stroke-width="2.5"/>
+      <!-- Goldrahmen — Links (hell→dunkel) -->
+      <line x1="51" y1="44" x2="51" y2="388" stroke="url(#bcGoldL)" stroke-width="2"/>
+      <!-- Goldrahmen — Rechts (dunkler) -->
+      <line x1="289" y1="44" x2="289" y2="388" stroke="url(#bcGoldR)" stroke-width="1.5"/>
+      <!-- Goldrahmen — Unten (dunkel) -->
+      <line x1="78" y1="415" x2="262" y2="415" stroke="url(#bcGoldB)" stroke-width="1.5"/>
+
+      <!-- Ecken Gold abgerundet -->
+      <path d="M51 44 Q51 17 78 17" fill="none" stroke="#DDB85A" stroke-width="2"/>
+      <path d="M262 17 Q289 17 289 44" fill="none" stroke="#C9A84C" stroke-width="2"/>
+      <path d="M51 388 Q51 415 78 415" fill="none" stroke="#8A6E20" stroke-width="1.5"/>
+      <path d="M262 415 Q289 415 289 388" fill="none" stroke="#7A5E18" stroke-width="1.5"/>
+
+      <!-- Innere Glanzlinie oben (3D Highlight) -->
+      <line x1="78" y1="20" x2="262" y2="20" stroke="#F0CC6A" stroke-width="0.8" opacity="0.5"/>
+
+      <!-- Glanzlicht oben im Rahmen -->
+      <rect x="50" y="16" width="240" height="60" rx="28" fill="rgba(255,240,180,0.04)" clip-path="url(#bcClip)"/>
+
+      <!-- Logo: Stamm -->
+      <line x1="170" y1="175" x2="170" y2="82" stroke="#3D5A3E" stroke-width="3" stroke-linecap="round"/>
+
+      <!-- Goldknospe oben -->
+      <circle cx="170" cy="73" r="10" fill="#8A6E20" opacity="0.6"/>
+      <circle cx="170" cy="72" r="9.5" fill="#B8973A"/>
+      <circle cx="170" cy="72" r="6" fill="#C9A84C"/>
+      <circle cx="170" cy="72" r="2.8" fill="#DDB85A"/>
+      <circle cx="156" cy="77" r="4.5" fill="#C9A84C"/>
+      <circle cx="184" cy="82" r="4" fill="#DDB85A" opacity="0.85"/>
+
+      <!-- Blattpaar oben -->
+      <path d="M168 96 Q140 82 118 89 Q140 103 168 96Z" fill="url(#bcL)"/>
+      <path d="M172 96 Q200 81 222 88 Q200 103 172 96Z" fill="url(#bcR)"/>
+      <!-- Blattpaar Mitte -->
+      <path d="M168 120 Q138 106 116 113 Q138 127 168 120Z" fill="url(#bcL)"/>
+      <path d="M172 120 Q202 105 224 112 Q202 127 172 120Z" fill="url(#bcR)"/>
+      <!-- Blattpaar unten -->
+      <path d="M168 144 Q140 130 118 137 Q140 151 168 144Z" fill="url(#bcL)"/>
+      <path d="M172 144 Q200 129 222 136 Q200 151 172 144Z" fill="url(#bcR)"/>
+
+      <!-- Seitenast -->
+      <path d="M170 164 Q198 152 226 161" stroke="#5C7F5D" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+      <path d="M194 152 Q210 135 222 140 Q212 156 194 152Z" fill="url(#bcS)"/>
+      <path d="M210 158 Q226 142 236 147 Q226 163 210 158Z" fill="url(#bcS)"/>
+      <!-- Seitenknospe -->
+      <circle cx="238" cy="153" r="7.5" fill="#8A6E20" opacity="0.5"/>
+      <circle cx="237" cy="152" r="7" fill="#B8973A"/>
+      <circle cx="237" cy="152" r="4.5" fill="#C9A84C"/>
+      <circle cx="237" cy="152" r="2" fill="#DDB85A"/>
+
+      <!-- Trennlinie mit Abstand -->
+      <line x1="90" y1="230" x2="250" y2="230" stroke="#B8973A" stroke-width="0.6" opacity="0.55"/>
+
+      <!-- thyme — mit Abstand zur Linie -->
+      <text x="170" y="282" text-anchor="middle"
+        font-family="'Cormorant Garamond','Palatino Linotype',Georgia,serif"
+        font-size="54" font-weight="300" fill="#F0E8D8" letter-spacing="10">thyme</text>
+
+      <!-- RECIPE ARCHIVE -->
+      <text x="170" y="312" text-anchor="middle"
+        font-family="'DM Sans',system-ui,sans-serif"
+        font-size="10" fill="#B8973A" letter-spacing="6" opacity="0.85">RECIPE ARCHIVE</text>
     </svg>
     </div><div id="book-cover-hint">Kategorie wählen</div>
   </div>
