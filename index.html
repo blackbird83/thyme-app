@@ -587,136 +587,113 @@ body.light-mode #cat-scroll-wrap { background: #F5F0E8; border-color: #E0D9CC; }
   </div>
   <div class="cat-scroll" id="cat-scroll"></div>
   <div id="book-cover" onclick="openCatSheet()" style="display:none"><div id="book-cover-inner">
-    <svg viewBox="0 0 340 520" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <linearGradient id="bcL" x1="100%" y1="0%" x2="0%" y2="0%">
-          <stop offset="0%" stop-color="#3D5A3E"/><stop offset="100%" stop-color="#5C7F5D"/>
-        </linearGradient>
-        <linearGradient id="bcR" x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%" stop-color="#6B9E6E"/><stop offset="100%" stop-color="#9DC49D"/>
-        </linearGradient>
-        <linearGradient id="bcS" x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%" stop-color="#6B9E6E"/><stop offset="100%" stop-color="#9DC49D"/>
-        </linearGradient>
-        <linearGradient id="bcGoldT" x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%" stop-color="#8A6E20" stop-opacity="0.5"/>
-          <stop offset="25%" stop-color="#DDB85A"/>
-          <stop offset="50%" stop-color="#F0CC6A"/>
-          <stop offset="75%" stop-color="#DDB85A"/>
-          <stop offset="100%" stop-color="#8A6E20" stop-opacity="0.5"/>
-        </linearGradient>
-        <linearGradient id="bcGoldB" x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%" stop-color="#5A4510" stop-opacity="0.3"/>
-          <stop offset="50%" stop-color="#B8973A" stop-opacity="0.6"/>
-          <stop offset="100%" stop-color="#5A4510" stop-opacity="0.3"/>
-        </linearGradient>
-        <linearGradient id="bcGoldL" x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" stop-color="#DDB85A"/>
-          <stop offset="50%" stop-color="#9A7B28"/>
-          <stop offset="100%" stop-color="#5A4510" stop-opacity="0.4"/>
-        </linearGradient>
-        <linearGradient id="bcGoldR" x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" stop-color="#C9A84C"/>
-          <stop offset="50%" stop-color="#8A6E20"/>
-          <stop offset="100%" stop-color="#4A3510" stop-opacity="0.4"/>
-        </linearGradient>
-        <linearGradient id="bcBg" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="#1A1206"/>
-          <stop offset="50%" stop-color="#0C0902"/>
-          <stop offset="100%" stop-color="#050301"/>
-        </linearGradient>
-        <clipPath id="bcClip">
-          <rect x="40" y="16" width="260" height="460" rx="28"/>
-        </clipPath>
-      </defs>
+  <!-- DARK MODE SVG -->
+  <svg id="bc-dark" viewBox="0 0 340 520" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="bcL_d" x1="100%" y1="0%" x2="0%" y2="0%"><stop offset="0%" stop-color="#3D5A3E"/><stop offset="100%" stop-color="#5C7F5D"/></linearGradient>
+      <linearGradient id="bcR_d" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#6B9E6E"/><stop offset="100%" stop-color="#9DC49D"/></linearGradient>
+      <linearGradient id="bcS_d" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#6B9E6E"/><stop offset="100%" stop-color="#9DC49D"/></linearGradient>
+      <linearGradient id="bcGoldT_d" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#8A6E20" stop-opacity="0.5"/><stop offset="25%" stop-color="#DDB85A"/><stop offset="50%" stop-color="#F0CC6A"/><stop offset="75%" stop-color="#DDB85A"/><stop offset="100%" stop-color="#8A6E20" stop-opacity="0.5"/></linearGradient>
+      <linearGradient id="bcGoldB_d" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#5A4510" stop-opacity="0.3"/><stop offset="50%" stop-color="#B8973A" stop-opacity="0.6"/><stop offset="100%" stop-color="#5A4510" stop-opacity="0.3"/></linearGradient>
+      <linearGradient id="bcGoldL_d" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#DDB85A"/><stop offset="50%" stop-color="#9A7B28"/><stop offset="100%" stop-color="#5A4510" stop-opacity="0.4"/></linearGradient>
+      <linearGradient id="bcGoldR_d" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#C9A84C"/><stop offset="50%" stop-color="#8A6E20"/><stop offset="100%" stop-color="#4A3510" stop-opacity="0.4"/></linearGradient>
+      <linearGradient id="bcBg_d" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#1A1206"/><stop offset="50%" stop-color="#0C0902"/><stop offset="100%" stop-color="#050301"/></linearGradient>
+      <clipPath id="bcClip_d"><rect x="40" y="16" width="260" height="460" rx="28"/></clipPath>
+    </defs>
+    <rect x="47" y="24" width="260" height="460" rx="27" fill="#000" opacity="0.8"/>
+    <rect x="44" y="21" width="260" height="460" rx="27" fill="#000" opacity="0.5"/>
+    <rect x="40" y="16" width="260" height="460" rx="28" fill="url(#bcBg_d)"/>
+    <rect x="40" y="16" width="260" height="460" rx="28" fill="none" stroke="#000" stroke-width="5" opacity="0.6"/>
+    <line x1="68" y1="17" x2="272" y2="17" stroke="url(#bcGoldT_d)" stroke-width="2.5"/>
+    <line x1="41" y1="44" x2="41" y2="448" stroke="url(#bcGoldL_d)" stroke-width="2"/>
+    <line x1="299" y1="44" x2="299" y2="448" stroke="url(#bcGoldR_d)" stroke-width="1.5"/>
+    <line x1="68" y1="475" x2="272" y2="475" stroke="url(#bcGoldB_d)" stroke-width="1.5"/>
+    <path d="M41 44 Q41 17 68 17" fill="none" stroke="#DDB85A" stroke-width="2"/>
+    <path d="M272 17 Q299 17 299 44" fill="none" stroke="#C9A84C" stroke-width="2"/>
+    <path d="M41 448 Q41 475 68 475" fill="none" stroke="#7A5E18" stroke-width="1.5"/>
+    <path d="M272 475 Q299 475 299 448" fill="none" stroke="#6A5015" stroke-width="1.5"/>
+    <line x1="68" y1="20" x2="272" y2="20" stroke="#F0CC6A" stroke-width="0.8" opacity="0.4"/>
+    <rect x="40" y="16" width="260" height="55" rx="28" fill="rgba(255,240,180,0.035)" clip-path="url(#bcClip_d)"/>
+    <line x1="170" y1="200" x2="170" y2="100" stroke="#3D5A3E" stroke-width="3" stroke-linecap="round"/>
+    <circle cx="170" cy="91" r="11" fill="#7A5E18" opacity="0.5"/>
+    <circle cx="170" cy="90" r="10" fill="#B8973A"/>
+    <circle cx="170" cy="90" r="6.5" fill="#C9A84C"/>
+    <circle cx="170" cy="90" r="3" fill="#DDB85A"/>
+    <circle cx="155" cy="96" r="5" fill="#C9A84C"/>
+    <circle cx="185" cy="101" r="4.5" fill="#DDB85A" opacity="0.85"/>
+    <path d="M168 116 Q138 101 114 108 Q138 123 168 116Z" fill="url(#bcL_d)"/>
+    <path d="M172 116 Q202 100 226 107 Q202 123 172 116Z" fill="url(#bcR_d)"/>
+    <path d="M168 142 Q136 127 112 134 Q136 149 168 142Z" fill="url(#bcL_d)"/>
+    <path d="M172 142 Q204 126 228 133 Q204 149 172 142Z" fill="url(#bcR_d)"/>
+    <path d="M168 168 Q138 153 114 160 Q138 175 168 168Z" fill="url(#bcL_d)"/>
+    <path d="M172 168 Q202 152 226 159 Q202 175 172 168Z" fill="url(#bcR_d)"/>
+    <path d="M170 190 Q200 177 230 186" stroke="#5C7F5D" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+    <path d="M196 177 Q213 158 226 163 Q215 179 196 177Z" fill="url(#bcS_d)"/>
+    <path d="M213 183 Q230 165 241 170 Q230 186 213 183Z" fill="url(#bcS_d)"/>
+    <circle cx="243" cy="176" r="8" fill="#7A5E18" opacity="0.5"/>
+    <circle cx="242" cy="175" r="7.5" fill="#B8973A"/>
+    <circle cx="242" cy="175" r="4.8" fill="#C9A84C"/>
+    <circle cx="242" cy="175" r="2.2" fill="#DDB85A"/>
+    <line x1="100" y1="258" x2="240" y2="258" stroke="#B8973A" stroke-width="0.6" opacity="0.55"/>
+    <text x="170" y="316" text-anchor="middle" font-family="'Cormorant Garamond','Palatino Linotype',Georgia,serif" font-size="56" font-weight="300" fill="#F0E8D8" letter-spacing="10">thyme</text>
+    <text x="170" y="344" text-anchor="middle" font-family="'DM Sans',system-ui,sans-serif" font-size="10" fill="#B8973A" letter-spacing="6" opacity="0.85">RECIPE ARCHIVE</text>
+    <line x1="120" y1="368" x2="220" y2="368" stroke="#B8973A" stroke-width="0.4" opacity="0.3"/>
+    <text x="170" y="402" text-anchor="middle" font-family="'DM Sans',system-ui,sans-serif" font-size="11" fill="#5C7F5D" letter-spacing="4" opacity="0.9">KATEGORIE WÄHLEN</text>
+    <path d="M162 418 L170 428 L178 418" fill="none" stroke="#5C7F5D" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.8"/>
+  </svg>
 
-      <!-- Äusserer Schatten rechts/unten (3D) -->
-      <rect x="47" y="24" width="260" height="460" rx="27" fill="#000" opacity="0.8"/>
-      <rect x="44" y="21" width="260" height="460" rx="27" fill="#000" opacity="0.5"/>
-
-      <!-- Hauptrahmen Hintergrund -->
-      <rect x="40" y="16" width="260" height="460" rx="28" fill="url(#bcBg)"/>
-
-      <!-- Innere Dunkel-Kante (3D Tiefe) -->
-      <rect x="40" y="16" width="260" height="460" rx="28" fill="none" stroke="#000" stroke-width="5" opacity="0.6"/>
-
-      <!-- Gold Kanten — oben (hell, Lichtquelle) -->
-      <line x1="68" y1="17" x2="272" y2="17" stroke="url(#bcGoldT)" stroke-width="2.5"/>
-      <!-- Links (hell→dunkel) -->
-      <line x1="41" y1="44" x2="41" y2="448" stroke="url(#bcGoldL)" stroke-width="2"/>
-      <!-- Rechts (dunkler, Schatten) -->
-      <line x1="299" y1="44" x2="299" y2="448" stroke="url(#bcGoldR)" stroke-width="1.5"/>
-      <!-- Unten (dunkel, Schatten) -->
-      <line x1="68" y1="475" x2="272" y2="475" stroke="url(#bcGoldB)" stroke-width="1.5"/>
-
-      <!-- Ecken -->
-      <path d="M41 44 Q41 17 68 17" fill="none" stroke="#DDB85A" stroke-width="2"/>
-      <path d="M272 17 Q299 17 299 44" fill="none" stroke="#C9A84C" stroke-width="2"/>
-      <path d="M41 448 Q41 475 68 475" fill="none" stroke="#7A5E18" stroke-width="1.5"/>
-      <path d="M272 475 Q299 475 299 448" fill="none" stroke="#6A5015" stroke-width="1.5"/>
-
-      <!-- Innere Highlight-Linie oben -->
-      <line x1="68" y1="20" x2="272" y2="20" stroke="#F0CC6A" stroke-width="0.8" opacity="0.4"/>
-      <!-- Glanzlicht oben links -->
-      <rect x="40" y="16" width="260" height="55" rx="28" fill="rgba(255,240,180,0.035)" clip-path="url(#bcClip)"/>
-
-      <!-- ── LOGO ZENTRIERT ── -->
-      <!-- Stamm — zentriert bei x=170 -->
-      <line x1="170" y1="200" x2="170" y2="100" stroke="#3D5A3E" stroke-width="3" stroke-linecap="round"/>
-
-      <!-- Goldknospe oben -->
-      <circle cx="170" cy="91" r="11" fill="#7A5E18" opacity="0.5"/>
-      <circle cx="170" cy="90" r="10" fill="#B8973A"/>
-      <circle cx="170" cy="90" r="6.5" fill="#C9A84C"/>
-      <circle cx="170" cy="90" r="3" fill="#DDB85A"/>
-      <circle cx="155" cy="96" r="5" fill="#C9A84C"/>
-      <circle cx="185" cy="101" r="4.5" fill="#DDB85A" opacity="0.85"/>
-
-      <!-- Blattpaar oben -->
-      <path d="M168 116 Q138 101 114 108 Q138 123 168 116Z" fill="url(#bcL)"/>
-      <path d="M172 116 Q202 100 226 107 Q202 123 172 116Z" fill="url(#bcR)"/>
-      <!-- Blattpaar Mitte -->
-      <path d="M168 142 Q136 127 112 134 Q136 149 168 142Z" fill="url(#bcL)"/>
-      <path d="M172 142 Q204 126 228 133 Q204 149 172 142Z" fill="url(#bcR)"/>
-      <!-- Blattpaar unten -->
-      <path d="M168 168 Q138 153 114 160 Q138 175 168 168Z" fill="url(#bcL)"/>
-      <path d="M172 168 Q202 152 226 159 Q202 175 172 168Z" fill="url(#bcR)"/>
-
-      <!-- Seitenast -->
-      <path d="M170 190 Q200 177 230 186" stroke="#5C7F5D" stroke-width="2.2" fill="none" stroke-linecap="round"/>
-      <path d="M196 177 Q213 158 226 163 Q215 179 196 177Z" fill="url(#bcS)"/>
-      <path d="M213 183 Q230 165 241 170 Q230 186 213 183Z" fill="url(#bcS)"/>
-      <!-- Seitenknospe -->
-      <circle cx="243" cy="176" r="8" fill="#7A5E18" opacity="0.5"/>
-      <circle cx="242" cy="175" r="7.5" fill="#B8973A"/>
-      <circle cx="242" cy="175" r="4.8" fill="#C9A84C"/>
-      <circle cx="242" cy="175" r="2.2" fill="#DDB85A"/>
-
-      <!-- Trennlinie -->
-      <line x1="100" y1="258" x2="240" y2="258" stroke="#B8973A" stroke-width="0.6" opacity="0.55"/>
-
-      <!-- thyme -->
-      <text x="170" y="316" text-anchor="middle"
-        font-family="'Cormorant Garamond','Palatino Linotype',Georgia,serif"
-        font-size="56" font-weight="300" fill="#F0E8D8" letter-spacing="10">thyme</text>
-
-      <!-- RECIPE ARCHIVE -->
-      <text x="170" y="344" text-anchor="middle"
-        font-family="'DM Sans',system-ui,sans-serif"
-        font-size="10" fill="#B8973A" letter-spacing="6" opacity="0.85">RECIPE ARCHIVE</text>
-
-      <!-- Trennlinie unten -->
-      <line x1="120" y1="368" x2="220" y2="368" stroke="#B8973A" stroke-width="0.4" opacity="0.3"/>
-
-      <!-- Kategorie wählen -->
-      <text x="170" y="402" text-anchor="middle"
-        font-family="'DM Sans',system-ui,sans-serif"
-        font-size="11" fill="#5C7F5D" letter-spacing="4" opacity="0.9">KATEGORIE WÄHLEN</text>
-
-      <!-- Kleiner Pfeil nach unten -->
-      <path d="M162 418 L170 428 L178 418" fill="none" stroke="#5C7F5D" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.8"/>
-    </svg>
-    </div><div id="book-cover-hint" style="display:none"></div>
+  <!-- LIGHT MODE SVG -->
+  <svg id="bc-light" viewBox="0 0 340 520" xmlns="http://www.w3.org/2000/svg" style="display:none">
+    <defs>
+      <linearGradient id="bcL_l" x1="100%" y1="0%" x2="0%" y2="0%"><stop offset="0%" stop-color="#3D5A3E"/><stop offset="100%" stop-color="#5C7F5D"/></linearGradient>
+      <linearGradient id="bcR_l" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#6B9E6E"/><stop offset="100%" stop-color="#9DC49D"/></linearGradient>
+      <linearGradient id="bcS_l" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#6B9E6E"/><stop offset="100%" stop-color="#9DC49D"/></linearGradient>
+      <linearGradient id="bcGoldT_l" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#8A6E20" stop-opacity="0.4"/><stop offset="25%" stop-color="#DDB85A"/><stop offset="50%" stop-color="#F0CC6A"/><stop offset="75%" stop-color="#DDB85A"/><stop offset="100%" stop-color="#8A6E20" stop-opacity="0.4"/></linearGradient>
+      <linearGradient id="bcGoldB_l" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#5A4510" stop-opacity="0.2"/><stop offset="50%" stop-color="#B8973A" stop-opacity="0.5"/><stop offset="100%" stop-color="#5A4510" stop-opacity="0.2"/></linearGradient>
+      <linearGradient id="bcGoldL_l" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#DDB85A"/><stop offset="50%" stop-color="#9A7B28"/><stop offset="100%" stop-color="#C8B060" stop-opacity="0.3"/></linearGradient>
+      <linearGradient id="bcGoldR_l" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#C9A84C"/><stop offset="50%" stop-color="#A8892A"/><stop offset="100%" stop-color="#8A6E20" stop-opacity="0.3"/></linearGradient>
+      <clipPath id="bcClip_l"><rect x="40" y="16" width="260" height="460" rx="28"/></clipPath>
+    </defs>
+    <!-- Hintergrund hell -->
+    <rect x="40" y="16" width="260" height="460" rx="28" fill="#F0E8D8"/>
+    <!-- Goldrahmen -->
+    <line x1="68" y1="17" x2="272" y2="17" stroke="url(#bcGoldT_l)" stroke-width="2"/>
+    <line x1="41" y1="44" x2="41" y2="448" stroke="url(#bcGoldL_l)" stroke-width="1.5"/>
+    <line x1="299" y1="44" x2="299" y2="448" stroke="url(#bcGoldR_l)" stroke-width="1.5"/>
+    <line x1="68" y1="475" x2="272" y2="475" stroke="url(#bcGoldB_l)" stroke-width="1.5"/>
+    <path d="M41 44 Q41 17 68 17" fill="none" stroke="#DDB85A" stroke-width="1.5"/>
+    <path d="M272 17 Q299 17 299 44" fill="none" stroke="#C9A84C" stroke-width="1.5"/>
+    <path d="M41 448 Q41 475 68 475" fill="none" stroke="#B8973A" stroke-width="1.5"/>
+    <path d="M272 475 Q299 475 299 448" fill="none" stroke="#B8973A" stroke-width="1.5"/>
+    <!-- Logo -->
+    <line x1="170" y1="200" x2="170" y2="100" stroke="#3D5A3E" stroke-width="3" stroke-linecap="round"/>
+    <circle cx="170" cy="91" r="11" fill="#9A7B28" opacity="0.4"/>
+    <circle cx="170" cy="90" r="10" fill="#B8973A"/>
+    <circle cx="170" cy="90" r="6.5" fill="#C9A84C"/>
+    <circle cx="170" cy="90" r="3" fill="#DDB85A"/>
+    <circle cx="155" cy="96" r="5" fill="#C9A84C"/>
+    <circle cx="185" cy="101" r="4.5" fill="#DDB85A" opacity="0.85"/>
+    <path d="M168 116 Q138 101 114 108 Q138 123 168 116Z" fill="url(#bcL_l)"/>
+    <path d="M172 116 Q202 100 226 107 Q202 123 172 116Z" fill="url(#bcR_l)"/>
+    <path d="M168 142 Q136 127 112 134 Q136 149 168 142Z" fill="url(#bcL_l)"/>
+    <path d="M172 142 Q204 126 228 133 Q204 149 172 142Z" fill="url(#bcR_l)"/>
+    <path d="M168 168 Q138 153 114 160 Q138 175 168 168Z" fill="url(#bcL_l)"/>
+    <path d="M172 168 Q202 152 226 159 Q202 175 172 168Z" fill="url(#bcR_l)"/>
+    <path d="M170 190 Q200 177 230 186" stroke="#5C7F5D" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+    <path d="M196 177 Q213 158 226 163 Q215 179 196 177Z" fill="url(#bcS_l)"/>
+    <path d="M213 183 Q230 165 241 170 Q230 186 213 183Z" fill="url(#bcS_l)"/>
+    <circle cx="243" cy="176" r="8" fill="#9A7B28" opacity="0.4"/>
+    <circle cx="242" cy="175" r="7.5" fill="#B8973A"/>
+    <circle cx="242" cy="175" r="4.8" fill="#C9A84C"/>
+    <circle cx="242" cy="175" r="2.2" fill="#DDB85A"/>
+    <line x1="100" y1="258" x2="240" y2="258" stroke="#B8973A" stroke-width="0.6" opacity="0.6"/>
+    <text x="170" y="316" text-anchor="middle" font-family="'Cormorant Garamond','Palatino Linotype',Georgia,serif" font-size="56" font-weight="300" fill="#2C1F14" letter-spacing="10">thyme</text>
+    <text x="170" y="344" text-anchor="middle" font-family="'DM Sans',system-ui,sans-serif" font-size="10" fill="#3D5A3E" letter-spacing="6" opacity="0.9">RECIPE ARCHIVE</text>
+    <line x1="120" y1="368" x2="220" y2="368" stroke="#B8973A" stroke-width="0.4" opacity="0.3"/>
+    <text x="170" y="402" text-anchor="middle" font-family="'DM Sans',system-ui,sans-serif" font-size="11" fill="#3D5A3E" letter-spacing="4" opacity="0.9">KATEGORIE WÄHLEN</text>
+    <path d="M162 418 L170 428 L178 418" fill="none" stroke="#3D5A3E" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.8"/>
+  </svg>
+</div><div id="book-cover-hint" style="display:none"></div>
   </div>
   <!-- ZULETZT VERWENDET -->
   <div id="recent-section" style="display:none;padding:24px 20px 0">
@@ -1101,7 +1078,7 @@ window.addEventListener('offline', () => { isOnline = false; updateModeBadge(); 
 // ─── INIT ──────────────────────────────────────────────────────────────────
 async function init() {
   applyTheme();
-  if(document.body.classList.contains("light-mode")){setTimeout(updateBookCoverTheme,100);}
+  setTimeout(updateBookCoverTheme, 50);
   isOnline = navigator.onLine;
   showSplash();
   localLoad();
@@ -1941,47 +1918,10 @@ function toggleTheme() {
 
 function updateBookCoverTheme() {
   var isLight = document.body.classList.contains('light-mode');
-  var svg = document.querySelector('#book-cover-inner svg');
-  if (!svg) return;
-
-  var rects = svg.querySelectorAll('rect');
-  rects.forEach(function(r) {
-    var fill = r.getAttribute('fill');
-    var opacity = r.getAttribute('opacity');
-
-    if (fill && fill.includes('bcBg')) {
-      r.setAttribute('fill', isLight ? '#F0E8D8' : 'url(#bcBg)');
-    } else if (fill === '#000' && opacity) {
-      r.style.display = isLight ? 'none' : '';
-    } else if (!fill || fill === '') {
-      r.setAttribute('fill', isLight ? '#F0E8D8' : 'none');
-    } else if (fill === 'none' && r.getAttribute('stroke') === '#000') {
-      r.style.display = isLight ? 'none' : '';
-    } else if (fill && fill.includes('rgba(255,240')) {
-      r.style.display = isLight ? 'none' : '';
-    }
-  });
-
-  // Texte
-  var texts = svg.querySelectorAll('text');
-  texts.forEach(function(t) {
-    var content = t.textContent.trim();
-    if (content === 'thyme') {
-      t.setAttribute('fill', isLight ? '#2C1F14' : '#F0E8D8');
-    } else if (content === 'RECIPE ARCHIVE') {
-      t.setAttribute('fill', isLight ? '#3D5A3E' : '#B8973A');
-    } else if (content === 'KATEGORIE WÄHLEN') {
-      t.setAttribute('fill', isLight ? '#3D5A3E' : '#5C7F5D');
-    }
-  });
-
-  // Pfeil
-  svg.querySelectorAll('path').forEach(function(p) {
-    var stroke = p.getAttribute('stroke');
-    if (stroke === '#5C7F5D' || stroke === '#3D5A3E') {
-      p.setAttribute('stroke', isLight ? '#3D5A3E' : '#5C7F5D');
-    }
-  });
+  var dark = document.getElementById('bc-dark');
+  var light = document.getElementById('bc-light');
+  if (dark) dark.style.display = isLight ? 'none' : '';
+  if (light) light.style.display = isLight ? '' : 'none';
 }
 
 
