@@ -417,7 +417,7 @@ body.light-mode #toast{background:#F5F0E8;border-color:#C8BFAD;color:#2C1F14}
   padding:15px;font-size:15px;color:var(--smoke);cursor:pointer}
 
 /* Light-Mode Book Cover */
-body.light-mode #book-cover-inner rect { fill: #EDE5D0 !important; }
+/* book-cover per JS gesteuert */
 body.light-mode .screen { background: #F5F0E8; }
 body.light-mode #screen-home { background: #F5F0E8; }
 body.light-mode #recipe-grid { background: #F5F0E8; }
@@ -1942,27 +1942,46 @@ function toggleTheme() {
 
 function updateBookCoverTheme() {
   var isLight = document.body.classList.contains('light-mode');
-  var svgRects = document.querySelectorAll('#book-cover-inner svg rect');
-  var bgRect = null;
-  svgRects.forEach(function(r) {
+  var svg = document.querySelector('#book-cover-inner svg');
+  if (!svg) return;
+
+  // Hintergrund-Rect (3. rect = Haupthintergrund nach 2 Schatten-Rects)
+  var rects = svg.querySelectorAll('rect');
+  rects.forEach(function(r, i) {
     var fill = r.getAttribute('fill');
-    if (fill && fill.includes('bcBg')) bgRect = r;
+    if (fill && fill.includes('bcBg')) {
+      // Haupthintergrund
+      r.setAttribute('fill', isLight ? '#F0E8D8' : 'url(#bcBg)');
+    } else if (fill && fill.includes('#000') && r.getAttribute('opacity')) {
+      // Schatten-Rects
+      r.style.display = isLight ? 'none' : '';
+    }
+    // Highlight-Rect (rgba)
+    if (fill && fill.includes('rgba(255,240')) {
+      r.style.display = isLight ? 'none' : '';
+    }
   });
-  if (bgRect) {
-    bgRect.setAttribute('fill', isLight ? '#F0E8D8' : 'url(#bcBg)');
-  }
-  // Texte anpassen
-  var texts = document.querySelectorAll('#book-cover-inner svg text');
-  texts.forEach(function(t, i) {
-    if (i === 0) t.setAttribute('fill', isLight ? '#2C1F14' : '#F0E8D8'); // thyme
-    if (i === 1) t.setAttribute('fill', isLight ? '#3D5A3E' : '#B8973A'); // RECIPE ARCHIVE
-    if (i === 2) t.setAttribute('fill', isLight ? '#3D5A3E' : '#5C7F5D'); // KATEGORIE WÄHLEN
+
+  // Texte
+  var texts = svg.querySelectorAll('text');
+  texts.forEach(function(t) {
+    var content = t.textContent.trim();
+    if (content === 'thyme') {
+      t.setAttribute('fill', isLight ? '#2C1F14' : '#F0E8D8');
+    } else if (content === 'RECIPE ARCHIVE') {
+      t.setAttribute('fill', isLight ? '#3D5A3E' : '#B8973A');
+    } else if (content === 'KATEGORIE WÄHLEN') {
+      t.setAttribute('fill', isLight ? '#3D5A3E' : '#5C7F5D');
+    }
   });
-  // Schatten-Rects entfernen im Light-Mode
-  var shadowRects = document.querySelectorAll('#book-cover-inner svg rect[opacity]');
-  shadowRects.forEach(function(r) {
-    r.style.display = isLight ? 'none' : '';
+
+  // Pfeil
+  var paths = svg.querySelectorAll('path[stroke="#5C7F5D"]');
+  paths.forEach(function(p) {
+    p.setAttribute('stroke', isLight ? '#3D5A3E' : '#5C7F5D');
   });
+
+  // Gold-Kanten beibehalten (funktionieren in beiden Modi)
 }
 
 
