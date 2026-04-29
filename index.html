@@ -573,7 +573,7 @@ body.light-mode #toast{background:#F5F0E8;border-color:#C8BFAD;color:#2C1F14}
   </div>
   <div class="cat-scroll" id="cat-scroll"></div>
   <div id="book-cover" onclick="openCatSheet()" style="display:none"><div id="book-cover-inner">
-    <svg viewBox="0 0 340 480" xmlns="http://www.w3.org/2000/svg">
+    <svg viewBox="0 0 340 520" xmlns="http://www.w3.org/2000/svg">
       <defs>
         <linearGradient id="bcL" x1="100%" y1="0%" x2="0%" y2="0%">
           <stop offset="0%" stop-color="#3D5A3E"/><stop offset="100%" stop-color="#5C7F5D"/>
@@ -584,117 +584,125 @@ body.light-mode #toast{background:#F5F0E8;border-color:#C8BFAD;color:#2C1F14}
         <linearGradient id="bcS" x1="0%" y1="0%" x2="100%" y2="0%">
           <stop offset="0%" stop-color="#6B9E6E"/><stop offset="100%" stop-color="#9DC49D"/>
         </linearGradient>
-        <!-- Gold Rahmen Verlauf -->
         <linearGradient id="bcGoldT" x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%" stop-color="#8A6E20" opacity="0.6"/>
+          <stop offset="0%" stop-color="#8A6E20" stop-opacity="0.5"/>
           <stop offset="25%" stop-color="#DDB85A"/>
           <stop offset="50%" stop-color="#F0CC6A"/>
           <stop offset="75%" stop-color="#DDB85A"/>
-          <stop offset="100%" stop-color="#8A6E20" opacity="0.6"/>
+          <stop offset="100%" stop-color="#8A6E20" stop-opacity="0.5"/>
         </linearGradient>
         <linearGradient id="bcGoldB" x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%" stop-color="#5A4510" opacity="0.4"/>
-          <stop offset="50%" stop-color="#B8973A" opacity="0.7"/>
-          <stop offset="100%" stop-color="#5A4510" opacity="0.4"/>
+          <stop offset="0%" stop-color="#5A4510" stop-opacity="0.3"/>
+          <stop offset="50%" stop-color="#B8973A" stop-opacity="0.6"/>
+          <stop offset="100%" stop-color="#5A4510" stop-opacity="0.3"/>
         </linearGradient>
         <linearGradient id="bcGoldL" x1="0%" y1="0%" x2="0%" y2="100%">
           <stop offset="0%" stop-color="#DDB85A"/>
           <stop offset="50%" stop-color="#9A7B28"/>
-          <stop offset="100%" stop-color="#5A4510" opacity="0.5"/>
+          <stop offset="100%" stop-color="#5A4510" stop-opacity="0.4"/>
         </linearGradient>
         <linearGradient id="bcGoldR" x1="0%" y1="0%" x2="0%" y2="100%">
           <stop offset="0%" stop-color="#C9A84C"/>
           <stop offset="50%" stop-color="#8A6E20"/>
-          <stop offset="100%" stop-color="#4A3510" opacity="0.5"/>
+          <stop offset="100%" stop-color="#4A3510" stop-opacity="0.4"/>
         </linearGradient>
-        <!-- 3D Hintergrund Verlauf -->
         <linearGradient id="bcBg" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="#1E1508"/>
-          <stop offset="50%" stop-color="#0E0A04"/>
-          <stop offset="100%" stop-color="#060402"/>
+          <stop offset="0%" stop-color="#1A1206"/>
+          <stop offset="50%" stop-color="#0C0902"/>
+          <stop offset="100%" stop-color="#050301"/>
         </linearGradient>
         <clipPath id="bcClip">
-          <rect x="50" y="16" width="240" height="400" rx="28"/>
+          <rect x="40" y="16" width="260" height="460" rx="28"/>
         </clipPath>
       </defs>
 
-      <!-- Äusserer Schatten (3D Tiefe) -->
-      <rect x="54" y="22" width="240" height="400" rx="27" fill="#000" opacity="0.7"/>
-      <rect x="52" y="20" width="240" height="400" rx="27" fill="#000" opacity="0.4"/>
+      <!-- Äusserer Schatten rechts/unten (3D) -->
+      <rect x="47" y="24" width="260" height="460" rx="27" fill="#000" opacity="0.8"/>
+      <rect x="44" y="21" width="260" height="460" rx="27" fill="#000" opacity="0.5"/>
 
       <!-- Hauptrahmen Hintergrund -->
-      <rect x="50" y="16" width="240" height="400" rx="28" fill="url(#bcBg)"/>
+      <rect x="40" y="16" width="260" height="460" rx="28" fill="url(#bcBg)"/>
 
-      <!-- Innere Reliefkante dunkel (unten/rechts — Schatten) -->
-      <rect x="50" y="16" width="240" height="400" rx="28" fill="none"
-        stroke="#000" stroke-width="6" opacity="0.5"/>
+      <!-- Innere Dunkel-Kante (3D Tiefe) -->
+      <rect x="40" y="16" width="260" height="460" rx="28" fill="none" stroke="#000" stroke-width="5" opacity="0.6"/>
 
-      <!-- Goldrahmen — Oben (hell) -->
-      <line x1="78" y1="17" x2="262" y2="17" stroke="url(#bcGoldT)" stroke-width="2.5"/>
-      <!-- Goldrahmen — Links (hell→dunkel) -->
-      <line x1="51" y1="44" x2="51" y2="388" stroke="url(#bcGoldL)" stroke-width="2"/>
-      <!-- Goldrahmen — Rechts (dunkler) -->
-      <line x1="289" y1="44" x2="289" y2="388" stroke="url(#bcGoldR)" stroke-width="1.5"/>
-      <!-- Goldrahmen — Unten (dunkel) -->
-      <line x1="78" y1="415" x2="262" y2="415" stroke="url(#bcGoldB)" stroke-width="1.5"/>
+      <!-- Gold Kanten — oben (hell, Lichtquelle) -->
+      <line x1="68" y1="17" x2="272" y2="17" stroke="url(#bcGoldT)" stroke-width="2.5"/>
+      <!-- Links (hell→dunkel) -->
+      <line x1="41" y1="44" x2="41" y2="448" stroke="url(#bcGoldL)" stroke-width="2"/>
+      <!-- Rechts (dunkler, Schatten) -->
+      <line x1="299" y1="44" x2="299" y2="448" stroke="url(#bcGoldR)" stroke-width="1.5"/>
+      <!-- Unten (dunkel, Schatten) -->
+      <line x1="68" y1="475" x2="272" y2="475" stroke="url(#bcGoldB)" stroke-width="1.5"/>
 
-      <!-- Ecken Gold abgerundet -->
-      <path d="M51 44 Q51 17 78 17" fill="none" stroke="#DDB85A" stroke-width="2"/>
-      <path d="M262 17 Q289 17 289 44" fill="none" stroke="#C9A84C" stroke-width="2"/>
-      <path d="M51 388 Q51 415 78 415" fill="none" stroke="#8A6E20" stroke-width="1.5"/>
-      <path d="M262 415 Q289 415 289 388" fill="none" stroke="#7A5E18" stroke-width="1.5"/>
+      <!-- Ecken -->
+      <path d="M41 44 Q41 17 68 17" fill="none" stroke="#DDB85A" stroke-width="2"/>
+      <path d="M272 17 Q299 17 299 44" fill="none" stroke="#C9A84C" stroke-width="2"/>
+      <path d="M41 448 Q41 475 68 475" fill="none" stroke="#7A5E18" stroke-width="1.5"/>
+      <path d="M272 475 Q299 475 299 448" fill="none" stroke="#6A5015" stroke-width="1.5"/>
 
-      <!-- Innere Glanzlinie oben (3D Highlight) -->
-      <line x1="78" y1="20" x2="262" y2="20" stroke="#F0CC6A" stroke-width="0.8" opacity="0.5"/>
+      <!-- Innere Highlight-Linie oben -->
+      <line x1="68" y1="20" x2="272" y2="20" stroke="#F0CC6A" stroke-width="0.8" opacity="0.4"/>
+      <!-- Glanzlicht oben links -->
+      <rect x="40" y="16" width="260" height="55" rx="28" fill="rgba(255,240,180,0.035)" clip-path="url(#bcClip)"/>
 
-      <!-- Glanzlicht oben im Rahmen -->
-      <rect x="50" y="16" width="240" height="60" rx="28" fill="rgba(255,240,180,0.04)" clip-path="url(#bcClip)"/>
-
-      <!-- Logo: Stamm -->
-      <line x1="170" y1="175" x2="170" y2="82" stroke="#3D5A3E" stroke-width="3" stroke-linecap="round"/>
+      <!-- ── LOGO ZENTRIERT ── -->
+      <!-- Stamm — zentriert bei x=170 -->
+      <line x1="170" y1="200" x2="170" y2="100" stroke="#3D5A3E" stroke-width="3" stroke-linecap="round"/>
 
       <!-- Goldknospe oben -->
-      <circle cx="170" cy="73" r="10" fill="#8A6E20" opacity="0.6"/>
-      <circle cx="170" cy="72" r="9.5" fill="#B8973A"/>
-      <circle cx="170" cy="72" r="6" fill="#C9A84C"/>
-      <circle cx="170" cy="72" r="2.8" fill="#DDB85A"/>
-      <circle cx="156" cy="77" r="4.5" fill="#C9A84C"/>
-      <circle cx="184" cy="82" r="4" fill="#DDB85A" opacity="0.85"/>
+      <circle cx="170" cy="91" r="11" fill="#7A5E18" opacity="0.5"/>
+      <circle cx="170" cy="90" r="10" fill="#B8973A"/>
+      <circle cx="170" cy="90" r="6.5" fill="#C9A84C"/>
+      <circle cx="170" cy="90" r="3" fill="#DDB85A"/>
+      <circle cx="155" cy="96" r="5" fill="#C9A84C"/>
+      <circle cx="185" cy="101" r="4.5" fill="#DDB85A" opacity="0.85"/>
 
       <!-- Blattpaar oben -->
-      <path d="M168 96 Q140 82 118 89 Q140 103 168 96Z" fill="url(#bcL)"/>
-      <path d="M172 96 Q200 81 222 88 Q200 103 172 96Z" fill="url(#bcR)"/>
+      <path d="M168 116 Q138 101 114 108 Q138 123 168 116Z" fill="url(#bcL)"/>
+      <path d="M172 116 Q202 100 226 107 Q202 123 172 116Z" fill="url(#bcR)"/>
       <!-- Blattpaar Mitte -->
-      <path d="M168 120 Q138 106 116 113 Q138 127 168 120Z" fill="url(#bcL)"/>
-      <path d="M172 120 Q202 105 224 112 Q202 127 172 120Z" fill="url(#bcR)"/>
+      <path d="M168 142 Q136 127 112 134 Q136 149 168 142Z" fill="url(#bcL)"/>
+      <path d="M172 142 Q204 126 228 133 Q204 149 172 142Z" fill="url(#bcR)"/>
       <!-- Blattpaar unten -->
-      <path d="M168 144 Q140 130 118 137 Q140 151 168 144Z" fill="url(#bcL)"/>
-      <path d="M172 144 Q200 129 222 136 Q200 151 172 144Z" fill="url(#bcR)"/>
+      <path d="M168 168 Q138 153 114 160 Q138 175 168 168Z" fill="url(#bcL)"/>
+      <path d="M172 168 Q202 152 226 159 Q202 175 172 168Z" fill="url(#bcR)"/>
 
       <!-- Seitenast -->
-      <path d="M170 164 Q198 152 226 161" stroke="#5C7F5D" stroke-width="2.2" fill="none" stroke-linecap="round"/>
-      <path d="M194 152 Q210 135 222 140 Q212 156 194 152Z" fill="url(#bcS)"/>
-      <path d="M210 158 Q226 142 236 147 Q226 163 210 158Z" fill="url(#bcS)"/>
+      <path d="M170 190 Q200 177 230 186" stroke="#5C7F5D" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+      <path d="M196 177 Q213 158 226 163 Q215 179 196 177Z" fill="url(#bcS)"/>
+      <path d="M213 183 Q230 165 241 170 Q230 186 213 183Z" fill="url(#bcS)"/>
       <!-- Seitenknospe -->
-      <circle cx="238" cy="153" r="7.5" fill="#8A6E20" opacity="0.5"/>
-      <circle cx="237" cy="152" r="7" fill="#B8973A"/>
-      <circle cx="237" cy="152" r="4.5" fill="#C9A84C"/>
-      <circle cx="237" cy="152" r="2" fill="#DDB85A"/>
+      <circle cx="243" cy="176" r="8" fill="#7A5E18" opacity="0.5"/>
+      <circle cx="242" cy="175" r="7.5" fill="#B8973A"/>
+      <circle cx="242" cy="175" r="4.8" fill="#C9A84C"/>
+      <circle cx="242" cy="175" r="2.2" fill="#DDB85A"/>
 
-      <!-- Trennlinie mit Abstand -->
-      <line x1="90" y1="230" x2="250" y2="230" stroke="#B8973A" stroke-width="0.6" opacity="0.55"/>
+      <!-- Trennlinie -->
+      <line x1="100" y1="258" x2="240" y2="258" stroke="#B8973A" stroke-width="0.6" opacity="0.55"/>
 
-      <!-- thyme — mit Abstand zur Linie -->
-      <text x="170" y="282" text-anchor="middle"
+      <!-- thyme -->
+      <text x="170" y="316" text-anchor="middle"
         font-family="'Cormorant Garamond','Palatino Linotype',Georgia,serif"
-        font-size="54" font-weight="300" fill="#F0E8D8" letter-spacing="10">thyme</text>
+        font-size="56" font-weight="300" fill="#F0E8D8" letter-spacing="10">thyme</text>
 
       <!-- RECIPE ARCHIVE -->
-      <text x="170" y="312" text-anchor="middle"
+      <text x="170" y="344" text-anchor="middle"
         font-family="'DM Sans',system-ui,sans-serif"
         font-size="10" fill="#B8973A" letter-spacing="6" opacity="0.85">RECIPE ARCHIVE</text>
+
+      <!-- Trennlinie unten -->
+      <line x1="120" y1="368" x2="220" y2="368" stroke="#B8973A" stroke-width="0.4" opacity="0.3"/>
+
+      <!-- Kategorie wählen -->
+      <text x="170" y="402" text-anchor="middle"
+        font-family="'DM Sans',system-ui,sans-serif"
+        font-size="11" fill="#5C7F5D" letter-spacing="4" opacity="0.9">KATEGORIE WÄHLEN</text>
+
+      <!-- Kleiner Pfeil nach unten -->
+      <path d="M162 418 L170 428 L178 418" fill="none" stroke="#5C7F5D" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.8"/>
     </svg>
-    </div><div id="book-cover-hint">Kategorie wählen</div>
+    </div><div id="book-cover-hint" style="display:none"></div>
   </div>
   <!-- ZULETZT VERWENDET -->
   <div id="recent-section" style="display:none;padding:24px 20px 0">
