@@ -428,6 +428,13 @@ body.light-mode .recent-label { color: #2C1F14; }
 body.light-mode .cat-scroll { background: #F5F0E8; }
 body.light-mode #cat-scroll-wrap { background: #F5F0E8; border-color: #E0D9CC; }
 
+
+/* Book Cover SVG Sichtbarkeit */
+#bc-light { display: none; }
+#bc-dark { display: block; }
+body.light-mode #bc-light { display: block !important; }
+body.light-mode #bc-dark { display: none !important; }
+
 </style>
 </head>
 <body>
@@ -1917,11 +1924,7 @@ function toggleTheme() {
 }
 
 function updateBookCoverTheme() {
-  var isLight = document.body.classList.contains('light-mode');
-  var dark = document.getElementById('bc-dark');
-  var light = document.getElementById('bc-light');
-  if (dark) dark.style.display = isLight ? 'none' : '';
-  if (light) light.style.display = isLight ? '' : 'none';
+  // SVG-Sichtbarkeit wird per CSS gesteuert (body.light-mode #bc-light)
 }
 
 
@@ -1929,10 +1932,7 @@ function applyTheme() {
   var saved = localStorage.getItem('thyme_theme');
   if (saved === 'light') {
     document.body.classList.add('light-mode');
-    var dark = document.getElementById('bc-dark');
-    var light = document.getElementById('bc-light');
-    if (dark) dark.style.display = 'none';
-    if (light) light.style.display = '';
+    // SVG-Sichtbarkeit per CSS gesteuert
     setTimeout(function() {
       var btn = document.getElementById('theme-toggle-btn');
       if (btn) btn.innerHTML = '🌙 &nbsp;Dunkelmodus aktivieren';
