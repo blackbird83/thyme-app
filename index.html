@@ -1872,6 +1872,50 @@ function deletePhotoFromRecipe() {
 }
 
 
+// ─── FOTO BEARBEITEN (ersetzen) ───────────────────────────────────────────
+function editPhotoOfRecipe() {
+  if (!currentRecipe) return;
+  closeActionSheet();
+  var id = currentRecipe.id;
+  var input = document.createElement('input');
+  input.type = 'file';
+  input.accept = 'image/*';
+  input.onchange = function(e) {
+    var file = e.target.files[0];
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function(ev) {
+      var photoData = ev.target.result;
+      // Altes Foto ersetzen
+      recipes = recipes.map(function(r) {
+        return r.id === id ? Object.assign({}, r, {photo: photoData}) : r;
+      });
+      currentRecipe = recipes.find(function(r) { return r.id === id; });
+      localSave();
+      if (db && isOnline) {
+        db.from('recipes').update({photo: photoData}).eq('id', id).then(function(){});
+      }
+      // Foto sofort in Detail-View aktualisieren
+      var existing = document.getElementById('recipe-photo-el');
+      if (existing) {
+        existing.src = photoData;
+      } else {
+        var ph = document.getElementById('recipe-photo-placeholder');
+        if (ph) {
+          var img = document.createElement('img');
+          img.className = 'recipe-hero';
+          img.id = 'recipe-photo-el';
+          img.src = photoData;
+          ph.parentNode.replaceChild(img, ph);
+        }
+      }
+      showToast('Foto aktualisiert', 'success');
+    };
+    reader.readAsDataURL(file);
+  };
+  input.click();
+}
+
 // HELL/DUNKEL MODUS
 function toggleTheme() {
   var isLight = document.body.classList.toggle('light-mode');
@@ -2203,7 +2247,7 @@ if (document.readyState === 'loading') {
     <button class="action-sheet-item" id="action-photo-add" onclick="addPhotoToRecipe()">
       <span class="action-sheet-item-icon">&#128247;</span> Foto hinzufügen
     </button>
-    <button class="action-sheet-item" id="action-photo-edit" onclick="addPhotoToRecipe()" style="display:none">
+    <button class="action-sheet-item" id="action-photo-edit" onclick="editPhotoOfRecipe()" style="display:none">
       <span class="action-sheet-item-icon">&#128247;</span> Foto bearbeiten
     </button>
     <button class="action-sheet-item danger" id="action-photo-delete" onclick="deletePhotoFromRecipe()" style="display:none">
