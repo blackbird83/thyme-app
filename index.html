@@ -1848,15 +1848,16 @@ function deletePhotoFromRecipe() {
   if (!currentRecipe) return;
   closeActionSheet();
   showConfirm('Foto wirklich löschen?', 'Löschen', function() {
-    currentRecipe.photo = null;
+    var id = currentRecipe.id;
     recipes = recipes.map(function(r) {
-      return r.id === currentRecipe.id ? Object.assign({}, r, {photo: null}) : r;
+      return r.id === id ? Object.assign({}, r, {photo: null}) : r;
     });
     localSave();
     if (db && isOnline) {
-      db.from('recipes').update({photo: null}).eq('id', currentRecipe.id).then(function(){});
+      db.from('recipes').update({photo: null}).eq('id', id).then(function(){});
     }
-    openDetail(currentRecipe.id);
+    currentRecipe = recipes.find(function(r) { return r.id === id; });
+    openDetail(currentRecipe);
     showToast('Foto gelöscht', 'success');
   });
 }
