@@ -42,6 +42,7 @@ body.light-mode{
   --thyme:#3D5A3E;--thyme-mid:#5C7F5D;--gold:#B8973A;
   --bark:#2C1F14;--smoke:#6B7B6C;
   --bg-grad: linear-gradient(160deg,#F5F0E8 0%,#EDE5D0 100%);
+  background:#F5F0E8 !important;
 }
 body.light-mode .cat-sheet { background: #F5F0E8; }
 body.light-mode .cat-sheet-title { color: #2C1F14; }
@@ -78,7 +79,7 @@ body.light-mode #cat-active-bar { border-bottom-color: #E0D9CC; }
 body.light-mode .fab-menu-panel { background: #F5F0E8; border-color: #E0D9CC; }
 body.light-mode .fab-option { color: #2C1F14; border-bottom-color: #E0D9CC; }
 body.light-mode .recipe-photo-placeholder { background: #EDE5D0; border-color: #C8BFAD; }
-body{background:#000;background-attachment:fixed;font-family:'DM Sans',sans-serif;color:var(--bark);min-height:100vh}
+body{background:#000000;background-attachment:fixed;font-family:'DM Sans',sans-serif;color:var(--bark);min-height:100vh}
 input,textarea{font-family:'DM Sans',sans-serif;font-size:15px;outline:none;-webkit-appearance:none}
 textarea{resize:vertical}
 
@@ -414,6 +415,20 @@ body.light-mode #toast{background:#F5F0E8;border-color:#C8BFAD;color:#2C1F14}
   font-size:15px;font-weight:500;color:white;cursor:pointer}
 #confirm-cancel{background:transparent;border:1px solid var(--border);border-radius:12px;
   padding:15px;font-size:15px;color:var(--smoke);cursor:pointer}
+
+/* Light-Mode Book Cover */
+body.light-mode #book-cover-inner rect { fill: #EDE5D0 !important; }
+body.light-mode .screen { background: #F5F0E8; }
+body.light-mode #screen-home { background: #F5F0E8; }
+body.light-mode #recipe-grid { background: #F5F0E8; }
+
+
+body.light-mode .pill { color: #2C1F14; border-color: #C8BFAD; }
+body.light-mode .pill.active { background: #3D5A3E; color: #F5F0E8; border-color: #3D5A3E; }
+body.light-mode .recent-label { color: #2C1F14; }
+body.light-mode .cat-scroll { background: #F5F0E8; }
+body.light-mode #cat-scroll-wrap { background: #F5F0E8; border-color: #E0D9CC; }
+
 </style>
 </head>
 <body>
@@ -1087,6 +1102,7 @@ window.addEventListener('offline', () => { isOnline = false; updateModeBadge(); 
 // ─── INIT ──────────────────────────────────────────────────────────────────
 async function init() {
   applyTheme();
+  setTimeout(updateBookCoverTheme, 100);
   isOnline = navigator.onLine;
   showSplash();
   localLoad();
@@ -1923,6 +1939,32 @@ function toggleTheme() {
   var btn = document.getElementById('theme-toggle-btn');
   if (btn) btn.innerHTML = isLight ? '🌙 &nbsp;Dunkelmodus aktivieren' : '☀️ &nbsp;Hellmodus aktivieren';
 }
+
+function updateBookCoverTheme() {
+  var isLight = document.body.classList.contains('light-mode');
+  var svgRects = document.querySelectorAll('#book-cover-inner svg rect');
+  var bgRect = null;
+  svgRects.forEach(function(r) {
+    var fill = r.getAttribute('fill');
+    if (fill && fill.includes('bcBg')) bgRect = r;
+  });
+  if (bgRect) {
+    bgRect.setAttribute('fill', isLight ? '#F0E8D8' : 'url(#bcBg)');
+  }
+  // Texte anpassen
+  var texts = document.querySelectorAll('#book-cover-inner svg text');
+  texts.forEach(function(t, i) {
+    if (i === 0) t.setAttribute('fill', isLight ? '#2C1F14' : '#F0E8D8'); // thyme
+    if (i === 1) t.setAttribute('fill', isLight ? '#3D5A3E' : '#B8973A'); // RECIPE ARCHIVE
+    if (i === 2) t.setAttribute('fill', isLight ? '#3D5A3E' : '#5C7F5D'); // KATEGORIE WÄHLEN
+  });
+  // Schatten-Rects entfernen im Light-Mode
+  var shadowRects = document.querySelectorAll('#book-cover-inner svg rect[opacity]');
+  shadowRects.forEach(function(r) {
+    r.style.display = isLight ? 'none' : '';
+  });
+}
+
 
 function applyTheme() {
   var saved = localStorage.getItem('thyme_theme');
