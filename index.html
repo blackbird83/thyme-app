@@ -105,7 +105,7 @@ textarea{resize:vertical}
 /* Anweisungen */
 .instructions-text{font-size:15px;color:var(--smoke);line-height:1.85;white-space:pre-wrap;letter-spacing:0.2px}
 .app{max-width:900px;margin:0 auto}
-.screen{display:none}.screen.active{display:block;opacity:1;transform:translateY(0)}
+.screen{display:none;background:transparent}.screen.active{display:block;opacity:1;transform:translateY(0)}
 .screen.animating{opacity:0;transform:translateY(12px)}.screen.visible{opacity:1;transform:translateY(0)}
 /* Karten-Hover */
 .card{transition:transform .2s ease,box-shadow .2s ease}
@@ -420,7 +420,6 @@ body.light-mode #toast{background:#F5F0E8;border-color:#C8BFAD;color:#2C1F14}
 /* book-cover per JS gesteuert */
 body.light-mode .screen { background: #F5F0E8; }
 body.light-mode #screen-home { background: #F5F0E8; }
-body.light-mode #recipe-grid { background: #F5F0E8; }
 
 
 body.light-mode .pill { color: #2C1F14; border-color: #C8BFAD; }
@@ -1945,19 +1944,25 @@ function updateBookCoverTheme() {
   var svg = document.querySelector('#book-cover-inner svg');
   if (!svg) return;
 
-  // Hintergrund-Rect (3. rect = Haupthintergrund nach 2 Schatten-Rects)
   var rects = svg.querySelectorAll('rect');
-  rects.forEach(function(r, i) {
+  rects.forEach(function(r) {
     var fill = r.getAttribute('fill');
+    var opacity = r.getAttribute('opacity');
+
     if (fill && fill.includes('bcBg')) {
       // Haupthintergrund
       r.setAttribute('fill', isLight ? '#F0E8D8' : 'url(#bcBg)');
-    } else if (fill && fill.includes('#000') && r.getAttribute('opacity')) {
-      // Schatten-Rects
+    } else if (!fill || fill === 'none' || fill === '') {
+      // rect ohne fill (erster Schatten) → im Light-Mode transparent
+      r.setAttribute('fill', isLight ? 'transparent' : 'none');
+    } else if (fill === '#000' && opacity) {
+      // Schwarze Schatten-Rects
       r.style.display = isLight ? 'none' : '';
-    }
-    // Highlight-Rect (rgba)
-    if (fill && fill.includes('rgba(255,240')) {
+    } else if (fill && fill.includes('rgba(255,240')) {
+      // Highlight
+      r.style.display = isLight ? 'none' : '';
+    } else if (fill === 'none' && r.getAttribute('stroke') === '#000') {
+      // Dunkle Innen-Kante
       r.style.display = isLight ? 'none' : '';
     }
   });
@@ -1975,13 +1980,14 @@ function updateBookCoverTheme() {
     }
   });
 
-  // Pfeil
-  var paths = svg.querySelectorAll('path[stroke="#5C7F5D"]');
+  // Pfeil-Pfad
+  var paths = svg.querySelectorAll('path');
   paths.forEach(function(p) {
-    p.setAttribute('stroke', isLight ? '#3D5A3E' : '#5C7F5D');
+    var stroke = p.getAttribute('stroke');
+    if (stroke === '#5C7F5D' || stroke === '#3D5A3E') {
+      p.setAttribute('stroke', isLight ? '#3D5A3E' : '#5C7F5D');
+    }
   });
-
-  // Gold-Kanten beibehalten (funktionieren in beiden Modi)
 }
 
 
