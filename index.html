@@ -929,8 +929,6 @@ body.light-mode .protein-season-badge{background:#FFF3DC;color:#8A6E20}
     <text x="170" y="316" text-anchor="middle" font-family="'Cormorant Garamond','Palatino Linotype',Georgia,serif" font-size="56" font-weight="300" fill="#F0E8D8" letter-spacing="10">thyme</text>
     <text x="170" y="344" text-anchor="middle" font-family="'DM Sans',system-ui,sans-serif" font-size="10" fill="#B8973A" letter-spacing="6" opacity="0.85">RECIPE ARCHIVE</text>
     <line x1="120" y1="368" x2="220" y2="368" stroke="#B8973A" stroke-width="0.4" opacity="0.3"/>
-    <text x="170" y="402" text-anchor="middle" font-family="'DM Sans',system-ui,sans-serif" font-size="11" fill="#5C7F5D" letter-spacing="4" opacity="0.9">KATEGORIE WÄHLEN</text>
-    <path d="M162 418 L170 428 L178 418" fill="none" stroke="#5C7F5D" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.8"/>
   </svg>
 
   <!-- LIGHT MODE SVG -->
@@ -981,10 +979,11 @@ body.light-mode .protein-season-badge{background:#FFF3DC;color:#8A6E20}
     <text x="170" y="316" text-anchor="middle" font-family="'Cormorant Garamond','Palatino Linotype',Georgia,serif" font-size="56" font-weight="300" fill="#2C1F14" letter-spacing="10">thyme</text>
     <text x="170" y="344" text-anchor="middle" font-family="'DM Sans',system-ui,sans-serif" font-size="10" fill="#3D5A3E" letter-spacing="6" opacity="0.9">RECIPE ARCHIVE</text>
     <line x1="120" y1="368" x2="220" y2="368" stroke="#B8973A" stroke-width="0.4" opacity="0.3"/>
-    <text x="170" y="402" text-anchor="middle" font-family="'DM Sans',system-ui,sans-serif" font-size="11" fill="#3D5A3E" letter-spacing="4" opacity="0.9">KATEGORIE WÄHLEN</text>
-    <path d="M162 418 L170 428 L178 418" fill="none" stroke="#3D5A3E" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.8"/>
   </svg>
-</div><div id="book-cover-hint" style="display:none" onclick="openCatSheet()"></div>
+</div><button id="book-cover-hint" onclick="openCatSheet()" style="display:none;background:none;border:none;cursor:pointer;padding:16px 32px;margin-top:-20px;text-align:center;-webkit-tap-highlight-color:rgba(61,90,62,0.2)">
+    <div style="font-size:11px;letter-spacing:4px;color:#5C7F5D;text-transform:uppercase;margin-bottom:6px">KATEGORIE WÄHLEN</div>
+    <svg width="20" height="12" viewBox="0 0 20 12" fill="none" style="display:block;margin:0 auto"><path d="M2 2 L10 10 L18 2" stroke="#5C7F5D" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </button>
   </div>
   <!-- ZULETZT VERWENDET -->
   <div id="recent-section" style="display:none;padding:24px 20px 0">
@@ -1624,6 +1623,8 @@ function renderGrid() {
   // Buchcover: sichtbar wenn keine Kategorie + keine Suche + keine Favoriten-Ansicht
   const showCover = activeCat === 'all' && !search && !showingFavs;
   if (cover) cover.style.display = showCover ? 'flex' : 'none';
+  var hint = document.getElementById('book-cover-hint');
+  if (hint) hint.style.display = showCover ? 'block' : 'none';
   if (showCover) { renderRecent(); } else { var rs = document.getElementById('recent-section'); if (rs) rs.style.display = 'none'; }
   // Cat active bar
   var catBar = document.getElementById('cat-active-bar');
