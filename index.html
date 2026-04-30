@@ -491,6 +491,43 @@ body.light-mode .shop-footer{background:#F5F0E8}
 .card-thumb{width:100%;height:160px;object-fit:cover;display:block;border-radius:12px 12px 0 0}
 .card-thumb-placeholder{height:6px;border-left:4px solid;border-radius:0}
 
+
+/* ── PROFI SWIPE PAGES ───────────────────────────────────────────────────── */
+.cat-sheet-pages{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;-webkit-overflow-scrolling:touch;width:100%}
+.cat-sheet-pages::-webkit-scrollbar{display:none}
+.cat-sheet-page{flex:0 0 100%;width:100%;scroll-snap-align:start;overflow-y:auto;max-height:72vh}
+.cs-page-header{display:flex;align-items:center;justify-content:space-between;padding:14px 24px 10px;border-bottom:1px solid var(--border)}
+.cs-page-title{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:300;color:var(--bark);letter-spacing:2px}
+.cs-page-subtitle{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--smoke);padding:10px 24px 6px}
+.page-dots{display:flex;gap:5px;justify-content:center;padding:8px 0 4px}
+.page-dot{width:5px;height:5px;border-radius:50%;background:var(--border);transition:background .2s}
+.page-dot.active{background:#B8973A}
+.swipe-hint{font-size:10px;color:var(--smoke);text-align:center;padding:4px 0 8px;letter-spacing:1px;opacity:0.7}
+
+/* Saisonkalender */
+.season-month-nav{display:flex;align-items:center;justify-content:space-between;padding:10px 24px}
+.season-month-btn{background:none;border:none;color:#5C7F5D;font-size:20px;cursor:pointer;padding:4px 8px}
+.season-month-name{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:300;color:var(--bark);letter-spacing:2px}
+.season-prod-list{padding:0 16px 16px}
+.season-prod-item{display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--parchment);border-radius:8px;margin-bottom:4px;border:0.5px solid var(--border);cursor:pointer}
+.season-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.season-prod-name{font-size:13px;color:var(--bark);flex:1}
+.season-badge{font-size:9px;padding:2px 7px;border-radius:99px}
+.s-peak{background:#2A1E08;color:#B8973A;border:0.5px solid #B8973A44}
+.s-season{background:#1A2E1A;color:#5C7F5D;border:0.5px solid #3D5A3E44}
+body.light-mode .s-peak{background:#FFF3DC;color:#8A6E20}
+body.light-mode .s-season{background:#E8F3E8;color:#2E5A2E}
+
+/* Protein Lists */
+.protein-group-title{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#B8973A;padding:10px 24px 5px}
+.protein-item{display:flex;align-items:center;justify-content:space-between;padding:8px 24px;border-bottom:0.5px solid var(--border)}
+.protein-item:last-child{border:none}
+.protein-name{font-size:14px;color:var(--bark)}
+.protein-right{display:flex;align-items:center;gap:8px}
+.protein-supplier{font-size:11px;color:var(--smoke)}
+.protein-season-badge{font-size:9px;padding:2px 6px;border-radius:4px;background:#2A1E08;color:#B8973A}
+body.light-mode .protein-season-badge{background:#FFF3DC;color:#8A6E20}
+
 </style>
 </head>
 <body>
@@ -681,15 +718,105 @@ body.light-mode .shop-footer{background:#F5F0E8}
 <div class="cat-sheet-overlay" id="cat-sheet-overlay" onclick="closeCatSheet()"></div>
 <div class="cat-sheet" id="cat-sheet">
   <div class="cat-sheet-handle"></div>
-  <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 24px 0">
-    <div onclick="closeCatSheet()" style="cursor:pointer;font-size:18px;color:#5C7F5D">&#8592;</div>
-    <div class="cat-sheet-title" style="padding:0">Kategorien</div>
-    <div onclick="closeCatSheet();showScreen('home')" style="cursor:pointer;display:flex;align-items:center;gap:5px">
-      <span style="font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:300;color:#B8973A;letter-spacing:3px">thyme</span>
-      <span style="font-size:13px;color:#B8973A;opacity:0.8">&#8962;</span>
-    </div>
+
+  <!-- Page Dots -->
+  <div class="page-dots" id="cs-page-dots">
+    <div class="page-dot active"></div>
+    <div class="page-dot"></div>
+    <div class="page-dot"></div>
+    <div class="page-dot"></div>
+    <div class="page-dot"></div>
+    <div class="page-dot"></div>
   </div>
-  <div class="cat-sheet-list" id="cat-sheet-list"></div>
+
+  <!-- Swipe Pages -->
+  <div class="cat-sheet-pages" id="cs-pages" onscroll="updatePageDots()">
+
+    <!-- PAGE 1: Kategorien -->
+    <div class="cat-sheet-page">
+      <div class="cs-page-header">
+        <div onclick="closeCatSheet()" style="cursor:pointer;font-size:18px;color:#5C7F5D">&#8592;</div>
+        <span class="cs-page-title">Kategorien</span>
+        <div onclick="closeCatSheet();showScreen('home')" style="cursor:pointer;display:flex;align-items:center;gap:5px">
+          <span style="font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:300;color:#B8973A;letter-spacing:3px">thyme</span>
+          <span style="font-size:13px;color:#B8973A;opacity:0.8">&#8962;</span>
+        </div>
+      </div>
+      <div class="cat-sheet-list" id="cat-sheet-list"></div>
+    </div>
+
+    <!-- PAGE 2: Saisonkalender -->
+    <div class="cat-sheet-page">
+      <div class="cs-page-header">
+        <div style="width:32px"></div>
+        <span class="cs-page-title">Saisonkalender</span>
+        <div onclick="closeCatSheet();showScreen('home')" style="cursor:pointer;display:flex;align-items:center;gap:5px">
+          <span style="font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:300;color:#B8973A;letter-spacing:3px">thyme</span>
+          <span style="font-size:13px;color:#B8973A;opacity:0.8">&#8962;</span>
+        </div>
+      </div>
+      <div class="season-month-nav">
+        <button class="season-month-btn" onclick="seasonChangeMonth(-1)">&#8249;</button>
+        <span class="season-month-name" id="season-month-name"></span>
+        <button class="season-month-btn" onclick="seasonChangeMonth(1)">&#8250;</button>
+      </div>
+      <div class="season-prod-list" id="season-prod-list"></div>
+    </div>
+
+    <!-- PAGE 3: Fleisch -->
+    <div class="cat-sheet-page">
+      <div class="cs-page-header">
+        <div style="width:32px"></div>
+        <span class="cs-page-title">Fleisch</span>
+        <div onclick="closeCatSheet();showScreen('home')" style="cursor:pointer;display:flex;align-items:center;gap:5px">
+          <span style="font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:300;color:#B8973A;letter-spacing:3px">thyme</span>
+          <span style="font-size:13px;color:#B8973A;opacity:0.8">&#8962;</span>
+        </div>
+      </div>
+      <div id="proto-fleisch"></div>
+    </div>
+
+    <!-- PAGE 4: Fisch -->
+    <div class="cat-sheet-page">
+      <div class="cs-page-header">
+        <div style="width:32px"></div>
+        <span class="cs-page-title">Fisch</span>
+        <div onclick="closeCatSheet();showScreen('home')" style="cursor:pointer;display:flex;align-items:center;gap:5px">
+          <span style="font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:300;color:#B8973A;letter-spacing:3px">thyme</span>
+          <span style="font-size:13px;color:#B8973A;opacity:0.8">&#8962;</span>
+        </div>
+      </div>
+      <div id="proto-fisch"></div>
+    </div>
+
+    <!-- PAGE 5: Geflügel -->
+    <div class="cat-sheet-page">
+      <div class="cs-page-header">
+        <div style="width:32px"></div>
+        <span class="cs-page-title">Gefl&#252;gel</span>
+        <div onclick="closeCatSheet();showScreen('home')" style="cursor:pointer;display:flex;align-items:center;gap:5px">
+          <span style="font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:300;color:#B8973A;letter-spacing:3px">thyme</span>
+          <span style="font-size:13px;color:#B8973A;opacity:0.8">&#8962;</span>
+        </div>
+      </div>
+      <div id="proto-gefluegel"></div>
+    </div>
+
+    <!-- PAGE 6: Meeresfrüchte -->
+    <div class="cat-sheet-page">
+      <div class="cs-page-header">
+        <div style="width:32px"></div>
+        <span class="cs-page-title">Meeresfr&#252;chte</span>
+        <div onclick="closeCatSheet();showScreen('home')" style="cursor:pointer;display:flex;align-items:center;gap:5px">
+          <span style="font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:300;color:#B8973A;letter-spacing:3px">thyme</span>
+          <span style="font-size:13px;color:#B8973A;opacity:0.8">&#8962;</span>
+        </div>
+      </div>
+      <div id="proto-meeresfruchte"></div>
+    </div>
+
+  </div>
+  <div class="swipe-hint">&#8592; wischen f&#252;r mehr &#8594;</div>
 </div>
 
 <div id="print-area" style="display:none"></div>
@@ -1871,6 +1998,7 @@ function showSplash() {
 
 // KATEGORIE SHEET
 function openCatSheet() {
+  initProfiPages();
   renderCatSheet();
   document.getElementById('cat-sheet').classList.add('open');
   document.getElementById('cat-sheet-overlay').classList.add('open');
