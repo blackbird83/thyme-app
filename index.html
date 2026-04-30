@@ -419,7 +419,7 @@ body.light-mode #toast{background:#F5F0E8;border-color:#C8BFAD;color:#2C1F14}
 /* Light-Mode Book Cover */
 /* book-cover per JS gesteuert */
 body.light-mode .screen { background: #F5F0E8; }
-body.light-mode #screen-home { background: #F5F0E8; }
+body.light-mode body.light-mode #screen-home { background: #F5F0E8; }
 
 
 body.light-mode .pill { color: #2C1F14; border-color: #C8BFAD; }
@@ -1087,6 +1087,158 @@ body.light-mode .shop-footer{background:#F5F0E8}
 
 <script>
 
+// ─── EINKAUFSLISTE ─────────────────────────────────────────────────────────
+var shopItems = [];
+var shopFilter = 'alle';
+
+var SHOP_CATS = {
+  proteine:  { label: 'Proteine',              keywords: ['fleisch','rind','kalb','schwein','lamm','poulet','hähnchen','huhn','ente','gans','pute','truthahn','wurst','speck','schinken','hack','filet','steak','kotelett','entrecôte','leber','cervelat','salami','chorizo','bratwurst'] },
+  fisch:     { label: 'Fisch & Meeresfrüchte', keywords: ['lachs','thon','thunfisch','forelle','wolfsbarsch','dorade','kabeljau','heilbutt','makrele','sardine','garnele','crevette','muschel','tintenfisch','calamari','hummer','krebs','languste'] },
+  milch:     { label: 'Milchprodukte',         keywords: ['milch','rahm','butter','käse','parmesan','gruyere','mozzarella','ricotta','mascarpone','frischkäse','crème fraîche','joghurt','quark','sahne','butterschmalz','ghee','emmentaler','brie','camembert','gorgonzola','sbrinz'] },
+  gemuese:   { label: 'Gemüse & Kräuter',      keywords: ['zwiebel','schalotte','knoblauch','karotte','rüebli','sellerie','fenchel','zucchini','aubergine','tomate','paprika','spinat','lauch','porree','kartoffel','rübe','kohlrabi','blumenkohl','broccoli','salat','rucola','basilikum','thymian','rosmarin','petersilie','schnittlauch','koriander','minze','salbei','lorbeer','ingwer','pilze','champignon','morchel','steinpilz','erbsen','bohnen','spargel','artischocke','avocado','zitrone','orange','apfel','birne','beeren'] },
+  kolonial:  { label: 'Kolonialwaren',         keywords: ['mehl','zucker','salz','pfeffer','öl','olivenöl','essig','senf','honig','reis','pasta','nudel','spaghetti','risottoreis','quinoa','linsen','kichererbsen','tomatenmark','bouillon','fond','weisswein','rotwein','cognac','porto','madera','schokolade','kakao','vanille','zimt','muskat','curry','backpulver','hefe','stärke','maizena','paniermehl','mandeln','nüsse','rosinen'] }
+};
+
+function getShopCategory(name) {
+  var n = (name || '').toLowerCase();
+  for (var cat in SHOP_CATS) {
+    var kws = SHOP_CATS[cat].keywords;
+    for (var i = 0; i < kws.length; i++) {
+      if (n.includes(kws[i])) return cat;
+    }
+  }
+  return 'sonstiges';
+}
+
+function parseIngredientStr(ingStr) {
+  try { return JSON.parse(ingStr); } catch(e) { return {a:'', u:'', n: ingStr}; }
+}
+
+function addRecipeToShopList(recipe) {
+  if (!recipe || !recipe.ingredients) return 0;
+  var added = 0;
+  recipe.ingredients.forEach(function(ingStr) {
+    var ing = parseIngredientStr(ingStr);
+    if (!ing.n || !ing.n.trim()) return;
+    var name = ing.n.trim();
+    var amount = ((ing.a || '') + ' ' + (ing.u || '')).trim();
+    var cat = getShopCategory(name);
+    var existing = shopItems.find(function(si) { return si.name.toLowerCase() === name.toLowerCase(); });
+    if (existing) {
+      if (!existing.sources.find(function(s) { return s === recipe.title; })) {
+        existing.sources.push(recipe.title);
+        existing.merged = true;
+      }
+    } else {
+      shopItems.push({ id: Date.now() + Math.random(), name: name, amount: amount, cat: cat, sources: [recipe.title], done: false, merged: false });
+      added++;
+    }
+  });
+  saveShopList();
+  return added;
+}
+
+function addCurrentRecipeToShop() {
+  if (!currentRecipe) return;
+  loadShopList();
+  addRecipeToShopList(currentRecipe);
+  showToast(currentRecipe.title + ' zur Einkaufsliste hinzugefügt', 'success');
+}
+
+function saveShopList() {
+  localStorage.setItem('thyme_shoplist', JSON.stringify(shopItems));
+}
+
+function loadShopList() {
+  try { var s = localStorage.getItem('thyme_shoplist'); shopItems = s ? JSON.parse(s) : []; } catch(e) { shopItems = []; }
+}
+
+function setShopFilter(f) {
+  shopFilter = f;
+  document.querySelectorAll('.shop-filter').forEach(function(b) { b.classList.toggle('active', b.dataset.filter === f); });
+  renderShopList();
+}
+
+function renderShopList() {
+  var body = document.getElementById('shop-body');
+  if (!body) return;
+  var filtered = shopFilter === 'alle' ? shopItems : shopItems.filter(function(i) { return i.cat === shopFilter; });
+  if (!filtered.length) { body.innerHTML = '<div class="shop-empty">Keine Artikel' + (shopFilter !== 'alle' ? ' in dieser Kategorie' : ' — Rezepte hinzufügen um zu starten') + '</div>'; return; }
+  var groups = {};
+  filtered.forEach(function(item) { if (!groups[item.cat]) groups[item.cat] = []; groups[item.cat].push(item); });
+  var catOrder = ['proteine','fisch','milch','gemuese','kolonial','sonstiges'];
+  var out = '';
+  catOrder.forEach(function(catKey) {
+    var items = groups[catKey];
+    if (!items || !items.length) return;
+    var label = SHOP_CATS[catKey] ? SHOP_CATS[catKey].label : 'Sonstiges';
+    var doneCount = items.filter(function(i) { return i.done; }).length;
+    out += '<div class="shop-cat-title">' + label + '<span class="shop-cat-count">' + doneCount + '/' + items.length + '</span></div>';
+    items.forEach(function(item) {
+      var dc = item.done ? 'done' : '';
+      var src = item.sources.length > 1 ? item.sources.join(' · ') : (item.sources[0] || '');
+      out += '<div class="shop-item">';
+      out += '<div class="shop-cb ' + dc + '" onclick="toggleShopItem(' + JSON.stringify(item.id) + ')"></div>';
+      out += '<div class="shop-item-main"><div class="shop-item-name ' + dc + '">' + item.name + (item.merged ? '<span class="shop-merged"> ↑</span>' : '') + '</div>';
+      if (src) out += '<div class="shop-item-src">' + src + '</div>';
+      out += '</div>';
+      if (item.amount) out += '<div class="shop-item-amt">' + item.amount + '</div>';
+      out += '</div>';
+    });
+  });
+  out += '<button class="shop-add-btn" onclick="shopAddManual()">+ Artikel hinzufügen</button>';
+  body.innerHTML = out;
+  var sources = [];
+  shopItems.forEach(function(i) { i.sources.forEach(function(s) { if (!sources.includes(s)) sources.push(s); }); });
+  var countEl = document.getElementById('shop-recipe-count');
+  if (countEl) countEl.textContent = sources.length > 0 ? sources.length + (sources.length === 1 ? ' Rezept' : ' Rezepte') : '';
+}
+
+function toggleShopItem(id) {
+  shopItems = shopItems.map(function(i) { return i.id == id ? Object.assign({}, i, {done: !i.done}) : i; });
+  saveShopList();
+  renderShopList();
+}
+
+function shopClearDone() {
+  shopItems = shopItems.filter(function(i) { return !i.done; });
+  saveShopList();
+  renderShopList();
+  showToast('Erledigte gelöscht', 'success');
+}
+
+function shopAddManual() {
+  var name = prompt('Artikel:');
+  if (!name || !name.trim()) return;
+  var amount = prompt('Menge (optional):') || '';
+  shopItems.push({ id: Date.now(), name: name.trim(), amount: amount.trim(), cat: getShopCategory(name), sources: [], done: false, merged: false });
+  saveShopList();
+  renderShopList();
+}
+
+function shopExport() {
+  var lines = ['EINKAUFSLISTE — thyme', ''];
+  var groups = {};
+  shopItems.filter(function(i) { return !i.done; }).forEach(function(i) { if (!groups[i.cat]) groups[i.cat] = []; groups[i.cat].push(i); });
+  ['proteine','fisch','milch','gemuese','kolonial','sonstiges'].forEach(function(cat) {
+    if (!groups[cat] || !groups[cat].length) return;
+    lines.push((SHOP_CATS[cat] ? SHOP_CATS[cat].label : 'Sonstiges').toUpperCase());
+    groups[cat].forEach(function(i) { lines.push((i.amount ? i.amount + '  ' : '') + i.name); });
+    lines.push('');
+  });
+  var text = lines.join('\n');
+  if (navigator.share) { navigator.share({ title: 'Einkaufsliste thyme', text: text }); }
+  else if (navigator.clipboard) { navigator.clipboard.writeText(text); showToast('Kopiert', 'success'); }
+}
+
+function openShopList() {
+  loadShopList();
+  showScreen('shopping');
+  setShopFilter('alle');
+  renderShopList();
+}
+
+
 // ─── ONBOARDING ────────────────────────────────────────────────────────────
 var _obCurrent = 0;
 
@@ -1260,6 +1412,9 @@ async function init() {
   localLoad();
   loadShopList();
   renderCatScroll(); renderGrid(); renderCatList(); renderCatPicker('');
+  // Stelle sicher dass book-cover sichtbar ist
+  var cover = document.getElementById('book-cover');
+  if (cover && activeCat === 'all') cover.style.display = 'flex';
   updateKeyStatus(); updateModeBadge();
 
   if (isOnline && typeof supabase !== 'undefined' && supabase.createClient) {
