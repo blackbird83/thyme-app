@@ -352,7 +352,7 @@ body.light-mode .fav-btn.inactive{color:rgba(0,0,0,0.2)}
 #splash svg{width:280px;height:auto}
 
 /* ── BUCHCOVER (Home ohne Kategorie) ────────────── */
-#book-cover{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px 20px 80px;cursor:pointer;min-height:70vh}
+#book-cover{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px 20px 80px;cursor:pointer;min-height:70vh;-webkit-tap-highlight-color:rgba(184,151,58,0.15)}
 #book-cover-inner{display:flex;flex-direction:column;align-items:center;padding:20px 0 0}
 #book-cover svg{width:380px;height:auto;margin-bottom:4px}
 #book-cover-hint{font-family:'DM Sans',sans-serif;font-size:10px;color:#4A6741;letter-spacing:3px;text-transform:uppercase;margin-top:12px}
@@ -877,9 +877,9 @@ body.light-mode .protein-season-badge{background:#FFF3DC;color:#8A6E20}
     </div>
   </div>
   <div class="cat-scroll" id="cat-scroll"></div>
-  <div id="book-cover" onclick="openCatSheet()" style="display:none"><div id="book-cover-inner">
+  <div id="book-cover" onclick="openCatSheet()" style="display:none"><div id="book-cover-inner" style="pointer-events:none;width:100%">
   <!-- DARK MODE SVG -->
-  <svg id="bc-dark" viewBox="0 0 340 520" xmlns="http://www.w3.org/2000/svg">
+  <svg id="bc-dark" viewBox="0 0 340 520" style="pointer-events:none" xmlns="http://www.w3.org/2000/svg">
     <defs>
       <linearGradient id="bcL_d" x1="100%" y1="0%" x2="0%" y2="0%"><stop offset="0%" stop-color="#3D5A3E"/><stop offset="100%" stop-color="#5C7F5D"/></linearGradient>
       <linearGradient id="bcR_d" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#6B9E6E"/><stop offset="100%" stop-color="#9DC49D"/></linearGradient>
@@ -934,7 +934,7 @@ body.light-mode .protein-season-badge{background:#FFF3DC;color:#8A6E20}
   </svg>
 
   <!-- LIGHT MODE SVG -->
-  <svg id="bc-light" viewBox="0 0 340 520" xmlns="http://www.w3.org/2000/svg" style="display:none">
+  <svg id="bc-light" viewBox="0 0 340 520" style="pointer-events:none" xmlns="http://www.w3.org/2000/svg" style="display:none">
     <defs>
       <linearGradient id="bcL_l" x1="100%" y1="0%" x2="0%" y2="0%"><stop offset="0%" stop-color="#3D5A3E"/><stop offset="100%" stop-color="#5C7F5D"/></linearGradient>
       <linearGradient id="bcR_l" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#6B9E6E"/><stop offset="100%" stop-color="#9DC49D"/></linearGradient>
@@ -984,7 +984,7 @@ body.light-mode .protein-season-badge{background:#FFF3DC;color:#8A6E20}
     <text x="170" y="402" text-anchor="middle" font-family="'DM Sans',system-ui,sans-serif" font-size="11" fill="#3D5A3E" letter-spacing="4" opacity="0.9">KATEGORIE WÄHLEN</text>
     <path d="M162 418 L170 428 L178 418" fill="none" stroke="#3D5A3E" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.8"/>
   </svg>
-</div><div id="book-cover-hint" style="display:none"></div>
+</div><div id="book-cover-hint" style="display:none" onclick="openCatSheet()"></div>
   </div>
   <!-- ZULETZT VERWENDET -->
   <div id="recent-section" style="display:none;padding:24px 20px 0">
