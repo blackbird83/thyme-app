@@ -486,6 +486,11 @@ body.light-mode .ob-btn-next{background:#3D5A3E}
 body.light-mode .shop-filter.active{background:#3D5A3E;color:#F5F0E8}
 body.light-mode .shop-footer{background:#F5F0E8}
 
+
+/* ── CARD THUMB ──────────────────────────────────────────────────────────── */
+.card-thumb{width:100%;height:160px;object-fit:cover;display:block;border-radius:12px 12px 0 0}
+.card-thumb-placeholder{height:6px;border-left:4px solid;border-radius:0}
+
 </style>
 </head>
 <body>
@@ -1520,7 +1525,8 @@ function renderGrid() {
     card.className = 'card';
     card.dataset.color = r.color || '#3D5A3E';
     var isFav = r.favorite ? true : false;
-    var showPhoto = r.photo && activeCat === 'all';
+    var search2 = (document.getElementById('search-input').value || '').trim();
+    var showPhoto = r.photo && activeCat === 'all' && !search2;
     var thumbHtml = showPhoto
       ? '<img class="card-thumb" src="' + r.photo + '" alt="">'
       : '<div class="card-thumb-placeholder" style="border-left-color:' + (r.color || '#3D5A3E') + '"></div>';
