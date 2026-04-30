@@ -827,7 +827,7 @@ body.light-mode .protein-season-badge{background:#FFF3DC;color:#8A6E20}
 <!-- HOME -->
 <div id="screen-home" class="screen active">
   <div class="header">
-    <div class="app-name" onclick="showScreen('home')">
+    <div class="app-name" onclick="logoTap()">
       <svg viewBox="0 0 120 36" xmlns="http://www.w3.org/2000/svg" style="height:32px;width:auto">
         <defs>
           <linearGradient id="hL" x1="100%" y1="0%" x2="0%" y2="0%">
@@ -1997,6 +1997,16 @@ function showSplash() {
 }
 
 // KATEGORIE SHEET
+
+function logoTap() {
+  var home = document.getElementById('screen-home');
+  if (home && home.classList.contains('active')) {
+    openCatSheet();
+  } else {
+    showScreen('home');
+  }
+}
+
 function openCatSheet() {
   initProfiPages();
   renderCatSheet();
