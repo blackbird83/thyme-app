@@ -2748,6 +2748,123 @@ if (document.readyState === 'loading') {
 } else {
   init();
 }
+
+// ─── PROFI PAGES ───────────────────────────────────────────────────────────
+var SEASON_MONTHS=['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+var seasonCurrentMonth=new Date().getMonth();
+var SEASON_DATA=[
+  {name:'Spargel (weiss)',cat:'g',season:[3,4,5],peak:[4,5]},
+  {name:'Spargel (grün)',cat:'g',season:[3,4,5,6],peak:[4,5,6]},
+  {name:'Artischocken',cat:'g',season:[5,6,7,8,9,10],peak:[6,7,8]},
+  {name:'Aubergine',cat:'g',season:[6,7,8,9,10],peak:[7,8,9]},
+  {name:'Blattspinat',cat:'g',season:[3,4,5,9,10,11],peak:[4,5,10]},
+  {name:'Broccoli',cat:'g',season:[5,6,7,8,9,10,11],peak:[6,7,8,9]},
+  {name:'Erbsen',cat:'g',season:[5,6,7,8],peak:[6,7]},
+  {name:'Fenchel',cat:'g',season:[7,8,9,10,11],peak:[8,9,10]},
+  {name:'Karotten',cat:'g',season:[0,1,2,3,4,5,6,7,8,9,10,11],peak:[8,9,10]},
+  {name:'Kürbis',cat:'g',season:[8,9,10,11],peak:[9,10]},
+  {name:'Lauch',cat:'g',season:[0,1,2,3,10,11],peak:[11,0,1]},
+  {name:'Tomaten',cat:'g',season:[6,7,8,9,10],peak:[7,8,9]},
+  {name:'Zucchini',cat:'g',season:[6,7,8,9,10],peak:[7,8]},
+  {name:'Zwiebeln',cat:'g',season:[0,1,2,3,4,5,6,7,8,9,10,11],peak:[7,8,9]},
+  {name:'Peperoni',cat:'g',season:[7,8,9,10],peak:[8,9]},
+  {name:'Randen',cat:'g',season:[7,8,9,10,11],peak:[9,10]},
+  {name:'Erdbeeren',cat:'f',season:[5,6,7],peak:[6,7]},
+  {name:'Himbeeren',cat:'f',season:[7,8,9],peak:[7,8]},
+  {name:'Heidelbeeren',cat:'f',season:[7,8,9],peak:[8]},
+  {name:'Kirschen',cat:'f',season:[5,6,7],peak:[6]},
+  {name:'Äpfel',cat:'f',season:[8,9,10,11],peak:[9,10]},
+  {name:'Birnen',cat:'f',season:[8,9,10,11],peak:[9]},
+  {name:'Zwetschgen',cat:'f',season:[7,8,9],peak:[8]},
+  {name:'Marroni',cat:'f',season:[9,10,11],peak:[10,11]},
+  {name:'Weintrauben',cat:'f',season:[8,9,10],peak:[9]},
+  {name:'Basilikum',cat:'k',season:[5,6,7,8,9,10],peak:[6,7,8,9]},
+  {name:'Thymian',cat:'k',season:[4,5,6,7,8,9,10,11],peak:[6,7,8]},
+  {name:'Rosmarin',cat:'k',season:[3,4,5,6,7,8,9,10,11],peak:[6,7,8]},
+  {name:'Schnittlauch',cat:'k',season:[3,4,5,6,7,8,9,10],peak:[5,6,7]},
+  {name:'Petersilie',cat:'k',season:[3,4,5,6,7,8,9,10,11],peak:[5,6,7,8]},
+  {name:'Minze',cat:'k',season:[5,6,7,8,9],peak:[6,7,8]},
+  {name:'Salbei',cat:'k',season:[4,5,6,7,8,9,10],peak:[6,7,8]},
+];
+var PROTEIN_DATA={
+  fleisch:[
+    {group:'Rind & Kalb',items:[{name:'Rindsfilet',supplier:'',season:''},{name:'Entrecôte',supplier:'',season:''},{name:'Kalbsfilet',supplier:'',season:''},{name:'Kalbskarree',supplier:'',season:''}]},
+    {group:'Lamm',items:[{name:'Lammrack',supplier:'',season:'März–Sep'},{name:'Lammkeule',supplier:'',season:'März–Sep'}]},
+    {group:'Schwein',items:[{name:'Schweinelende',supplier:'',season:''},{name:'Spanferkel',supplier:'',season:'Apr–Sep'}]},
+    {group:'Wild',items:[{name:'Rehfilet',supplier:'',season:'Sep–Jan'},{name:'Hirschnierstück',supplier:'',season:'Sep–Jan'},{name:'Wildschwein',supplier:'',season:'Okt–Feb'}]},
+  ],
+  fisch:[
+    {group:'Süsswasser',items:[{name:'Forelle',supplier:'',season:'Apr–Okt'},{name:'Saibling',supplier:'',season:'Apr–Okt'},{name:'Zander',supplier:'',season:'Sep–Feb'},{name:'Egli',supplier:'',season:''}]},
+    {group:'Salzwasser',items:[{name:'Lachs',supplier:'',season:''},{name:'Wolfsbarsch',supplier:'',season:''},{name:'Dorade',supplier:'',season:''},{name:'Thunfisch',supplier:'',season:''},{name:'Heilbutt',supplier:'',season:'Mai–Sep'},{name:'Kabeljau',supplier:'',season:'Okt–Apr'}]},
+  ],
+  gefluegel:[
+    {group:'Huhn & Poularde',items:[{name:'Pouletbrust',supplier:'',season:''},{name:'Poulardenbrust',supplier:'',season:''},{name:'Coquelet',supplier:'',season:''},{name:'Stubenküken',supplier:'',season:''}]},
+    {group:'Ente & Gans',items:[{name:'Entenbrust (Magret)',supplier:'',season:'Okt–Feb'},{name:'Entenkeule',supplier:'',season:''},{name:'Gänseleber',supplier:'',season:'Nov–Jan'}]},
+    {group:'Weitere',items:[{name:'Wachtel',supplier:'',season:''},{name:'Taube',supplier:'',season:''},{name:'Perlhuhn',supplier:'',season:''}]},
+  ],
+  meeresfruchte:[
+    {group:'Krustentiere',items:[{name:'Hummer',supplier:'',season:'Apr–Sep'},{name:'Languste',supplier:'',season:''},{name:'Scampi',supplier:'',season:''}]},
+    {group:'Weichtiere',items:[{name:'Jakobsmuscheln',supplier:'',season:'Okt–Apr'},{name:'Austern',supplier:'',season:'Sep–Apr'},{name:'Tintenfisch',supplier:'',season:''}]},
+    {group:'Garnelen',items:[{name:'Tigergarnelen',supplier:'',season:''},{name:'Crevetten',supplier:'',season:''}]},
+  ]
+};
+function renderSeasonPage(){
+  var el=document.getElementById('season-prod-list');
+  var nameEl=document.getElementById('season-month-name');
+  if(!el||!nameEl)return;
+  nameEl.textContent=SEASON_MONTHS[seasonCurrentMonth];
+  var m=seasonCurrentMonth;
+  var active=SEASON_DATA.filter(function(p){return p.season.indexOf(m)>=0||p.peak.indexOf(m)>=0;});
+  active.sort(function(a,b){return(a.peak.indexOf(m)>=0?0:1)-(b.peak.indexOf(m)>=0?0:1);});
+  if(!active.length){el.innerHTML='<div style="text-align:center;padding:30px;color:var(--smoke);font-size:13px">Keine Saisonprodukte</div>';return;}
+  var groups={g:[],f:[],k:[]};
+  active.forEach(function(p){groups[p.cat].push(p);});
+  var labels={g:'Gemüse',f:'Früchte',k:'Kräuter'};
+  var out='';
+  ['g','f','k'].forEach(function(cat){
+    if(!groups[cat].length)return;
+    out+='<div class="cs-page-subtitle">'+labels[cat]+'</div>';
+    groups[cat].forEach(function(p){
+      var ip=p.peak.indexOf(m)>=0;
+      out+='<div class="season-prod-item"><div class="season-dot" style="background:'+(ip?'#B8973A':'#3D5A3E')+'"></div>';
+      out+='<span class="season-prod-name">'+p.name+'</span>';
+      out+='<span class="season-badge '+(ip?'s-peak':'s-season')+'">'+(ip?'Hauptsaison':'Saison')+'</span></div>';
+    });
+  });
+  el.innerHTML=out;
+}
+function seasonChangeMonth(dir){seasonCurrentMonth=(seasonCurrentMonth+12+dir)%12;renderSeasonPage();}
+function renderProteinPage(type){
+  var el=document.getElementById('proto-'+type);
+  if(!el)return;
+  var data=PROTEIN_DATA[type];
+  if(!data)return;
+  var out='';
+  data.forEach(function(group){
+    out+='<div class="protein-group-title">'+group.group+'</div>';
+    group.items.forEach(function(item){
+      out+='<div class="protein-item"><span class="protein-name">'+item.name+'</span><div class="protein-right">';
+      if(item.supplier)out+='<span class="protein-supplier">'+item.supplier+'</span>';
+      if(item.season)out+='<span class="protein-season-badge">'+item.season+'</span>';
+      out+='</div></div>';
+    });
+  });
+  el.innerHTML=out;
+}
+function updatePageDots(){
+  var pages=document.getElementById('cs-pages');
+  var dots=document.querySelectorAll('#cs-page-dots .page-dot');
+  if(!pages||!dots.length)return;
+  var idx=Math.round(pages.scrollLeft/pages.offsetWidth);
+  dots.forEach(function(d,i){d.classList.toggle('active',i===idx);});
+}
+function initProfiPages(){
+  renderSeasonPage();
+  renderProteinPage('fleisch');
+  renderProteinPage('fisch');
+  renderProteinPage('gefluegel');
+  renderProteinPage('meeresfruchte');
+}
 </script>
 
 <!-- SCREEN: EINKAUFSLISTE -->
