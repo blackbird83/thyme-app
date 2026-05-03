@@ -558,6 +558,39 @@ body.light-mode .protein-season-badge{background:#FFF3DC;color:#8A6E20}
 .season-supplier-input{width:100%;background:var(--parchment);border:1px solid var(--border);border-radius:10px;padding:10px 14px;font-size:14px;color:var(--bark);font-family:'DM Sans',sans-serif}
 .season-supplier-save{margin-top:8px;width:100%;padding:10px;background:#3D5A3E;border:none;border-radius:10px;color:#F0E8D8;font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer}
 
+
+/* ── SAISONKALENDER EDITOR ───────────────────────────────────────────────── */
+#screen-season-editor .sub-header{display:flex;align-items:center;justify-content:space-between;padding:12px 20px;border-bottom:1px solid var(--border)}
+.se-list{padding:0 0 100px}
+.se-item{display:flex;align-items:center;gap:10px;padding:12px 20px;border-bottom:0.5px solid var(--border)}
+.se-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.se-name{font-size:14px;color:var(--bark);flex:1}
+.se-cat{font-size:10px;color:var(--smoke);margin-top:2px}
+.se-edit-btn{background:none;border:none;color:#5C7F5D;font-size:16px;cursor:pointer;padding:4px 8px}
+.se-del-btn{background:none;border:none;color:#8B2020;font-size:16px;cursor:pointer;padding:4px 8px}
+.se-add-fab{position:fixed;bottom:32px;right:24px;width:52px;height:52px;border-radius:50%;background:#3D5A3E;border:none;color:#F0E8D8;font-size:28px;cursor:pointer;box-shadow:0 4px 20px rgba(61,90,62,.5);z-index:10}
+.se-filter-bar{display:flex;gap:6px;overflow-x:auto;padding:10px 16px;border-bottom:1px solid var(--border);scrollbar-width:none}
+.se-filter-bar::-webkit-scrollbar{display:none}
+
+/* Editor Modal */
+#se-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:700;align-items:flex-end;justify-content:center}
+#se-modal-overlay.open{display:flex}
+#se-modal{background:var(--cream);border-radius:20px 20px 0 0;padding:24px 20px 40px;width:100%;max-width:900px;max-height:85vh;overflow-y:auto}
+.se-modal-title{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:300;color:var(--bark);margin-bottom:20px}
+.se-form-label{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--smoke);margin-bottom:6px;display:block}
+.se-form-input{width:100%;background:var(--parchment);border:1px solid var(--border);border-radius:10px;padding:10px 14px;font-size:14px;color:var(--bark);font-family:'DM Sans',sans-serif;margin-bottom:16px}
+.se-form-select{width:100%;background:var(--parchment);border:1px solid var(--border);border-radius:10px;padding:10px 14px;font-size:14px;color:var(--bark);font-family:'DM Sans',sans-serif;margin-bottom:16px;-webkit-appearance:none}
+.se-months-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin-bottom:8px}
+.se-month-btn{padding:8px 4px;border-radius:8px;border:1px solid var(--border);background:transparent;font-size:11px;color:var(--smoke);cursor:pointer;text-align:center;font-family:'DM Sans',sans-serif}
+.se-month-btn.season{background:#3D5A3E;border-color:#3D5A3E;color:#F0E8D8}
+.se-month-btn.peak{background:#B8973A;border-color:#B8973A;color:#F0E8D8}
+.se-months-hint{font-size:10px;color:var(--smoke);margin-bottom:16px}
+.se-save-btn{width:100%;padding:14px;background:#3D5A3E;border:none;border-radius:12px;color:#F0E8D8;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:500;cursor:pointer;margin-bottom:10px}
+.se-cancel-btn{width:100%;padding:12px;background:transparent;border:1px solid var(--border);border-radius:12px;color:var(--smoke);font-family:'DM Sans',sans-serif;font-size:14px;cursor:pointer}
+.se-legend{display:flex;gap:12px;margin-bottom:16px}
+.se-leg{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--smoke)}
+.se-leg-dot{width:10px;height:10px;border-radius:2px}
+
 </style>
 </head>
 <body>
@@ -1246,7 +1279,15 @@ body.light-mode .protein-season-badge{background:#FFF3DC;color:#8A6E20}
       <h3>&#127763; Darstellung</h3>
       <button id="theme-toggle-btn" onclick="toggleTheme()" style="width:100%;background:transparent;border:1px solid var(--border);border-radius:8px;padding:12px;font-size:13px;color:var(--bark);cursor:pointer;font-family:'DM Sans',sans-serif;letter-spacing:1px;text-align:left">☀️ &nbsp;Hellmodus aktivieren</button>
     </div>
-    <div class="settings-section">
+    
+        <div class="settings-section" style="margin-top:16px">
+          <h3>&#127807; Saisonkalender verwalten</h3>
+          <p style="font-size:13px;color:var(--smoke);margin:6px 0 12px">Produkte hinzufügen, bearbeiten und Saisonzeiten anpassen.</p>
+          <button onclick="closeFabMenu();closeSettings();openSeasonEditor()" style="width:100%;padding:12px;background:transparent;border:1px solid #3D5A3E;border-radius:10px;color:#5C7F5D;font-family:'DM Sans',sans-serif;font-size:13px;letter-spacing:1px;cursor:pointer">
+            Saisonkalender öffnen &#8250;
+          </button>
+        </div>
+<div class="settings-section">
       <h3>&#128241; Als App installieren (iPhone/iPad)</h3>
       <p style="font-size:13px;color:#888">In Safari: Teilen-Button &#128085; antippen dann "Zum Home-Bildschirm" auswaehlen.</p>
     </div>
@@ -2051,6 +2092,7 @@ function logoTap() {
   } catch(e) { console.warn('logoTap:', e); }
 }
 
+function closeSettings(){ closeFabMenu(); }
 function openCatSheet() {
   try { initProfiPages(); } catch(e){ console.warn('initProfiPages:', e); }
   try { renderCatSheet(); } catch(e){ console.warn('renderCatSheet:', e); }
@@ -3082,6 +3124,167 @@ function openSeasonRecipe(el) {
   var r = recipes.find(function(x){return x.id==rid;});
   if(r){ closeSeasonDetail(); closeCatSheet(); openDetail(r); }
 }
+
+// ─── SAISONKALENDER EDITOR ─────────────────────────────────────────────────
+var seFilter = 'all';
+var seMonthState = [0,0,0,0,0,0,0,0,0,0,0,0]; // 0=off, 1=season, 2=peak
+var MONTH_NAMES_SHORT = ['Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'];
+var CAT_LABELS = {g:'Gemüse',s:'Salat',o:'Obst',b:'Beeren',k:'Kräuter',p:'Pilze'};
+var CAT_COLORS = {g:'#3D5A3E',s:'#5C8C5C',o:'#B8973A',b:'#8B4A8B',k:'#7A9E3D',p:'#8B6E3A'};
+
+// Lade Custom-Daten aus localStorage (überschreiben SEASON_DATA nicht)
+function seLoadCustom() {
+  try {
+    var custom = localStorage.getItem('thyme_season_custom');
+    return custom ? JSON.parse(custom) : [];
+  } catch(e) { return []; }
+}
+
+function seSaveCustom(data) {
+  localStorage.setItem('thyme_season_custom', JSON.stringify(data));
+  // Merge in SEASON_DATA
+  seRebuildSeasonData();
+}
+
+function seRebuildSeasonData() {
+  // Hole Custom-Einträge
+  var custom = seLoadCustom();
+  // Entferne alle Custom-Einträge aus SEASON_DATA und füge neue hinzu
+  // (Wir kennzeichnen Custom-Einträge mit _custom: true)
+  var base = SEASON_DATA.filter(function(p){ return !p._custom; });
+  SEASON_DATA = base.concat(custom.map(function(p){
+    return Object.assign({}, p, {_custom: true});
+  }));
+}
+
+function openSeasonEditor() {
+  seRebuildSeasonData();
+  seFilter = 'all';
+  document.querySelectorAll('#se-filter-bar button').forEach(function(b,i){ b.classList.toggle('active', i===0); });
+  seRenderList();
+  showScreen('season-editor');
+}
+
+function seSetFilter(f, btn) {
+  seFilter = f;
+  document.querySelectorAll('#se-filter-bar button').forEach(function(b){ b.classList.remove('active'); });
+  if(btn) btn.classList.add('active');
+  seRenderList();
+}
+
+function seRenderList() {
+  var list = document.getElementById('se-list');
+  var count = document.getElementById('se-count');
+  var filtered = SEASON_DATA.filter(function(p){
+    return seFilter === 'all' || p.cat === seFilter;
+  }).sort(function(a,b){ return a.name.localeCompare(b.name); });
+
+  if(count) count.textContent = filtered.length + ' Produkte';
+
+  if(!filtered.length) {
+    list.innerHTML = '<div style="text-align:center;padding:40px;color:var(--smoke);font-size:14px">Keine Produkte</div>';
+    return;
+  }
+
+  list.innerHTML = filtered.map(function(p, i) {
+    var realIdx = SEASON_DATA.indexOf(p);
+    var color = CAT_COLORS[p.cat] || '#5C7F5D';
+    var label = CAT_LABELS[p.cat] || p.cat;
+    var isCustom = p._custom ? ' ✎' : '';
+    return '<div class="se-item">' +
+      '<div class="se-dot" style="background:' + color + '"></div>' +
+      '<div style="flex:1"><div class="se-name">' + p.name + isCustom + '</div>' +
+      '<div class="se-cat">' + label + ' · ' + p.season.length + ' Monate</div></div>' +
+      '<button class="se-edit-btn" onclick="seOpenModal(' + realIdx + ')">✎</button>' +
+      (p._custom ? '<button class="se-del-btn" onclick="seDeleteProduct(' + realIdx + ')">✕</button>' : '') +
+      '</div>';
+  }).join('');
+}
+
+function seOpenModal(idx) {
+  var p = idx !== null ? SEASON_DATA[idx] : null;
+  document.getElementById('se-modal-title').textContent = p ? 'Produkt bearbeiten' : 'Produkt hinzufügen';
+  document.getElementById('se-edit-index').value = idx !== null ? idx : '';
+  document.getElementById('se-input-name').value = p ? p.name : '';
+  document.getElementById('se-input-cat').value = p ? p.cat : 'g';
+
+  // Monats-Status aufbauen
+  seMonthState = [0,0,0,0,0,0,0,0,0,0,0,0];
+  if(p) {
+    p.season.forEach(function(m){ if(seMonthState[m]===0) seMonthState[m]=1; });
+    p.peak.forEach(function(m){ seMonthState[m]=2; });
+  }
+  seRenderMonthGrid();
+  document.getElementById('se-modal-overlay').classList.add('open');
+  setTimeout(function(){ document.getElementById('se-input-name').focus(); }, 300);
+}
+
+function seCloseModal() {
+  document.getElementById('se-modal-overlay').classList.remove('open');
+}
+
+function seRenderMonthGrid() {
+  var grid = document.getElementById('se-months-grid');
+  grid.innerHTML = MONTH_NAMES_SHORT.map(function(m, i) {
+    var state = seMonthState[i];
+    var cls = state === 2 ? 'peak' : (state === 1 ? 'season' : '');
+    return '<button class="se-month-btn ' + cls + '" onclick="seToggleMonth(' + i + ')">' + m + '</button>';
+  }).join('');
+}
+
+function seToggleMonth(i) {
+  seMonthState[i] = (seMonthState[i] + 1) % 3;
+  seRenderMonthGrid();
+}
+
+function seSaveProduct() {
+  var name = document.getElementById('se-input-name').value.trim();
+  if(!name) { showToast('Bitte Name eingeben', 'error'); return; }
+  var cat = document.getElementById('se-input-cat').value;
+  var season = [], peak = [];
+  seMonthState.forEach(function(s, i) {
+    if(s >= 1) season.push(i);
+    if(s === 2) peak.push(i);
+  });
+  if(!season.length) { showToast('Bitte mindestens einen Monat wählen', 'error'); return; }
+
+  var custom = seLoadCustom();
+  var idxStr = document.getElementById('se-edit-index').value;
+
+  if(idxStr !== '') {
+    var idx = parseInt(idxStr);
+    var existing = SEASON_DATA[idx];
+    if(existing && existing._custom) {
+      // Custom-Eintrag updaten
+      var customIdx = custom.findIndex(function(p){ return p.name === existing.name; });
+      if(customIdx >= 0) custom[customIdx] = {name:name, cat:cat, season:season, peak:peak, _custom:true};
+    } else {
+      // Basis-Eintrag → als Custom-Override speichern
+      custom.push({name:name, cat:cat, season:season, peak:peak, _custom:true});
+    }
+  } else {
+    // Neues Produkt
+    if(custom.find(function(p){ return p.name.toLowerCase()===name.toLowerCase(); })) {
+      showToast('Produkt existiert bereits', 'error'); return;
+    }
+    custom.push({name:name, cat:cat, season:season, peak:peak, _custom:true});
+  }
+
+  seSaveCustom(custom);
+  seCloseModal();
+  seRenderList();
+  showToast(name + ' gespeichert', 'success');
+}
+
+function seDeleteProduct(idx) {
+  var p = SEASON_DATA[idx];
+  if(!p || !p._custom) { showToast('Basis-Produkte können nicht gelöscht werden', 'error'); return; }
+  var custom = seLoadCustom();
+  custom = custom.filter(function(x){ return x.name !== p.name; });
+  seSaveCustom(custom);
+  seRenderList();
+  showToast(p.name + ' gelöscht', 'success');
+}
 </script>
 
 <!-- SCREEN: EINKAUFSLISTE -->
@@ -3133,6 +3336,60 @@ function openSeasonRecipe(el) {
     </div>
     <div class="season-detail-section">Passende Rezepte</div>
     <div id="season-detail-recipes"></div>
+  </div>
+</div>
+
+
+<!-- SCREEN: SAISONKALENDER EDITOR -->
+<div id="screen-season-editor" class="screen">
+  <div class="sub-header">
+    <button class="back-btn" onclick="goBack()" style="font-size:18px;color:#5C7F5D">&#8592;</button>
+    <span class="sub-title" style="font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:300;letter-spacing:2px">Saisonkalender</span>
+    <span id="se-count" style="font-size:11px;color:var(--smoke)"></span>
+  </div>
+  <div class="se-filter-bar" id="se-filter-bar">
+    <button class="shop-filter active" onclick="seSetFilter('all',this)" style="font-size:10px;padding:3px 12px">Alle</button>
+    <button class="shop-filter" onclick="seSetFilter('g',this)" style="font-size:10px;padding:3px 12px">Gemüse</button>
+    <button class="shop-filter" onclick="seSetFilter('s',this)" style="font-size:10px;padding:3px 12px">Salat</button>
+    <button class="shop-filter" onclick="seSetFilter('o',this)" style="font-size:10px;padding:3px 12px">Obst</button>
+    <button class="shop-filter" onclick="seSetFilter('b',this)" style="font-size:10px;padding:3px 12px">Beeren</button>
+    <button class="shop-filter" onclick="seSetFilter('k',this)" style="font-size:10px;padding:3px 12px">Kräuter</button>
+    <button class="shop-filter" onclick="seSetFilter('p',this)" style="font-size:10px;padding:3px 12px">Pilze</button>
+  </div>
+  <div class="se-list" id="se-list"></div>
+  <button class="se-add-fab" onclick="seOpenModal(null)">+</button>
+</div>
+
+<!-- EDITOR MODAL -->
+<div id="se-modal-overlay">
+  <div id="se-modal">
+    <div class="se-modal-title" id="se-modal-title">Produkt hinzufügen</div>
+    <input type="hidden" id="se-edit-index">
+
+    <label class="se-form-label">Produktname</label>
+    <input type="text" id="se-input-name" class="se-form-input" placeholder="z.B. Spargel weiss">
+
+    <label class="se-form-label">Kategorie</label>
+    <select id="se-input-cat" class="se-form-select">
+      <option value="g">Gemüse</option>
+      <option value="s">Salat</option>
+      <option value="o">Obst</option>
+      <option value="b">Beeren</option>
+      <option value="k">Kräuter</option>
+      <option value="p">Pilze</option>
+    </select>
+
+    <label class="se-form-label">Saison — Monate wählen</label>
+    <div class="se-legend">
+      <div class="se-leg"><div class="se-leg-dot" style="background:#B8973A"></div>Hauptsaison (2× tippen)</div>
+      <div class="se-leg"><div class="se-leg-dot" style="background:#3D5A3E"></div>Saison (1× tippen)</div>
+      <div class="se-leg"><div class="se-leg-dot" style="background:var(--border)"></div>Nicht verfügbar</div>
+    </div>
+    <div class="se-months-grid" id="se-months-grid"></div>
+    <div class="se-months-hint">1× tippen = Saison · 2× tippen = Hauptsaison · 3× tippen = Zurücksetzen</div>
+
+    <button class="se-save-btn" onclick="seSaveProduct()">Speichern</button>
+    <button class="se-cancel-btn" onclick="seCloseModal()">Abbrechen</button>
   </div>
 </div>
 
