@@ -568,7 +568,7 @@ body.light-mode .protein-season-badge{background:#FFF3DC;color:#8A6E20}
 .se-cat{font-size:10px;color:var(--smoke);margin-top:2px}
 .se-edit-btn{background:none;border:none;color:#5C7F5D;font-size:16px;cursor:pointer;padding:4px 8px}
 .se-del-btn{background:none;border:none;color:#8B2020;font-size:16px;cursor:pointer;padding:4px 8px}
-.se-add-fab{position:fixed;bottom:32px;right:24px;width:52px;height:52px;border-radius:50%;background:#3D5A3E;border:none;color:#F0E8D8;font-size:28px;cursor:pointer;box-shadow:0 4px 20px rgba(61,90,62,.5);z-index:10}
+.se-add-fab{position:fixed;bottom:32px;right:24px;width:56px;height:56px;border-radius:50%;background:#3D5A3E;border:none;color:#FFFFFF;font-size:32px;font-weight:300;cursor:pointer;box-shadow:0 4px 24px rgba(61,90,62,.6);z-index:50;display:none;align-items:center;justify-content:center;line-height:1}
 .se-filter-bar{display:flex;gap:6px;overflow-x:auto;padding:10px 16px;border-bottom:1px solid var(--border);scrollbar-width:none}
 .se-filter-bar::-webkit-scrollbar{display:none}
 
@@ -2650,6 +2650,8 @@ function printRecipe(r) {
 
 // NAVIGATION
 function goBack() {
+  var fab = document.getElementById('se-add-fab');
+  if(fab) fab.style.display = 'none';
   var currentScreen = document.querySelector('.screen.active');
   var currentId = currentScreen ? currentScreen.id : '';
 
@@ -3163,6 +3165,8 @@ function openSeasonEditor() {
   document.querySelectorAll('#se-filter-bar button').forEach(function(b,i){ b.classList.toggle('active', i===0); });
   seRenderList();
   showScreen('season-editor');
+  var fab = document.getElementById('se-add-fab');
+  if(fab) fab.style.display = 'flex';
 }
 
 function seSetFilter(f, btn) {
@@ -3357,7 +3361,7 @@ function seDeleteProduct(idx) {
     <button class="shop-filter" onclick="seSetFilter('p',this)" style="font-size:10px;padding:3px 12px">Pilze</button>
   </div>
   <div class="se-list" id="se-list"></div>
-  <button class="se-add-fab" onclick="seOpenModal(null)">+</button>
+  <button class="se-add-fab" onclick="seOpenModal(null)" id="se-add-fab">+</button>
 </div>
 
 <!-- EDITOR MODAL -->
