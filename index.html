@@ -916,7 +916,7 @@ body.light-mode .protein-season-badge{background:#FFF3DC;color:#8A6E20}
     </div>
   </div>
   <div class="cat-scroll" id="cat-scroll"></div>
-  <div id="book-cover" onclick="openCatSheet()" style="display:none"><div id="book-cover-inner" style="pointer-events:none;width:100%">
+  <div id="book-cover" onclick="try{openCatSheet();}catch(e){console.warn(e);}" style="display:none"><div id="book-cover-inner" style="pointer-events:none;width:100%">
   <!-- DARK MODE SVG -->
   <svg id="bc-dark" viewBox="0 0 340 520" style="pointer-events:none" xmlns="http://www.w3.org/2000/svg">
     <defs>
@@ -1019,7 +1019,7 @@ body.light-mode .protein-season-badge{background:#FFF3DC;color:#8A6E20}
     <text x="170" y="344" text-anchor="middle" font-family="'DM Sans',system-ui,sans-serif" font-size="10" fill="#3D5A3E" letter-spacing="6" opacity="0.9">RECIPE ARCHIVE</text>
     <line x1="120" y1="368" x2="220" y2="368" stroke="#B8973A" stroke-width="0.4" opacity="0.3"/>
   </svg>
-</div><button id="book-cover-hint" onclick="openCatSheet()" style="display:none;background:none;border:none;cursor:pointer;padding:12px 40px 20px;text-align:center;-webkit-tap-highlight-color:rgba(61,90,62,0.2);width:100%">
+</div><button id="book-cover-hint" onclick="try{openCatSheet();}catch(e){console.warn(e);}" style="display:none;background:none;border:none;cursor:pointer;padding:12px 40px 20px;text-align:center;-webkit-tap-highlight-color:rgba(61,90,62,0.2);width:100%">
     <span style="font-size:11px;letter-spacing:4px;color:#5C7F5D;text-transform:uppercase;display:block;margin-bottom:6px">KATEGORIE WÄHLEN</span>
     <span style="font-size:14px;color:#5C7F5D;display:block;line-height:1">&#8964;</span>
   </button>
@@ -2041,19 +2041,23 @@ function showSplash() {
 // KATEGORIE SHEET
 
 function logoTap() {
-  var home = document.getElementById('screen-home');
-  if (home && home.classList.contains('active')) {
-    openCatSheet();
-  } else {
-    showScreen('home');
-  }
+  try {
+    var home = document.getElementById('screen-home');
+    if (home && home.classList.contains('active')) {
+      openCatSheet();
+    } else {
+      showScreen('home');
+    }
+  } catch(e) { console.warn('logoTap:', e); }
 }
 
 function openCatSheet() {
-  initProfiPages();
-  renderCatSheet();
-  document.getElementById('cat-sheet').classList.add('open');
-  document.getElementById('cat-sheet-overlay').classList.add('open');
+  try { initProfiPages(); } catch(e){ console.warn('initProfiPages:', e); }
+  try { renderCatSheet(); } catch(e){ console.warn('renderCatSheet:', e); }
+  var sheet = document.getElementById('cat-sheet');
+  var overlay = document.getElementById('cat-sheet-overlay');
+  if(sheet) sheet.classList.add('open');
+  if(overlay) overlay.classList.add('open');
 }
 
 function closeCatSheet() {
@@ -2999,11 +3003,11 @@ function updatePageDots(){
   dots.forEach(function(d,i){d.classList.toggle('active',i===idx);});
 }
 function initProfiPages(){
-  renderSeasonPage();
-  renderProteinPage('fleisch');
-  renderProteinPage('fisch');
-  renderProteinPage('gefluegel');
-  renderProteinPage('meeresfruchte');
+  try { renderSeasonPage(); } catch(e){ console.warn('renderSeasonPage:', e); }
+  try { renderProteinPage('fleisch'); } catch(e){ console.warn('renderProteinPage fleisch:', e); }
+  try { renderProteinPage('fisch'); } catch(e){ console.warn('renderProteinPage fisch:', e); }
+  try { renderProteinPage('gefluegel'); } catch(e){ console.warn('renderProteinPage gefluegel:', e); }
+  try { renderProteinPage('meeresfruchte'); } catch(e){ console.warn('renderProteinPage meeresfruchte:', e); }
 }
 
 // ─── SAISONKALENDER DETAIL ─────────────────────────────────────────────────
