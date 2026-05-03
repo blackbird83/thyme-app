@@ -2954,6 +2954,7 @@ function renderSeasonPage(){
   var m=seasonCurrentMonth;
   var active=SEASON_DATA.filter(function(p){return (p.season.indexOf(m)>=0||p.peak.indexOf(m)>=0)&&(seasonFilter==='all'||p.cat===seasonFilter);});
   active.sort(function(a,b){return(a.peak.indexOf(m)>=0?0:1)-(b.peak.indexOf(m)>=0?0:1);});
+  var _suppliers=JSON.parse(localStorage.getItem('thyme_season_suppliers')||'{}');
   if(!active.length){el.innerHTML='<div style="text-align:center;padding:30px;color:var(--smoke);font-size:13px">Keine Saisonprodukte</div>';return;}
   var groups={g:[],f:[],k:[]};
   active.forEach(function(p){groups[p.cat].push(p);});
@@ -2964,10 +2965,9 @@ function renderSeasonPage(){
     out+='<div class="cs-page-subtitle">'+labels[cat]+'</div>';
     groups[cat].forEach(function(p){
       var ip=p.peak.indexOf(m)>=0;
-      out+='<div class="season-prod-item" onclick="openSeasonDetail(\'' + p.name.replace(/\'/g,\'\\\'\')+\'\')" ><div class="season-dot" style="background:'+(ip?'#B8973A':'#3D5A3E')+'"></div>';
+      var safeN=p.name.replace(/"/g,'&quot;');
+      out+='<div class="season-prod-item" onclick="openSeasonDetail(this)" data-product="'+safeN+'"><div class="season-dot" style="background:'+(ip?'#B8973A':'#3D5A3E')+'"></div>';
       out+='<span class="season-prod-name">'+p.name+'</span>';
-      var suppliers=JSON.parse(localStorage.getItem('thyme_season_suppliers')||'{}');
-      var sup=suppliers[p.name]?'<span style="font-size:9px;color:var(--smoke);margin-left:4px">'+suppliers[p.name]+'</span>':'';
       out+='<span class="season-badge '+(ip?'s-peak':'s-season')+'">'+(ip?'Hauptsaison':'Saison')+'</span></div>';
     });
   });
@@ -3009,7 +3009,8 @@ function initProfiPages(){
 // ─── SAISONKALENDER DETAIL ─────────────────────────────────────────────────
 var currentSeasonProduct = null;
 
-function openSeasonDetail(productName) {
+function openSeasonDetail(el) {
+  var productName = el ? (el.dataset ? el.dataset.product : el) : '';
   var p = SEASON_DATA.find(function(x){return x.name===productName;});
   if(!p) return;
   currentSeasonProduct = p;
@@ -3048,9 +3049,9 @@ function openSeasonDetail(productName) {
   });
   var recipesHtml = matches.length
     ? matches.map(function(r){
-        return '<div class="season-recipe-item" onclick="closeSeasonDetail();closeCatSheet();openDetail(recipes.find(function(x){return x.id===\''+r.id+'\';}))">' +
+        return '<div class="season-recipe-item" data-rid="'+r.id+'" onclick="openSeasonRecipe(this)">' +
           '<span class="season-recipe-name">' + r.title + '</span>' +
-          '<span class="season-recipe-cat">' + (r.category||'') + ' ›</span></div>';
+          '<span class="season-recipe-cat">' + (r.category||'') + ' \u203a</span></div>';
       }).join('')
     : '<div class="season-no-recipe">Keine passenden Rezepte im Archiv</div>';
   document.getElementById('season-detail-recipes').innerHTML = recipesHtml;
@@ -3070,6 +3071,12 @@ function saveSeasonSupplier() {
   suppliers[currentSeasonProduct.name] = val;
   localStorage.setItem('thyme_season_suppliers', JSON.stringify(suppliers));
   showToast('Lieferant gespeichert', 'success');
+}
+
+function openSeasonRecipe(el) {
+  var rid = el.dataset.rid;
+  var r = recipes.find(function(x){return x.id==rid;});
+  if(r){ closeSeasonDetail(); closeCatSheet(); openDetail(r); }
 }
 </script>
 
