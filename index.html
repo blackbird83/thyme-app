@@ -528,6 +528,36 @@ body.light-mode .s-season{background:#E8F3E8;color:#2E5A2E}
 .protein-season-badge{font-size:9px;padding:2px 6px;border-radius:4px;background:#2A1E08;color:#B8973A}
 body.light-mode .protein-season-badge{background:#FFF3DC;color:#8A6E20}
 
+
+/* ── SAISONKALENDER DETAIL ───────────────────────────────────────────────── */
+.season-detail-overlay{display:none;position:fixed;inset:0;background:var(--cream);z-index:600;flex-direction:column;overflow-y:auto}
+.season-detail-overlay.open{display:flex}
+.season-detail-hdr{padding:14px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;background:var(--cream);position:sticky;top:0;z-index:1}
+.season-detail-back{background:none;border:none;color:#5C7F5D;font-size:20px;cursor:pointer;padding:4px}
+.season-detail-name{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:300;color:var(--bark);letter-spacing:1px;flex:1}
+.season-detail-body{padding:20px}
+.year-bar-wrap{margin-bottom:24px}
+.year-bar-title{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#B8973A;margin-bottom:10px}
+.year-bar-grid{display:grid;grid-template-columns:repeat(12,1fr);gap:3px}
+.year-bar-month{border-radius:3px;height:28px;position:relative;display:flex;align-items:center;justify-content:center}
+.year-bar-month.peak{background:#B8973A}
+.year-bar-month.season{background:#3D5A3E}
+.year-bar-month.off{background:var(--border)}
+.year-bar-month.current{outline:2px solid #F0E8D8;outline-offset:1px}
+.year-bar-label{font-size:8px;color:var(--bark);text-align:center;margin-top:4px;opacity:0.6}
+.year-bar-labels{display:grid;grid-template-columns:repeat(12,1fr);gap:3px}
+.season-legend{display:flex;gap:16px;margin-top:10px}
+.season-leg-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--smoke)}
+.season-leg-dot{width:10px;height:10px;border-radius:2px}
+.season-detail-section{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#5C7F5D;margin:20px 0 10px}
+.season-recipe-item{padding:10px 14px;background:var(--parchment);border-radius:8px;border:0.5px solid var(--border);margin-bottom:6px;display:flex;align-items:center;justify-content:space-between;cursor:pointer}
+.season-recipe-name{font-size:14px;color:var(--bark)}
+.season-recipe-cat{font-size:10px;color:var(--smoke)}
+.season-no-recipe{font-size:13px;color:var(--smoke);padding:8px 0}
+.season-supplier-wrap{margin-top:8px}
+.season-supplier-input{width:100%;background:var(--parchment);border:1px solid var(--border);border-radius:10px;padding:10px 14px;font-size:14px;color:var(--bark);font-family:'DM Sans',sans-serif}
+.season-supplier-save{margin-top:8px;width:100%;padding:10px;background:#3D5A3E;border:none;border-radius:10px;color:#F0E8D8;font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer}
+
 </style>
 </head>
 <body>
@@ -759,6 +789,15 @@ body.light-mode .protein-season-badge{background:#FFF3DC;color:#8A6E20}
         <button class="season-month-btn" onclick="seasonChangeMonth(-1)">&#8249;</button>
         <span class="season-month-name" id="season-month-name"></span>
         <button class="season-month-btn" onclick="seasonChangeMonth(1)">&#8250;</button>
+      </div>
+      <div class="season-filter-bar" id="season-filter-bar" style="display:flex;gap:6px;overflow-x:auto;padding:0 16px 10px;scrollbar-width:none">
+        <button class="shop-filter active" onclick="setSeasonFilter('all',this)" style="font-size:10px;padding:3px 10px">Alle</button>
+        <button class="shop-filter" onclick="setSeasonFilter('g',this)" style="font-size:10px;padding:3px 10px">Gemüse</button>
+        <button class="shop-filter" onclick="setSeasonFilter('s',this)" style="font-size:10px;padding:3px 10px">Salat</button>
+        <button class="shop-filter" onclick="setSeasonFilter('o',this)" style="font-size:10px;padding:3px 10px">Obst</button>
+        <button class="shop-filter" onclick="setSeasonFilter('b',this)" style="font-size:10px;padding:3px 10px">Beeren</button>
+        <button class="shop-filter" onclick="setSeasonFilter('k',this)" style="font-size:10px;padding:3px 10px">Kräuter</button>
+        <button class="shop-filter" onclick="setSeasonFilter('p',this)" style="font-size:10px;padding:3px 10px">Pilze</button>
       </div>
       <div class="season-prod-list" id="season-prod-list"></div>
     </div>
@@ -2752,39 +2791,131 @@ if (document.readyState === 'loading') {
 // ─── PROFI PAGES ───────────────────────────────────────────────────────────
 var SEASON_MONTHS=['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
 var seasonCurrentMonth=new Date().getMonth();
-var SEASON_DATA=[
-  {name:'Spargel (weiss)',cat:'g',season:[3,4,5],peak:[4,5]},
-  {name:'Spargel (grün)',cat:'g',season:[3,4,5,6],peak:[4,5,6]},
-  {name:'Artischocken',cat:'g',season:[5,6,7,8,9,10],peak:[6,7,8]},
-  {name:'Aubergine',cat:'g',season:[6,7,8,9,10],peak:[7,8,9]},
-  {name:'Blattspinat',cat:'g',season:[3,4,5,9,10,11],peak:[4,5,10]},
+var SEASON_DATA = [
+
+  // ── GEMÜSE ──────────────────────────────────────────────────────────────
+  {name:'Artischocken',cat:'g',season:[5,6,7,8,9,10],peak:[6,7,8,9]},
+  {name:'Auberginen',cat:'g',season:[6,7,8,9,10],peak:[7,8,9]},
+  {name:'Blumenkohl',cat:'g',season:[4,5,6,7,8,9,10,11],peak:[6,7,8,9]},
+  {name:'Bohnen',cat:'g',season:[6,7,8,9],peak:[7,8]},
   {name:'Broccoli',cat:'g',season:[5,6,7,8,9,10,11],peak:[6,7,8,9]},
+  {name:'Catalogna (Puntarelle)',cat:'g',season:[0,1,2,3,4,9,10,11],peak:[0,1,10,11]},
+  {name:'Chicorée',cat:'g',season:[0,1,2,3,10,11],peak:[0,1,11]},
+  {name:'Chinakohl',cat:'g',season:[0,1,2,8,9,10,11],peak:[9,10,11]},
+  {name:'Cima di Rapa',cat:'g',season:[0,1,2,3,9,10,11],peak:[1,2,10,11]},
   {name:'Erbsen',cat:'g',season:[5,6,7,8],peak:[6,7]},
-  {name:'Fenchel',cat:'g',season:[7,8,9,10,11],peak:[8,9,10]},
-  {name:'Karotten',cat:'g',season:[0,1,2,3,4,5,6,7,8,9,10,11],peak:[8,9,10]},
-  {name:'Kürbis',cat:'g',season:[8,9,10,11],peak:[9,10]},
-  {name:'Lauch',cat:'g',season:[0,1,2,3,10,11],peak:[11,0,1]},
+  {name:'Fenchel',cat:'g',season:[4,5,6,7,8,9,10,11],peak:[7,8,9]},
+  {name:'Fleischtomaten',cat:'g',season:[6,7,8,9],peak:[7,8]},
+  {name:'Gurken',cat:'g',season:[5,6,7,8,9,10],peak:[6,7,8]},
+  {name:'Kabis rot',cat:'g',season:[5,6,7,8,9,10,11],peak:[7,8,9]},
+  {name:'Kabis weiss',cat:'g',season:[5,6,7,8,9,10,11],peak:[7,8,9]},
+  {name:'Karotten',cat:'g',season:[0,1,2,3,4,5,6,7,8,9,10,11],peak:[7,8,9]},
+  {name:'Kartoffeln',cat:'g',season:[4,5,6,7,8,9,10,11],peak:[7,8,9]},
+  {name:'Kefen',cat:'g',season:[4,5,6,7,8,9],peak:[5,6,7]},
+  {name:'Knoblauch',cat:'g',season:[0,1,2,3,4,5,6,7,8,9,10,11],peak:[6,7,8]},
+  {name:'Kohlrabi',cat:'g',season:[3,4,5,6,7,8,9,10],peak:[5,6,7,8]},
+  {name:'Krautstiel',cat:'g',season:[0,1,2,3,4,5,6,7,8,9,10,11],peak:[5,6,7,8]},
+  {name:'Kürbis',cat:'g',season:[7,8,9,10,11],peak:[9,10]},
+  {name:'Lauch',cat:'g',season:[0,1,2,3,4,9,10,11],peak:[0,1,10,11]},
+  {name:'Melone',cat:'g',season:[6,7,8,9],peak:[7,8]},
+  {name:'Nüsslisalat',cat:'g',season:[0,1,2,3,9,10,11],peak:[10,11,0]},
+  {name:'Pak-Choi',cat:'g',season:[0,1,2,3,9,10,11],peak:[10,11]},
+  {name:'Pastinaken',cat:'g',season:[0,1,2,3,9,10,11],peak:[10,11,0]},
+  {name:'Patisson',cat:'g',season:[6,7,8,9],peak:[7,8]},
+  {name:'Peperoni',cat:'g',season:[6,7,8,9,10],peak:[7,8,9]},
+  {name:'Perettitomaten',cat:'g',season:[6,7,8,9],peak:[7,8]},
+  {name:'Radieschen',cat:'g',season:[2,3,4,5,6,7,8,9],peak:[4,5,6]},
+  {name:'Randen',cat:'g',season:[3,4,5,6,7,8,9,10],peak:[7,8,9]},
+  {name:'Rettich',cat:'g',season:[0,1,2,3,4,5,6,7,8,9,10,11],peak:[4,5,8,9]},
+  {name:'Rhabarber',cat:'g',season:[3,4,5,6],peak:[4,5]},
+  {name:'Romanesco',cat:'g',season:[7,8,9,10,11],peak:[9,10]},
+  {name:'Rosenkohl',cat:'g',season:[0,1,2,9,10,11],peak:[10,11,0]},
+  {name:'Rüben',cat:'g',season:[0,1,2,3,9,10,11],peak:[10,11]},
+  {name:'Schwarzwurzeln',cat:'g',season:[0,1,2,10,11],peak:[11,0,1]},
+  {name:'Sellerie',cat:'g',season:[3,4,5,6,7,8,9,10],peak:[8,9]},
+  {name:'Silberzwiebeln',cat:'g',season:[7,8,9],peak:[8]},
+  {name:'Spargel grün',cat:'g',season:[3,4,5,6],peak:[4,5]},
+  {name:'Spargel weiss',cat:'g',season:[3,4,5],peak:[4,5]},
+  {name:'Spinat',cat:'g',season:[2,3,4,5,9,10,11],peak:[4,5,10]},
+  {name:'Stangensellerie',cat:'g',season:[5,6,7,8,9,10],peak:[7,8,9]},
   {name:'Tomaten',cat:'g',season:[6,7,8,9,10],peak:[7,8,9]},
-  {name:'Zucchini',cat:'g',season:[6,7,8,9,10],peak:[7,8]},
+  {name:'Topinambur',cat:'g',season:[0,1,2,10,11],peak:[11,0,1]},
+  {name:'Wirz',cat:'g',season:[0,1,2,3,9,10,11],peak:[10,11,0]},
+  {name:'Zucchetti',cat:'g',season:[5,6,7,8,9,10],peak:[6,7,8]},
+  {name:'Zuckermais',cat:'g',season:[7,8,9],peak:[7,8]},
   {name:'Zwiebeln',cat:'g',season:[0,1,2,3,4,5,6,7,8,9,10,11],peak:[7,8,9]},
-  {name:'Peperoni',cat:'g',season:[7,8,9,10],peak:[8,9]},
-  {name:'Randen',cat:'g',season:[7,8,9,10,11],peak:[9,10]},
-  {name:'Erdbeeren',cat:'f',season:[5,6,7],peak:[6,7]},
-  {name:'Himbeeren',cat:'f',season:[7,8,9],peak:[7,8]},
-  {name:'Heidelbeeren',cat:'f',season:[7,8,9],peak:[8]},
-  {name:'Kirschen',cat:'f',season:[5,6,7],peak:[6]},
-  {name:'Äpfel',cat:'f',season:[8,9,10,11],peak:[9,10]},
-  {name:'Birnen',cat:'f',season:[8,9,10,11],peak:[9]},
-  {name:'Zwetschgen',cat:'f',season:[7,8,9],peak:[8]},
-  {name:'Marroni',cat:'f',season:[9,10,11],peak:[10,11]},
-  {name:'Weintrauben',cat:'f',season:[8,9,10],peak:[9]},
+  {name:'Zwiebeln am Bund',cat:'g',season:[4,5,6,7,8],peak:[5,6,7]},
+
+  // ── SALAT ───────────────────────────────────────────────────────────────
+  {name:'Baby Salat',cat:'s',season:[0,1,2,3,4,5,6,7,8,9,10,11],peak:[3,4,5,6,7,8]},
+  {name:'Batavia',cat:'s',season:[0,1,2,3,4,5,6,7,8,9,10,11],peak:[3,4,5,6,7]},
+  {name:'Cicorino rot',cat:'s',season:[0,1,2,3,4,8,9,10,11],peak:[9,10,11,0]},
+  {name:'Cicorino grün',cat:'s',season:[0,1,2,3,8,9,10,11],peak:[9,10,11]},
+  {name:'Eichblattsalat',cat:'s',season:[0,1,2,3,4,5,6,7,8,9,10,11],peak:[3,4,5,6]},
+  {name:'Eisbergsalat',cat:'s',season:[0,1,2,3,4,5,6,7,8,9,10,11],peak:[4,5,6,7,8]},
+  {name:'Endivien',cat:'s',season:[0,1,2,3,4,7,8,9,10,11],peak:[8,9,10]},
+  {name:'Kopfsalat',cat:'s',season:[0,1,2,3,4,5,6,7,8,9,10,11],peak:[3,4,5,6,7]},
+  {name:'Lattich',cat:'s',season:[0,1,2,3,4,5,6,7,8,9,10,11],peak:[4,5,6,7]},
+  {name:'Löwenzahn',cat:'s',season:[1,2,3,4,5],peak:[3,4]},
+  {name:'Nüsslisalat',cat:'s',season:[0,1,2,8,9,10,11],peak:[9,10,11]},
+  {name:'Römersalat',cat:'s',season:[0,1,2,3,4,5,6,7,8,9,10,11],peak:[4,5,6,7]},
+  {name:'Rucola',cat:'s',season:[0,1,2,3,4,5,6,7,8,9,10,11],peak:[4,5,6,7,8]},
+  {name:'Zuckerhut',cat:'s',season:[0,1,9,10,11],peak:[10,11]},
+
+  // ── PILZE ───────────────────────────────────────────────────────────────
+  {name:'Champignons',cat:'p',season:[0,1,2,3,4,5,6,7,8,9,10,11],peak:[0,1,2,3,4,5,6,7,8,9,10,11]},
+  {name:'Austernpilze',cat:'p',season:[0,1,2,3,4,5,6,7,8,9,10,11],peak:[0,1,2,3,10,11]},
+  {name:'Eierschwämme',cat:'p',season:[6,7,8,9],peak:[7,8]},
+  {name:'Steinpilze',cat:'p',season:[6,7,8,9,10],peak:[7,8,9]},
+  {name:'Shii-Take',cat:'p',season:[0,1,2,3,4,5,6,7,8,9,10,11],peak:[0,1,2,3,10,11]},
+  {name:'Morcheln',cat:'p',season:[2,3,4,5],peak:[3,4]},
+
+  // ── BEEREN ──────────────────────────────────────────────────────────────
+  {name:'Brombeeren',cat:'b',season:[7,8,9],peak:[7,8]},
+  {name:'Cassis',cat:'b',season:[6,7],peak:[6,7]},
+  {name:'Erdbeeren',cat:'b',season:[5,6,7],peak:[6,7]},
+  {name:'Hagebutten',cat:'b',season:[8,9,10,11],peak:[9,10]},
+  {name:'Heidelbeeren',cat:'b',season:[7,8,9],peak:[7,8]},
+  {name:'Himbeeren',cat:'b',season:[6,7,8,9],peak:[7,8]},
+  {name:'Holunder (rot)',cat:'b',season:[7,8,9],peak:[8]},
+  {name:'Holunder (schwarz)',cat:'b',season:[7,8,9],peak:[8]},
+  {name:'Johannisbeeren',cat:'b',season:[6,7,8],peak:[7]},
+  {name:'Stachelbeeren',cat:'b',season:[6,7,8],peak:[7]},
+  {name:'Sanddorn',cat:'b',season:[8,9,10],peak:[9]},
+  {name:'Preiselbeeren',cat:'b',season:[8,9,10],peak:[9]},
+  {name:'Monatserdbeer.',cat:'b',season:[5,6,7,8,9],peak:[6,7,8]},
+
+  // ── OBST ────────────────────────────────────────────────────────────────
+  {name:'Äpfel (Frühsorten)',cat:'o',season:[6,7,8],peak:[7,8]},
+  {name:'Äpfel (Herbstsorten)',cat:'o',season:[8,9,10],peak:[8,9]},
+  {name:'Äpfel (Lagersorten)',cat:'o',season:[0,1,2,3,4,10,11],peak:[0,1,11]},
+  {name:'Aprikosen',cat:'o',season:[6,7],peak:[7]},
+  {name:'Birnen (Frühsorten)',cat:'o',season:[7,8],peak:[8]},
+  {name:'Birnen (Herbstsorten)',cat:'o',season:[8,9,10],peak:[8,9]},
+  {name:'Birnen (Lagersorten)',cat:'o',season:[0,1,2,3,10,11],peak:[11,0]},
+  {name:'Kirschen',cat:'o',season:[5,6,7],peak:[6,7]},
+  {name:'Mirabellen',cat:'o',season:[7,8],peak:[7,8]},
+  {name:'Nektarinen',cat:'o',season:[6,7,8],peak:[7,8]},
+  {name:'Pfirsiche',cat:'o',season:[6,7,8],peak:[7,8]},
+  {name:'Pflaumen',cat:'o',season:[7,8,9],peak:[8]},
+  {name:'Quitten',cat:'o',season:[9,10,11],peak:[10]},
+  {name:'Reineclauden',cat:'o',season:[7,8,9],peak:[8]},
+  {name:'Trauben',cat:'o',season:[8,9,10],peak:[9]},
+  {name:'Zwetschgen',cat:'o',season:[7,8,9],peak:[8]},
+
+  // ── KRÄUTER ─────────────────────────────────────────────────────────────
   {name:'Basilikum',cat:'k',season:[5,6,7,8,9,10],peak:[6,7,8,9]},
-  {name:'Thymian',cat:'k',season:[4,5,6,7,8,9,10,11],peak:[6,7,8]},
-  {name:'Rosmarin',cat:'k',season:[3,4,5,6,7,8,9,10,11],peak:[6,7,8]},
-  {name:'Schnittlauch',cat:'k',season:[3,4,5,6,7,8,9,10],peak:[5,6,7]},
-  {name:'Petersilie',cat:'k',season:[3,4,5,6,7,8,9,10,11],peak:[5,6,7,8]},
-  {name:'Minze',cat:'k',season:[5,6,7,8,9],peak:[6,7,8]},
-  {name:'Salbei',cat:'k',season:[4,5,6,7,8,9,10],peak:[6,7,8]},
+  {name:'Dill',cat:'k',season:[4,5,6,7,8,9],peak:[6,7,8]},
+  {name:'Estragon',cat:'k',season:[4,5,6,7,8,9],peak:[6,7,8]},
+  {name:'Kerbel',cat:'k',season:[2,3,4,5,9,10],peak:[3,4,5]},
+  {name:'Koriander',cat:'k',season:[5,6,7,8,9],peak:[6,7,8]},
+  {name:'Minze',cat:'k',season:[4,5,6,7,8,9,10],peak:[6,7,8]},
+  {name:'Petersilie',cat:'k',season:[2,3,4,5,6,7,8,9,10,11],peak:[5,6,7,8]},
+  {name:'Rosmarin',cat:'k',season:[0,1,2,3,4,5,6,7,8,9,10,11],peak:[6,7,8]},
+  {name:'Salbei',cat:'k',season:[3,4,5,6,7,8,9,10],peak:[5,6,7,8]},
+  {name:'Schnittlauch',cat:'k',season:[2,3,4,5,6,7,8,9,10],peak:[4,5,6,7]},
+  {name:'Thymian',cat:'k',season:[3,4,5,6,7,8,9,10,11],peak:[6,7,8]},
+  {name:'Zitronenmelisse',cat:'k',season:[4,5,6,7,8,9],peak:[6,7,8]},
 ];
 var PROTEIN_DATA={
   fleisch:[
@@ -2808,26 +2939,35 @@ var PROTEIN_DATA={
     {group:'Garnelen',items:[{name:'Tigergarnelen',supplier:'',season:''},{name:'Crevetten',supplier:'',season:''}]},
   ]
 };
+var seasonFilter='all';
+function setSeasonFilter(f,btn){
+  seasonFilter=f;
+  document.querySelectorAll('#season-filter-bar button').forEach(function(b){b.classList.remove('active');});
+  if(btn)btn.classList.add('active');
+  renderSeasonPage();
+}
 function renderSeasonPage(){
   var el=document.getElementById('season-prod-list');
   var nameEl=document.getElementById('season-month-name');
   if(!el||!nameEl)return;
   nameEl.textContent=SEASON_MONTHS[seasonCurrentMonth];
   var m=seasonCurrentMonth;
-  var active=SEASON_DATA.filter(function(p){return p.season.indexOf(m)>=0||p.peak.indexOf(m)>=0;});
+  var active=SEASON_DATA.filter(function(p){return (p.season.indexOf(m)>=0||p.peak.indexOf(m)>=0)&&(seasonFilter==='all'||p.cat===seasonFilter);});
   active.sort(function(a,b){return(a.peak.indexOf(m)>=0?0:1)-(b.peak.indexOf(m)>=0?0:1);});
   if(!active.length){el.innerHTML='<div style="text-align:center;padding:30px;color:var(--smoke);font-size:13px">Keine Saisonprodukte</div>';return;}
   var groups={g:[],f:[],k:[]};
   active.forEach(function(p){groups[p.cat].push(p);});
-  var labels={g:'Gemüse',f:'Früchte',k:'Kräuter'};
+  var labels={g:'Gemüse',s:'Salat',p:'Pilze',b:'Beeren',o:'Obst',k:'Kräuter'};
   var out='';
-  ['g','f','k'].forEach(function(cat){
+  ['g','s','p','b','o','k'].forEach(function(cat){
     if(!groups[cat].length)return;
     out+='<div class="cs-page-subtitle">'+labels[cat]+'</div>';
     groups[cat].forEach(function(p){
       var ip=p.peak.indexOf(m)>=0;
-      out+='<div class="season-prod-item"><div class="season-dot" style="background:'+(ip?'#B8973A':'#3D5A3E')+'"></div>';
+      out+='<div class="season-prod-item" onclick="openSeasonDetail(\'' + p.name.replace(/\'/g,\'\\\'\')+\'\')" ><div class="season-dot" style="background:'+(ip?'#B8973A':'#3D5A3E')+'"></div>';
       out+='<span class="season-prod-name">'+p.name+'</span>';
+      var suppliers=JSON.parse(localStorage.getItem('thyme_season_suppliers')||'{}');
+      var sup=suppliers[p.name]?'<span style="font-size:9px;color:var(--smoke);margin-left:4px">'+suppliers[p.name]+'</span>':'';
       out+='<span class="season-badge '+(ip?'s-peak':'s-season')+'">'+(ip?'Hauptsaison':'Saison')+'</span></div>';
     });
   });
@@ -2865,6 +3005,72 @@ function initProfiPages(){
   renderProteinPage('gefluegel');
   renderProteinPage('meeresfruchte');
 }
+
+// ─── SAISONKALENDER DETAIL ─────────────────────────────────────────────────
+var currentSeasonProduct = null;
+
+function openSeasonDetail(productName) {
+  var p = SEASON_DATA.find(function(x){return x.name===productName;});
+  if(!p) return;
+  currentSeasonProduct = p;
+  var m = seasonCurrentMonth;
+
+  // Name + Badge
+  document.getElementById('season-detail-name').textContent = p.name;
+  var badge = document.getElementById('season-detail-badge');
+  var isPeak = p.peak.indexOf(m) >= 0;
+  var inSeason = p.season.indexOf(m) >= 0;
+  badge.textContent = isPeak ? 'Hauptsaison' : (inSeason ? 'Saison' : 'Nicht verfügbar');
+  badge.className = 'season-badge ' + (isPeak ? 's-peak' : (inSeason ? 's-season' : ''));
+
+  // Jahresbalken
+  var MNMS = ['J','F','M','A','M','J','J','A','S','O','N','D'];
+  var barGrid = '';
+  var barLabels = '';
+  for(var i=0; i<12; i++){
+    var cls = p.peak.indexOf(i)>=0 ? 'peak' : (p.season.indexOf(i)>=0 ? 'season' : 'off');
+    if(i===m) cls += ' current';
+    barGrid += '<div class="year-bar-month ' + cls + '"></div>';
+    barLabels += '<div class="year-bar-label">' + MNMS[i] + '</div>';
+  }
+  document.getElementById('year-bar-grid').innerHTML = barGrid;
+  document.getElementById('year-bar-labels').innerHTML = barLabels;
+
+  // Lieferant
+  var suppliers = JSON.parse(localStorage.getItem('thyme_season_suppliers') || '{}');
+  document.getElementById('season-supplier-input').value = suppliers[p.name] || '';
+
+  // Passende Rezepte
+  var keyword = p.name.toLowerCase().split('(')[0].trim().split(' ')[0];
+  var matches = recipes.filter(function(r){
+    return (r.ingredients||[]).join(' ').toLowerCase().includes(keyword) ||
+           r.title.toLowerCase().includes(keyword);
+  });
+  var recipesHtml = matches.length
+    ? matches.map(function(r){
+        return '<div class="season-recipe-item" onclick="closeSeasonDetail();closeCatSheet();openDetail(recipes.find(function(x){return x.id===\''+r.id+'\';}))">' +
+          '<span class="season-recipe-name">' + r.title + '</span>' +
+          '<span class="season-recipe-cat">' + (r.category||'') + ' ›</span></div>';
+      }).join('')
+    : '<div class="season-no-recipe">Keine passenden Rezepte im Archiv</div>';
+  document.getElementById('season-detail-recipes').innerHTML = recipesHtml;
+
+  document.getElementById('season-detail-overlay').classList.add('open');
+}
+
+function closeSeasonDetail() {
+  document.getElementById('season-detail-overlay').classList.remove('open');
+  currentSeasonProduct = null;
+}
+
+function saveSeasonSupplier() {
+  if(!currentSeasonProduct) return;
+  var val = document.getElementById('season-supplier-input').value.trim();
+  var suppliers = JSON.parse(localStorage.getItem('thyme_season_suppliers') || '{}');
+  suppliers[currentSeasonProduct.name] = val;
+  localStorage.setItem('thyme_season_suppliers', JSON.stringify(suppliers));
+  showToast('Lieferant gespeichert', 'success');
+}
 </script>
 
 <!-- SCREEN: EINKAUFSLISTE -->
@@ -2889,6 +3095,33 @@ function initProfiPages(){
   <div class="shop-footer">
     <button class="shop-footer-btn shop-btn-clear" onclick="shopClearDone()">Erledigte löschen</button>
     <button class="shop-footer-btn shop-btn-export" onclick="shopExport()">Als Text exportieren</button>
+  </div>
+</div>
+
+
+<!-- SAISONKALENDER DETAIL -->
+<div id="season-detail-overlay" class="season-detail-overlay">
+  <div class="season-detail-hdr">
+    <button class="season-detail-back" onclick="closeSeasonDetail()">&#8592;</button>
+    <span class="season-detail-name" id="season-detail-name"></span>
+    <span id="season-detail-badge" class="season-badge" style="margin-left:auto"></span>
+  </div>
+  <div class="season-detail-body">
+    <div class="year-bar-title">Saison im Jahresverlauf</div>
+    <div class="year-bar-grid" id="year-bar-grid"></div>
+    <div class="year-bar-labels" id="year-bar-labels"></div>
+    <div class="season-legend">
+      <div class="season-leg-item"><div class="season-leg-dot" style="background:#B8973A"></div>Hauptsaison</div>
+      <div class="season-leg-item"><div class="season-leg-dot" style="background:#3D5A3E"></div>Saison</div>
+      <div class="season-leg-item"><div class="season-leg-dot" style="background:var(--border)"></div>Nicht verfügbar</div>
+    </div>
+    <div class="season-detail-section">Lieferant</div>
+    <div class="season-supplier-wrap">
+      <input type="text" id="season-supplier-input" class="season-supplier-input" placeholder="Lieferant eingeben...">
+      <button class="season-supplier-save" onclick="saveSeasonSupplier()">Speichern</button>
+    </div>
+    <div class="season-detail-section">Passende Rezepte</div>
+    <div id="season-detail-recipes"></div>
   </div>
 </div>
 
