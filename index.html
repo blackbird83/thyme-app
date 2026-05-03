@@ -2960,7 +2960,7 @@ function renderSeasonPage(){
   active.sort(function(a,b){return(a.peak.indexOf(m)>=0?0:1)-(b.peak.indexOf(m)>=0?0:1);});
   var _suppliers=JSON.parse(localStorage.getItem('thyme_season_suppliers')||'{}');
   if(!active.length){el.innerHTML='<div style="text-align:center;padding:30px;color:var(--smoke);font-size:13px">Keine Saisonprodukte</div>';return;}
-  var groups={g:[],f:[],k:[]};
+  var groups={g:[],s:[],p:[],b:[],o:[],k:[]};
   active.forEach(function(p){groups[p.cat].push(p);});
   var labels={g:'Gemüse',s:'Salat',p:'Pilze',b:'Beeren',o:'Obst',k:'Kräuter'};
   var out='';
