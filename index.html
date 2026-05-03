@@ -1283,7 +1283,7 @@ body.light-mode .protein-season-badge{background:#FFF3DC;color:#8A6E20}
         <div class="settings-section" style="margin-top:16px">
           <h3>&#127807; Saisonkalender verwalten</h3>
           <p style="font-size:13px;color:var(--smoke);margin:6px 0 12px">Produkte hinzufügen, bearbeiten und Saisonzeiten anpassen.</p>
-          <button onclick="closeFabMenu();closeSettings();openSeasonEditor()" style="width:100%;padding:12px;background:transparent;border:1px solid #3D5A3E;border-radius:10px;color:#5C7F5D;font-family:'DM Sans',sans-serif;font-size:13px;letter-spacing:1px;cursor:pointer">
+          <button onclick="showScreen('season-editor');seRebuildSeasonData();seFilter='all';seRenderList();" style="width:100%;padding:12px;background:transparent;border:1px solid #3D5A3E;border-radius:10px;color:#5C7F5D;font-family:'DM Sans',sans-serif;font-size:13px;letter-spacing:1px;cursor:pointer">
             Saisonkalender öffnen &#8250;
           </button>
         </div>
