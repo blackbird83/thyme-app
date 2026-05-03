@@ -568,7 +568,7 @@ body.light-mode .protein-season-badge{background:#FFF3DC;color:#8A6E20}
 .se-cat{font-size:10px;color:var(--smoke);margin-top:2px}
 .se-edit-btn{background:none;border:none;color:#5C7F5D;font-size:16px;cursor:pointer;padding:4px 8px}
 .se-del-btn{background:none;border:none;color:#8B2020;font-size:16px;cursor:pointer;padding:4px 8px}
-.se-add-fab{position:fixed;bottom:32px;right:24px;width:56px;height:56px;border-radius:50%;background:#3D5A3E;border:none;color:#FFFFFF;font-size:32px;font-weight:300;cursor:pointer;box-shadow:0 4px 24px rgba(61,90,62,.6);z-index:999;display:none;align-items:center;justify-content:center;line-height:1}
+
 .se-filter-bar{display:flex;gap:6px;overflow-x:auto;padding:10px 16px;border-bottom:1px solid var(--border);scrollbar-width:none}
 .se-filter-bar::-webkit-scrollbar{display:none}
 
@@ -2650,8 +2650,7 @@ function printRecipe(r) {
 
 // NAVIGATION
 function goBack() {
-  var fab = document.getElementById('se-add-fab');
-  if(fab) fab.style.cssText = 'display:none!important';
+
   var currentScreen = document.querySelector('.screen.active');
   var currentId = currentScreen ? currentScreen.id : '';
 
@@ -3165,10 +3164,7 @@ function openSeasonEditor() {
   document.querySelectorAll('#se-filter-bar button').forEach(function(b,i){ b.classList.toggle('active', i===0); });
   seRenderList();
   showScreen('season-editor');
-  setTimeout(function() {
-    var fab = document.getElementById('se-add-fab');
-    if(fab) { fab.style.cssText = 'display:flex!important'; }
-  }, 100);
+
 }
 
 function seSetFilter(f, btn) {
@@ -3351,7 +3347,7 @@ function seDeleteProduct(idx) {
   <div class="sub-header">
     <button class="back-btn" onclick="goBack()" style="font-size:18px;color:#5C7F5D">&#8592;</button>
     <span class="sub-title" style="font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:300;letter-spacing:2px">Saisonkalender</span>
-    <span id="se-count" style="font-size:11px;color:var(--smoke)"></span>
+    <button onclick="seOpenModal(null)" style="width:40px;height:40px;border-radius:50%;background:#3D5A3E;border:none;color:#FFFFFF;font-size:26px;font-weight:300;cursor:pointer;display:flex;align-items:center;justify-content:center;margin-left:auto;box-shadow:0 2px 12px rgba(61,90,62,.4);flex-shrink:0">+</button>
   </div>
   <div class="se-filter-bar" id="se-filter-bar">
     <button class="shop-filter active" onclick="seSetFilter('all',this)" style="font-size:10px;padding:3px 12px">Alle</button>
@@ -3437,8 +3433,5 @@ function seDeleteProduct(idx) {
     </div>
   </div>
 </div>
-
-<!-- SEASON EDITOR FAB -->
-<button class="se-add-fab" onclick="seOpenModal(null)" id="se-add-fab">+</button>
 </body>
 </html>
