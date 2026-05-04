@@ -1576,21 +1576,36 @@ function localLoad() {
     var c = localStorage.getItem('thyme_categories');
     recipes = r ? JSON.parse(r) : [];
     categories = c ? JSON.parse(c) : DEFAULT_CATS;
+    // Immer thyme_photo_ Keys in Rezepte laden (überschreibt JSON-Wert)
+    recipes = recipes.map(function(recipe) {
+      var savedPhoto = localStorage.getItem('thyme_photo_' + recipe.id);
+      if (savedPhoto) {
+        return Object.assign({}, recipe, {photo: savedPhoto});
+      }
+      return recipe;
+    });
   } catch(e) { recipes = []; categories = DEFAULT_CATS; }
 }
 
 function localSave() {
+  // Fotos in eigene Keys speichern (Backup)
+  recipes.forEach(function(r) {
+    if (r.photo && (r.photo.startsWith('http') || r.photo.startsWith('data:'))) {
+      try { localStorage.setItem('thyme_photo_' + r.id, r.photo); } catch(e) {}
+    }
+  });
+  // Rezepte ohne Base64 Fotos im JSON speichern (spart Platz)
+  var toSave = recipes.map(function(r) {
+    if (r.photo && r.photo.startsWith('data:')) {
+      return Object.assign({}, r, {photo: '__local__'});
+    }
+    return r;
+  });
   try {
-    localStorage.setItem('thyme_recipes', JSON.stringify(recipes));
+    localStorage.setItem('thyme_recipes', JSON.stringify(toSave));
     localStorage.setItem('thyme_categories', JSON.stringify(categories));
   } catch(e) {
-    // Bei Speicherfehler: Fotos entfernen und nochmals versuchen
-    var recipesNoPhotos = recipes.map(function(r){ return Object.assign({}, r, {photo:null}); });
-    try {
-      localStorage.setItem('thyme_recipes', JSON.stringify(recipesNoPhotos));
-      localStorage.setItem('thyme_categories', JSON.stringify(categories));
-      showToast('Speicher voll - Fotos nur in Cloud', 'error');
-    } catch(e2) { console.warn('Speicherfehler:', e2); }
+    showToast('Speicher voll', 'error');
   }
 }
 
