@@ -1576,11 +1576,22 @@ function localLoad() {
     var c = localStorage.getItem('thyme_categories');
     recipes = r ? JSON.parse(r) : [];
     categories = c ? JSON.parse(c) : DEFAULT_CATS;
-    // Immer thyme_photo_ Keys in Rezepte laden (überschreibt JSON-Wert)
+    
+    // Alle thyme_photo_ Keys einlesen
+    var photoMap = {};
+    for (var i = 0; i < localStorage.length; i++) {
+      var key = localStorage.key(i);
+      if (key && key.startsWith('thyme_photo_')) {
+        var recipeId = key.replace('thyme_photo_', '');
+        photoMap[recipeId] = localStorage.getItem(key);
+      }
+    }
+    
+    // Fotos in Rezepte laden
     recipes = recipes.map(function(recipe) {
-      var savedPhoto = localStorage.getItem('thyme_photo_' + recipe.id);
-      if (savedPhoto) {
-        return Object.assign({}, recipe, {photo: savedPhoto});
+      var id = String(recipe.id).trim();
+      if (photoMap[id]) {
+        return Object.assign({}, recipe, {photo: photoMap[id]});
       }
       return recipe;
     });
@@ -3389,19 +3400,26 @@ async function deletePhotoFromSupabase(photoUrl) {
 
 // ─── DEBUG FOTO ────────────────────────────────────────────────────────────
 function debugPhotoStorage() {
-  var keys = [];
+  // Alle photo Keys
+  var photoMap = {};
   for (var i = 0; i < localStorage.length; i++) {
     var key = localStorage.key(i);
     if (key && key.startsWith('thyme_photo_')) {
-      var val = localStorage.getItem(key);
-      keys.push(key.replace('thyme_photo_','') + ' → ' + (val ? val.substring(0, 50) : 'null'));
+      photoMap[key.replace('thyme_photo_','')] = localStorage.getItem(key);
     }
   }
-  var msg = 'Keys: ' + keys.length + '\n';
-  keys.forEach(function(k){ msg += k + '\n'; });
-  msg += '\nGeladene Rezepte mit Foto: ' + recipes.filter(function(r){return r.photo;}).length + '\n';
-  recipes.forEach(function(r){
-    msg += r.title + ' [' + r.id + '] → ' + (r.photo ? r.photo.substring(0,40) : 'KEIN FOTO') + '\n';
+  
+  var msg = 'Photo Keys: ' + Object.keys(photoMap).length + '\n\n';
+  
+  // Rezepte und ob sie gemappt werden
+  var r = localStorage.getItem('thyme_recipes');
+  var recs = r ? JSON.parse(r) : [];
+  msg += 'Rezepte (' + recs.length + '):\n';
+  recs.forEach(function(rec) {
+    var id = String(rec.id).trim();
+    var hasKey = photoMap[id] ? '✓ KEY GEFUNDEN' : '✗ KEIN KEY';
+    var hasPhoto = rec.photo ? '✓ FOTO' : '✗ KEIN FOTO';
+    msg += rec.title + ':\n  ID: ' + id + '\n  ' + hasPhoto + ' ' + hasKey + '\n';
   });
   alert(msg);
 }
