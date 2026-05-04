@@ -3394,19 +3394,15 @@ function debugPhotoStorage() {
     var key = localStorage.key(i);
     if (key && key.startsWith('thyme_photo_')) {
       var val = localStorage.getItem(key);
-      keys.push(key + ' = ' + (val ? val.substring(0, 80) + '...' : 'null'));
+      keys.push(key.replace('thyme_photo_','') + ' → ' + (val ? val.substring(0, 50) : 'null'));
     }
   }
-  var recipes_raw = localStorage.getItem('thyme_recipes');
-  var recipes_parsed = recipes_raw ? JSON.parse(recipes_raw) : [];
-  var photo_recipes = recipes_parsed.filter(function(r){ return r.photo; });
-  
-  var msg = 'Photos in localStorage: ' + keys.length + '\n';
-  msg += 'Recipes with photo field: ' + photo_recipes.length + '\n';
-  photo_recipes.forEach(function(r){
-    msg += r.title + ': ' + (r.photo || 'null').substring(0,60) + '\n';
-  });
+  var msg = 'Keys: ' + keys.length + '\n';
   keys.forEach(function(k){ msg += k + '\n'; });
+  msg += '\nGeladene Rezepte mit Foto: ' + recipes.filter(function(r){return r.photo;}).length + '\n';
+  recipes.forEach(function(r){
+    msg += r.title + ' [' + r.id + '] → ' + (r.photo ? r.photo.substring(0,40) : 'KEIN FOTO') + '\n';
+  });
   alert(msg);
 }
 </script>
