@@ -1566,16 +1566,37 @@ let isOnline = navigator.onLine, db = null;
 // ─── LOKALER SPEICHER ──────────────────────────────────────────────────────
 function localLoad() {
   try {
-    const r = localStorage.getItem('thyme_recipes');
-    const c = localStorage.getItem('thyme_categories');
+    var r = localStorage.getItem('thyme_recipes');
+    var c = localStorage.getItem('thyme_categories');
     recipes = r ? JSON.parse(r) : [];
     categories = c ? JSON.parse(c) : DEFAULT_CATS;
+    // Lokale Base64 Fotos wiederherstellen
+    recipes = recipes.map(function(recipe) {
+      if (recipe.photo === '__local__' || recipe.photo === '__stored__') {
+        var photo = localStorage.getItem('thyme_photo_' + recipe.id);
+        return Object.assign({}, recipe, {photo: photo || null});
+      }
+      return recipe; // Supabase URL bleibt wie sie ist
+    });
   } catch(e) { recipes = []; categories = DEFAULT_CATS; }
 }
 
 function localSave() {
-  localStorage.setItem('thyme_recipes', JSON.stringify(recipes));
-  localStorage.setItem('thyme_categories', JSON.stringify(categories));
+  // Supabase-URLs direkt speichern, Base64 in separate Keys
+  var recipesToSave = recipes.map(function(r) {
+    if (r.photo && r.photo.startsWith('data:')) {
+      // Noch Base64 (offline) → separat speichern
+      try { localStorage.setItem('thyme_photo_' + r.id, r.photo); } catch(e) {}
+      return Object.assign({}, r, {photo: '__local__'});
+    }
+    return r; // Supabase URL direkt speichern
+  });
+  try {
+    localStorage.setItem('thyme_recipes', JSON.stringify(recipesToSave));
+    localStorage.setItem('thyme_categories', JSON.stringify(categories));
+  } catch(e) {
+    showToast('Speicher fast voll', 'error');
+  }
 }
 
 // ─── CLOUD SYNC ────────────────────────────────────────────────────────────
@@ -2381,32 +2402,50 @@ function compressPhoto(dataUrl, callback) {
   img.src = dataUrl;
 }
 
-function savePhotoToRecipe(photoData) {
+async function savePhotoToRecipe(photoData) {
   if (!currentRecipe) return;
-  currentRecipe.photo = photoData;
+  showToast('Foto wird hochgeladen...', '', 5000);
+  var photoUrl = photoData; // Fallback: Base64
+
+  // Versuche Upload zu Supabase wenn online
+  if (isOnline && db) {
+    try {
+      photoUrl = await uploadPhotoToSupabase(photoData, currentRecipe.id);
+      // Altes Foto aus Supabase löschen
+      if (currentRecipe.photo && currentRecipe.photo.includes('supabase')) {
+        await deletePhotoFromSupabase(currentRecipe.photo);
+      }
+    } catch(e) {
+      console.warn('Supabase Upload fehlgeschlagen, nutze localStorage:', e);
+      photoUrl = photoData; // Fallback auf Base64
+    }
+  }
+
+  currentRecipe.photo = photoUrl;
   recipes = recipes.map(function(r) {
-    return r.id === currentRecipe.id ? Object.assign({}, r, {photo: photoData}) : r;
+    return r.id === currentRecipe.id ? Object.assign({}, r, {photo: photoUrl}) : r;
   });
   try {
     localSave();
     showToast('Foto gespeichert', 'success');
   } catch(e) {
-    showToast('Speicher voll — Foto zu gross', 'error');
+    showToast('Speicher voll', 'error');
     return;
   }
   if (db && isOnline) {
-    db.from('recipes').update({photo: photoData}).eq('id', currentRecipe.id);
+    db.from('recipes').update({photo: photoUrl}).eq('id', currentRecipe.id).then(function(){});
   }
+  // DOM aktualisieren
   var existing = document.getElementById('recipe-photo-el');
   if (existing) {
-    existing.src = photoData;
+    existing.src = photoUrl;
   } else {
     var ph = document.getElementById('recipe-photo-placeholder');
     if (ph) {
       var img = document.createElement('img');
       img.className = 'recipe-hero';
       img.id = 'recipe-photo-el';
-      img.src = photoData;
+      img.src = photoUrl;
       ph.parentNode.replaceChild(img, ph);
     }
   }
@@ -2436,7 +2475,7 @@ function deletePhotoFromRecipe() {
   closeActionSheet();
   var id = currentRecipe.id;
   var oldPhoto = currentRecipe.photo;
-  // Direkt löschen ohne Confirm (iOS Timing-Problem)
+  localStorage.removeItem('thyme_photo_' + id);
   recipes = recipes.map(function(r) {
     return r.id === id ? Object.assign({}, r, {photo: null}) : r;
   });
@@ -2444,8 +2483,12 @@ function deletePhotoFromRecipe() {
   if (db && isOnline) {
     db.from('recipes').update({photo: null}).eq('id', id).then(function(){});
   }
+  // Supabase Storage aufräumen
+  if (oldPhoto && oldPhoto.includes('supabase')) {
+    deletePhotoFromSupabase(oldPhoto);
+  }
   currentRecipe = recipes.find(function(r) { return r.id === id; });
-  // Foto sofort aus Detail-View entfernen
+  // DOM aktualisieren
   var photoEl = document.getElementById('recipe-photo-el');
   if (photoEl) {
     var placeholder = document.createElement('div');
@@ -2460,7 +2503,7 @@ function deletePhotoFromRecipe() {
 
 
 // ─── FOTO BEARBEITEN (ersetzen) ───────────────────────────────────────────
-function editPhotoOfRecipe() {
+async function editPhotoOfRecipe() {
   if (!currentRecipe) return;
   closeActionSheet();
   var id = currentRecipe.id;
@@ -2472,7 +2515,7 @@ function editPhotoOfRecipe() {
     if (!file) return;
     var reader = new FileReader();
     reader.onload = function(ev) {
-      compressPhoto(ev.target.result, function(photoData) {
+      compressPhoto(ev.target.result, async function(photoData) {
         recipes = recipes.map(function(r) {
           return r.id === id ? Object.assign({}, r, {photo: photoData}) : r;
         });
@@ -3289,6 +3332,59 @@ function seDeleteProduct(idx) {
   seSaveCustom(custom);
   seRenderList();
   showToast(p.name + ' gelöscht', 'success');
+}
+
+// ─── SUPABASE PHOTO STORAGE ────────────────────────────────────────────────
+async function uploadPhotoToSupabase(base64DataUrl, recipeId) {
+  var supabaseUrl = SUPABASE_URL;
+  var supabaseKey = SUPABASE_ANON;
+  var bucket = 'recipe-photos';
+  var filename = 'recipe_' + recipeId + '_' + Date.now() + '.jpg';
+
+  // Base64 → Blob
+  var arr = base64DataUrl.split(',');
+  var mime = arr[0].match(/:(.*?);/)[1];
+  var bstr = atob(arr[1]);
+  var n = bstr.length;
+  var u8arr = new Uint8Array(n);
+  while(n--) { u8arr[n] = bstr.charCodeAt(n); }
+  var blob = new Blob([u8arr], {type: mime});
+
+  // Upload zu Supabase Storage
+  var uploadUrl = supabaseUrl + '/storage/v1/object/' + bucket + '/' + filename;
+  var res = await fetch(uploadUrl, {
+    method: 'POST',
+    headers: {
+      'Authorization': 'Bearer ' + supabaseKey,
+      'Content-Type': mime,
+      'x-upsert': 'true'
+    },
+    body: blob
+  });
+
+  if (!res.ok) {
+    var err = await res.json().catch(function(){return {};});
+    throw new Error('Upload fehlgeschlagen: ' + (err.message || res.status));
+  }
+
+  // Öffentliche URL zurückgeben
+  return supabaseUrl + '/storage/v1/object/public/' + bucket + '/' + filename;
+}
+
+async function deletePhotoFromSupabase(photoUrl) {
+  if (!photoUrl || !photoUrl.includes('supabase')) return;
+  var supabaseUrl = SUPABASE_URL;
+  var supabaseKey = SUPABASE_ANON;
+  var bucket = 'recipe-photos';
+  // Filename aus URL extrahieren
+  var parts = photoUrl.split('/' + bucket + '/');
+  if (parts.length < 2) return;
+  var filename = parts[1];
+  var deleteUrl = supabaseUrl + '/storage/v1/object/' + bucket + '/' + filename;
+  await fetch(deleteUrl, {
+    method: 'DELETE',
+    headers: { 'Authorization': 'Bearer ' + supabaseKey }
+  }).catch(function(e){ console.warn('Foto-Löschen fehlgeschlagen:', e); });
 }
 </script>
 
