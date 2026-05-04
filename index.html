@@ -1570,13 +1570,18 @@ function localLoad() {
     var c = localStorage.getItem('thyme_categories');
     recipes = r ? JSON.parse(r) : [];
     categories = c ? JSON.parse(c) : DEFAULT_CATS;
-    // Lokale Base64 Fotos wiederherstellen
+    // Fotos wiederherstellen
     recipes = recipes.map(function(recipe) {
       if (recipe.photo === '__local__' || recipe.photo === '__stored__') {
         var photo = localStorage.getItem('thyme_photo_' + recipe.id);
         return Object.assign({}, recipe, {photo: photo || null});
       }
-      return recipe; // Supabase URL bleibt wie sie ist
+      // Auch ohne Marker: prüfe ob lokale Kopie der URL existiert
+      if (!recipe.photo) {
+        var savedPhoto = localStorage.getItem('thyme_photo_' + recipe.id);
+        if (savedPhoto) return Object.assign({}, recipe, {photo: savedPhoto});
+      }
+      return recipe;
     });
   } catch(e) { recipes = []; categories = DEFAULT_CATS; }
 }
@@ -2425,6 +2430,8 @@ async function savePhotoToRecipe(photoData) {
   recipes = recipes.map(function(r) {
     return r.id === currentRecipe.id ? Object.assign({}, r, {photo: photoUrl}) : r;
   });
+  // URL explizit in localStorage speichern (auch wenn Supabase)
+  localStorage.setItem('thyme_photo_' + currentRecipe.id, photoUrl);
   try {
     localSave();
     showToast('Foto gespeichert', 'success');
