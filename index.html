@@ -1570,31 +1570,29 @@ function localLoad() {
     var c = localStorage.getItem('thyme_categories');
     recipes = r ? JSON.parse(r) : [];
     categories = c ? JSON.parse(c) : DEFAULT_CATS;
-    // Fotos wiederherstellen
     recipes = recipes.map(function(recipe) {
-      if (recipe.photo === '__local__' || recipe.photo === '__stored__') {
-        var photo = localStorage.getItem('thyme_photo_' + recipe.id);
-        return Object.assign({}, recipe, {photo: photo || null});
-      }
-      // Auch ohne Marker: prüfe ob lokale Kopie der URL existiert
-      if (!recipe.photo) {
-        var savedPhoto = localStorage.getItem('thyme_photo_' + recipe.id);
-        if (savedPhoto) return Object.assign({}, recipe, {photo: savedPhoto});
-      }
+      // Immer aus thyme_photo_ Key laden wenn vorhanden
+      var saved = localStorage.getItem('thyme_photo_' + recipe.id);
+      if (saved) return Object.assign({}, recipe, {photo: saved});
       return recipe;
     });
   } catch(e) { recipes = []; categories = DEFAULT_CATS; }
 }
 
 function localSave() {
-  // Supabase-URLs direkt speichern, Base64 in separate Keys
   var recipesToSave = recipes.map(function(r) {
-    if (r.photo && r.photo.startsWith('data:')) {
-      // Noch Base64 (offline) → separat speichern
+    if (!r.photo) return r;
+    if (r.photo.startsWith('http')) {
+      // Supabase URL → direkt speichern + Backup in eigenem Key
+      localStorage.setItem('thyme_photo_' + r.id, r.photo);
+      return r;
+    }
+    if (r.photo.startsWith('data:')) {
+      // Base64 → eigener Key, Platzhalter im Rezept
       try { localStorage.setItem('thyme_photo_' + r.id, r.photo); } catch(e) {}
       return Object.assign({}, r, {photo: '__local__'});
     }
-    return r; // Supabase URL direkt speichern
+    return r;
   });
   try {
     localStorage.setItem('thyme_recipes', JSON.stringify(recipesToSave));
