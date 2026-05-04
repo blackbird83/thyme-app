@@ -1264,6 +1264,12 @@ body.light-mode .protein-season-badge{background:#FFF3DC;color:#8A6E20}
   </div>
   <div class="form-body">
     <div class="settings-section">
+          <h3>&#128247; Debug Foto-Speicher</h3>
+          <button onclick="debugPhotoStorage()" style="width:100%;padding:12px;background:transparent;border:1px solid #B8973A;border-radius:10px;color:#B8973A;font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;margin-top:8px">
+            Foto-Speicher anzeigen
+          </button>
+        </div>
+        <div class="settings-section">
       <h3>&#128273; Claude API Key</h3>
       <p style="font-size:13px;color:#888;margin-bottom:10px">Benoetigt fuer Scan und URL-Import. Wird sicher lokal gespeichert.</p>
       <input class="form-input" id="claude-key-input" type="password" placeholder="sk-ant-...">
@@ -1570,35 +1576,21 @@ function localLoad() {
     var c = localStorage.getItem('thyme_categories');
     recipes = r ? JSON.parse(r) : [];
     categories = c ? JSON.parse(c) : DEFAULT_CATS;
-    recipes = recipes.map(function(recipe) {
-      // Immer aus thyme_photo_ Key laden wenn vorhanden
-      var saved = localStorage.getItem('thyme_photo_' + recipe.id);
-      if (saved) return Object.assign({}, recipe, {photo: saved});
-      return recipe;
-    });
   } catch(e) { recipes = []; categories = DEFAULT_CATS; }
 }
 
 function localSave() {
-  var recipesToSave = recipes.map(function(r) {
-    if (!r.photo) return r;
-    if (r.photo.startsWith('http')) {
-      // Supabase URL → direkt speichern + Backup in eigenem Key
-      localStorage.setItem('thyme_photo_' + r.id, r.photo);
-      return r;
-    }
-    if (r.photo.startsWith('data:')) {
-      // Base64 → eigener Key, Platzhalter im Rezept
-      try { localStorage.setItem('thyme_photo_' + r.id, r.photo); } catch(e) {}
-      return Object.assign({}, r, {photo: '__local__'});
-    }
-    return r;
-  });
   try {
-    localStorage.setItem('thyme_recipes', JSON.stringify(recipesToSave));
+    localStorage.setItem('thyme_recipes', JSON.stringify(recipes));
     localStorage.setItem('thyme_categories', JSON.stringify(categories));
   } catch(e) {
-    showToast('Speicher fast voll', 'error');
+    // Bei Speicherfehler: Fotos entfernen und nochmals versuchen
+    var recipesNoPhotos = recipes.map(function(r){ return Object.assign({}, r, {photo:null}); });
+    try {
+      localStorage.setItem('thyme_recipes', JSON.stringify(recipesNoPhotos));
+      localStorage.setItem('thyme_categories', JSON.stringify(categories));
+      showToast('Speicher voll - Fotos nur in Cloud', 'error');
+    } catch(e2) { console.warn('Speicherfehler:', e2); }
   }
 }
 
@@ -2407,49 +2399,27 @@ function compressPhoto(dataUrl, callback) {
 
 async function savePhotoToRecipe(photoData) {
   if (!currentRecipe) return;
-  showToast('Foto wird hochgeladen...', '', 5000);
-  var photoUrl = photoData; // Fallback: Base64
-
-  // Versuche Upload zu Supabase wenn online (db nicht abwarten)
+  showToast('Foto wird gespeichert...', '', 5000);
+  
+  var photoUrl = photoData;
+  
   if (isOnline) {
     try {
       photoUrl = await uploadPhotoToSupabase(photoData, currentRecipe.id);
-      // Altes Foto aus Supabase löschen
-      if (currentRecipe.photo && currentRecipe.photo.includes('supabase')) {
-        await deletePhotoFromSupabase(currentRecipe.photo);
-      }
+      showToast('Foto in Cloud gespeichert ✓', 'success');
     } catch(e) {
-      console.warn('Supabase Upload fehlgeschlagen, nutze localStorage:', e);
-      photoUrl = photoData; // Fallback auf Base64
+      console.warn('Cloud Upload fehlgeschlagen:', e);
+      showToast('Foto lokal gespeichert', 'success');
     }
   }
 
+  // Sofort in recipes und localStorage speichern
   currentRecipe.photo = photoUrl;
   recipes = recipes.map(function(r) {
     return r.id === currentRecipe.id ? Object.assign({}, r, {photo: photoUrl}) : r;
   });
-  // URL explizit in localStorage speichern (auch wenn Supabase)
-  localStorage.setItem('thyme_photo_' + currentRecipe.id, photoUrl);
-  try {
-    localSave();
-    var isSupabase = photoUrl && photoUrl.includes('supabase');
-    showToast(isSupabase ? 'Foto in Cloud gespeichert' : 'Foto lokal gespeichert', 'success');
-  } catch(e) {
-    showToast('Speicher voll', 'error');
-    return;
-  }
-  // Supabase DB update
-  if (isOnline && photoUrl && photoUrl.includes('supabase')) {
-    fetch(SUPABASE_URL + '/rest/v1/recipes?id=eq.' + currentRecipe.id, {
-      method: 'PATCH',
-      headers: {
-        'apikey': SUPABASE_ANON,
-        'Authorization': 'Bearer ' + SUPABASE_ANON,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({photo: photoUrl})
-    }).catch(function(e){ console.warn('DB update fehlgeschlagen:', e); });
-  }
+  localSave();
+
   // DOM aktualisieren
   var existing = document.getElementById('recipe-photo-el');
   if (existing) {
@@ -3400,6 +3370,29 @@ async function deletePhotoFromSupabase(photoUrl) {
     method: 'DELETE',
     headers: { 'Authorization': 'Bearer ' + supabaseKey }
   }).catch(function(e){ console.warn('Foto-Löschen fehlgeschlagen:', e); });
+}
+
+// ─── DEBUG FOTO ────────────────────────────────────────────────────────────
+function debugPhotoStorage() {
+  var keys = [];
+  for (var i = 0; i < localStorage.length; i++) {
+    var key = localStorage.key(i);
+    if (key && key.startsWith('thyme_photo_')) {
+      var val = localStorage.getItem(key);
+      keys.push(key + ' = ' + (val ? val.substring(0, 80) + '...' : 'null'));
+    }
+  }
+  var recipes_raw = localStorage.getItem('thyme_recipes');
+  var recipes_parsed = recipes_raw ? JSON.parse(recipes_raw) : [];
+  var photo_recipes = recipes_parsed.filter(function(r){ return r.photo; });
+  
+  var msg = 'Photos in localStorage: ' + keys.length + '\n';
+  msg += 'Recipes with photo field: ' + photo_recipes.length + '\n';
+  photo_recipes.forEach(function(r){
+    msg += r.title + ': ' + (r.photo || 'null').substring(0,60) + '\n';
+  });
+  keys.forEach(function(k){ msg += k + '\n'; });
+  alert(msg);
 }
 </script>
 
