@@ -1630,6 +1630,19 @@ async function syncToCloud() {
     ]);
     if (rRes.data) recipes = rRes.data;
     if (cRes.data && cRes.data.length > 0) categories = cRes.data;
+    // Fotos aus thyme_photo_ Keys wiederherstellen (Supabase hat kein photo Feld)
+    var photoMap = {};
+    for (var i = 0; i < localStorage.length; i++) {
+      var key = localStorage.key(i);
+      if (key && key.startsWith('thyme_photo_')) {
+        photoMap[key.replace('thyme_photo_', '')] = localStorage.getItem(key);
+      }
+    }
+    recipes = recipes.map(function(r) {
+      var id = String(r.id).trim();
+      if (photoMap[id]) return Object.assign({}, r, {photo: photoMap[id]});
+      return r;
+    });
     localSave();
     var savedCat = activeCat; var savedPrevCat = _prevCat; renderCatScroll(); activeCat = savedCat; _prevCat = savedPrevCat; renderGrid(); renderCatList(); renderCatPicker('');
   } catch(e) { console.warn('Sync Fehler:', e); }
