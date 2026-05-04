@@ -2412,8 +2412,8 @@ async function savePhotoToRecipe(photoData) {
   showToast('Foto wird hochgeladen...', '', 5000);
   var photoUrl = photoData; // Fallback: Base64
 
-  // Versuche Upload zu Supabase wenn online
-  if (isOnline && db) {
+  // Versuche Upload zu Supabase wenn online (db nicht abwarten)
+  if (isOnline) {
     try {
       photoUrl = await uploadPhotoToSupabase(photoData, currentRecipe.id);
       // Altes Foto aus Supabase löschen
@@ -2434,13 +2434,23 @@ async function savePhotoToRecipe(photoData) {
   localStorage.setItem('thyme_photo_' + currentRecipe.id, photoUrl);
   try {
     localSave();
-    showToast('Foto gespeichert', 'success');
+    var isSupabase = photoUrl && photoUrl.includes('supabase');
+    showToast(isSupabase ? 'Foto in Cloud gespeichert' : 'Foto lokal gespeichert', 'success');
   } catch(e) {
     showToast('Speicher voll', 'error');
     return;
   }
-  if (db && isOnline) {
-    db.from('recipes').update({photo: photoUrl}).eq('id', currentRecipe.id).then(function(){});
+  // Supabase DB update
+  if (isOnline && photoUrl && photoUrl.includes('supabase')) {
+    fetch(SUPABASE_URL + '/rest/v1/recipes?id=eq.' + currentRecipe.id, {
+      method: 'PATCH',
+      headers: {
+        'apikey': SUPABASE_ANON,
+        'Authorization': 'Bearer ' + SUPABASE_ANON,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({photo: photoUrl})
+    }).catch(function(e){ console.warn('DB update fehlgeschlagen:', e); });
   }
   // DOM aktualisieren
   var existing = document.getElementById('recipe-photo-el');
