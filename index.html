@@ -3429,7 +3429,7 @@ var seasonFilter2 = 'all';
 
 function setSeasonFilter2(f, btn) {
   seasonFilter2 = f;
-  document.querySelectorAll('#saison-filter-bar-2 button').forEach(function(b){ b.classList.remove('active'); });
+  document.querySelectorAll('#saison-filter-bar-2 .pill').forEach(function(b){ b.classList.remove('active'); });
   if(btn) btn.classList.add('active');
   renderSeasonPage2();
 }
@@ -3776,14 +3776,14 @@ function updateShopIndicator() {
     <span class="season-month-name" id="season-month-name-2" style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:300;color:var(--bark);letter-spacing:2px"></span>
     <button class="season-month-btn" onclick="seasonChangeMonth(1)" style="background:none;border:none;color:#5C7F5D;font-size:24px;cursor:pointer;padding:4px 10px">&#8250;</button>
   </div>
-  <div class="shop-filter-bar" id="saison-filter-bar-2" style="display:flex;gap:6px;overflow-x:auto;padding:10px 16px;border-bottom:1px solid var(--border);scrollbar-width:none">
-    <button class="shop-filter active" onclick="setSeasonFilter2('all',this)" style="font-size:10px;padding:3px 12px">Alle</button>
-    <button class="shop-filter" onclick="setSeasonFilter2('g',this)" style="font-size:10px;padding:3px 12px">Gemüse</button>
-    <button class="shop-filter" onclick="setSeasonFilter2('s',this)" style="font-size:10px;padding:3px 12px">Salat</button>
-    <button class="shop-filter" onclick="setSeasonFilter2('o',this)" style="font-size:10px;padding:3px 12px">Obst</button>
-    <button class="shop-filter" onclick="setSeasonFilter2('b',this)" style="font-size:10px;padding:3px 12px">Beeren</button>
-    <button class="shop-filter" onclick="setSeasonFilter2('k',this)" style="font-size:10px;padding:3px 12px">Kräuter</button>
-    <button class="shop-filter" onclick="setSeasonFilter2('p',this)" style="font-size:10px;padding:3px 12px">Pilze</button>
+  <div class="cat-scroll" id="saison-filter-bar-2" style="padding:8px 16px;border-bottom:1px solid var(--border)">
+    <button class="pill active" onclick="setSeasonFilter2('all',this)">Alle</button>
+    <button class="pill" onclick="setSeasonFilter2('g',this)">Gemüse</button>
+    <button class="pill" onclick="setSeasonFilter2('s',this)">Salat</button>
+    <button class="pill" onclick="setSeasonFilter2('o',this)">Obst</button>
+    <button class="pill" onclick="setSeasonFilter2('b',this)">Beeren</button>
+    <button class="pill" onclick="setSeasonFilter2('k',this)">Kräuter</button>
+    <button class="pill" onclick="setSeasonFilter2('p',this)">Pilze</button>
   </div>
   <div class="season-prod-list" id="season-prod-list-2" style="padding:0 16px 100px;overflow-y:auto"></div>
 </div>
