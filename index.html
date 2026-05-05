@@ -3067,7 +3067,16 @@ function renderSeasonPage(){
   });
   el.innerHTML=out;
 }
-function seasonChangeMonth(dir){seasonCurrentMonth=(seasonCurrentMonth+12+dir)%12;renderSeasonPage();}
+function seasonChangeMonth(dir){
+  seasonCurrentMonth=(seasonCurrentMonth+12+dir)%12;
+  // Beide Saisonkalender aktualisieren je nach aktivem Screen
+  var standalone = document.getElementById('screen-saison-standalone');
+  if (standalone && standalone.classList.contains('active')) {
+    renderSeasonPage2();
+  } else {
+    renderSeasonPage();
+  }
+}
 function renderProteinPage(type){
   var el=document.getElementById('proto-'+type);
   if(!el)return;
