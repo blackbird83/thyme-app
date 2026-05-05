@@ -616,6 +616,24 @@ html,body{overflow-y:auto;-webkit-overflow-scrolling:touch;height:auto}
 .shop-indicator-dot{position:absolute;top:2px;right:2px;width:8px;height:8px;border-radius:50%;background:#B8973A;border:1.5px solid var(--cream);display:none;z-index:5}
 .shop-indicator-dot.active{display:block}
 
+
+/* ── PRODUKTKATALOG DETAIL ───────────────────────────────────────────────── */
+#katalog-detail-overlay{display:none;position:fixed;inset:0;background:var(--cream);z-index:600;flex-direction:column;overflow-y:auto}
+#katalog-detail-overlay.open{display:flex}
+.katalog-detail-hdr{padding:14px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;background:var(--cream);position:sticky;top:0;z-index:1}
+.katalog-detail-back{background:none;border:none;color:#5C7F5D;font-size:20px;cursor:pointer;padding:4px}
+.katalog-detail-name{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:300;color:var(--bark);letter-spacing:1px;flex:1}
+.katalog-detail-body{padding:20px}
+.kd-section{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#B8973A;margin:16px 0 8px;display:block}
+.kd-section:first-child{margin-top:0}
+.kd-input{width:100%;background:var(--parchment);border:1px solid var(--border);border-radius:10px;padding:11px 14px;font-size:15px;color:var(--bark);font-family:'DM Sans',sans-serif;margin-bottom:8px}
+.kd-textarea{width:100%;background:var(--parchment);border:1px solid var(--border);border-radius:10px;padding:11px 14px;font-size:15px;color:var(--bark);font-family:'DM Sans',sans-serif;margin-bottom:8px;min-height:100px;resize:none}
+.kd-save-btn{width:100%;padding:13px;background:#3D5A3E;border:none;border-radius:12px;color:#F0E8D8;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:500;cursor:pointer;margin-bottom:10px}
+.kd-shop-btn{width:100%;padding:13px;background:transparent;border:1px solid #3D5A3E;border-radius:12px;color:#5C7F5D;font-family:'DM Sans',sans-serif;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px}
+.kd-info-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:0.5px solid var(--border);font-size:14px}
+.kd-info-label{color:var(--smoke)}
+.kd-info-value{color:var(--bark);font-weight:500}
+
 </style>
 </head>
 <body>
@@ -3515,22 +3533,24 @@ function katalogSetFilter(type, btn) {
 function katalogRender(type) {
   var el = document.getElementById('katalog-body');
   if(!el) return;
-  var suppliers = JSON.parse(localStorage.getItem('thyme_protein_suppliers') || '{}');
-  var data = PROTEIN_DATA_EXT[type] || (typeof PROTEIN_DATA !== 'undefined' ? PROTEIN_DATA[type] : null);
+  var data = typeof PROTEIN_DATA_EXT !== 'undefined' ? PROTEIN_DATA_EXT[type] : null;
+  if(!data && typeof PROTEIN_DATA !== 'undefined') data = PROTEIN_DATA[type];
   if(!data) { el.innerHTML='<div style="text-align:center;padding:40px;color:var(--smoke)">Keine Daten</div>'; return; }
   var out = '';
   data.forEach(function(group){
     out += '<div class="protein-group-title">'+group.group+'</div>';
     group.items.forEach(function(item){
-      var supplierKey = type + '_' + item.name;
-      var supplier = suppliers[supplierKey] || item.supplier || '';
+      var savedData = getKatalogData(type, item.name);
+      var supplier = savedData.supplier || item.supplier || '';
+      var hasNotes = savedData.notes ? true : false;
       var safeName = item.name.replace(/&/g,'&amp;').replace(/"/g,'&quot;');
       out += '<div class="protein-item" data-ptype="'+type+'" data-pname="'+safeName+'" onclick="katalogItemTap(this)">';
-      out += '<span class="protein-name">'+item.name+'</span>';
-      out += '<div class="protein-right">';
-      if(supplier) out += '<span class="protein-supplier">'+supplier+'</span>';
+      out += '<div style="flex:1"><span class="protein-name">'+item.name+'</span>';
+      if(supplier) out += '<div style="font-size:11px;color:var(--smoke);margin-top:2px">'+supplier+'</div>';
+      out += '</div><div class="protein-right">';
+      if(hasNotes) out += '<span style="font-size:11px;color:#B8973A;margin-right:4px">✎</span>';
       if(item.season) out += '<span class="protein-season-badge">'+item.season+'</span>';
-      out += '<span style="font-size:14px;color:var(--border);margin-left:4px">&#8250;</span>';
+      out += '<span style="font-size:18px;color:var(--border);margin-left:6px">›</span>';
       out += '</div></div>';
     });
   });
@@ -3581,6 +3601,81 @@ function updateShopIndicator() {
     }
   }, {passive: true});
 })();
+
+// ─── PRODUKTKATALOG DETAIL ─────────────────────────────────────────────────
+var _kdCurrentType = '';
+var _kdCurrentName = '';
+var _kdCurrentSeason = '';
+
+function katalogOpenDetail(type, name) {
+  _kdCurrentType = type;
+  _kdCurrentName = name;
+  
+  // Gespeicherte Daten laden
+  var data = getKatalogData(type, name);
+  
+  // Saison aus PROTEIN_DATA_EXT holen
+  var season = '';
+  var typeData = typeof PROTEIN_DATA_EXT !== 'undefined' ? PROTEIN_DATA_EXT[type] : null;
+  if (!typeData && typeof PROTEIN_DATA !== 'undefined') typeData = PROTEIN_DATA[type];
+  if (typeData) {
+    typeData.forEach(function(group) {
+      group.items.forEach(function(item) {
+        if (item.name === name) season = item.season || '';
+      });
+    });
+  }
+  _kdCurrentSeason = season;
+  
+  document.getElementById('kd-name').textContent = name;
+  document.getElementById('kd-supplier').value = data.supplier || '';
+  document.getElementById('kd-notes').value = data.notes || '';
+  var badge = document.getElementById('kd-season-badge');
+  badge.textContent = season;
+  badge.style.display = season ? 'inline' : 'none';
+  
+  document.getElementById('katalog-detail-overlay').classList.add('open');
+}
+
+function closeKatalogDetail() {
+  document.getElementById('katalog-detail-overlay').classList.remove('open');
+}
+
+function getKatalogData(type, name) {
+  var key = 'thyme_katalog_' + type + '_' + name;
+  try { return JSON.parse(localStorage.getItem(key) || '{}'); } catch(e) { return {}; }
+}
+
+function saveKatalogDetail() {
+  var supplier = document.getElementById('kd-supplier').value.trim();
+  var notes = document.getElementById('kd-notes').value.trim();
+  var key = 'thyme_katalog_' + _kdCurrentType + '_' + _kdCurrentName;
+  localStorage.setItem(key, JSON.stringify({supplier: supplier, notes: notes}));
+  showToast(_kdCurrentName + ' gespeichert', 'success');
+  closeKatalogDetail();
+  katalogRender(_kdCurrentType);
+}
+
+function addKatalogToShop() {
+  loadShopList();
+  var supplier = document.getElementById('kd-supplier').value.trim();
+  var existing = shopItems.find(function(i) { return i.name.toLowerCase() === _kdCurrentName.toLowerCase(); });
+  if (existing) {
+    showToast(_kdCurrentName + ' bereits in der Einkaufsliste', '');
+  } else {
+    shopItems.push({
+      id: Date.now(),
+      name: _kdCurrentName,
+      amount: '',
+      cat: 'proteine',
+      sources: [supplier || _kdCurrentType],
+      done: false,
+      merged: false
+    });
+    saveShopList();
+    showToast(_kdCurrentName + ' zur Einkaufsliste hinzugefügt', 'success');
+  }
+}
 </script>
 
 <!-- SCREEN: EINKAUFSLISTE -->
@@ -3804,6 +3899,29 @@ function updateShopIndicator() {
     <button class="pill" onclick="katalogSetFilter('charcuterie',this)">Charcuterie</button>
   </div>
   <div id="katalog-body" style="padding:0 0 100px;overflow-y:auto"></div>
+</div>
+
+
+<!-- PRODUKTKATALOG DETAIL -->
+<div id="katalog-detail-overlay">
+  <div class="katalog-detail-hdr">
+    <button class="katalog-detail-back" onclick="closeKatalogDetail()">&#8592;</button>
+    <span class="katalog-detail-name" id="kd-name"></span>
+    <span id="kd-season-badge" class="protein-season-badge" style="margin-left:auto"></span>
+  </div>
+  <div class="katalog-detail-body">
+    <span class="kd-section">Lieferant</span>
+    <input type="text" id="kd-supplier" class="kd-input" placeholder="Lieferant eingeben...">
+    
+    <span class="kd-section">Notizen</span>
+    <textarea id="kd-notes" class="kd-textarea" placeholder="Herkunft, Qualitätsmerkmale, Besonderheiten..."></textarea>
+    
+    <button class="kd-save-btn" onclick="saveKatalogDetail()">Speichern</button>
+    <button class="kd-shop-btn" onclick="addKatalogToShop()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+      Zur Einkaufsliste hinzufügen
+    </button>
+  </div>
 </div>
 
 <!-- ACTION SHEET -->
