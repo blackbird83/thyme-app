@@ -50,7 +50,7 @@ body.light-mode .cat-sheet-name { color: #2C1F14; }
 body.light-mode .cat-sheet-item.active .cat-sheet-name { color: #B8973A; }
 body.light-mode .cat-sheet-item { border-bottom-color: #E0D9CC; }
 body.light-mode .cat-sheet-handle { background: #C8BFAD; }
-body.light-mode .sub-header { background: #F5F0E8 !important; border-bottom-color: #E0D9CC; }
+body.light-mode .sub-header { background: #F5F0E8 !important; border-bottom-color: #E0D9CC; ;position:sticky;top:0;z-index:20;background:var(--cream)}
 body.light-mode .sub-title { color: #2C1F14; }
 body.light-mode .back-btn { color: #3D5A3E !important; }
 body.light-mode .header { background: #F5F0E8 !important; border-bottom-color: #E0D9CC; }
@@ -174,8 +174,8 @@ textarea{resize:vertical}
 .recent-card-photo{width:100%;height:92px;object-fit:cover;display:block}
 .recent-card-color{width:100%;height:92px;display:block;opacity:0.7}
 .recent-card-body{padding:11px 13px}
-.recent-card-title{font-family:'Cormorant Garamond',serif;font-size:18.2px;font-weight:400;color:var(--bark);line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.recent-card-cat{font-size:10.9px;color:var(--smoke);letter-spacing:1.5px;text-transform:uppercase;margin-top:3px}
+.recent-card-title{font-family:'Cormorant Garamond',serif;font-size:18.2px;font-weight:400;color:#F0E8D8;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.recent-card-cat{font-size:10.9px;color:#8FAE90;letter-spacing:1.5px;text-transform:uppercase;margin-top:3px}
 .recent-divider{height:1px;background:var(--border);margin:20px 0 0}
 /* ── FAVORITEN ────────────────────────────────────────── */
 .fav-btn{background:none;border:none;cursor:pointer;font-size:24.2px;padding:4px 6px;line-height:1;transition:transform .2s ease, color .2s ease;flex-shrink:0}
@@ -358,7 +358,7 @@ body.light-mode .fav-btn.inactive{color:rgba(0,0,0,0.2)}
 #book-cover-hint{font-family:'DM Sans',sans-serif;font-size:12.1px;color:#4A6741;letter-spacing:3px;text-transform:uppercase;margin-top:12px}
 
 /* ── HEADER mit anklickbarem Logo ──────────────── */
-.header{display:flex;justify-content:space-between;align-items:center;padding:12px 20px;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--cream);z-index:10;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+.header{display:flex;justify-content:space-between;align-items:center;padding:12px 20px;border-bottom:1px solid var(--border);position:fixed;top:0;left:0;right:0;background:var(--cream);z-index:30;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
 .app-name{display:flex;align-items:center;gap:0;cursor:pointer;user-select:none;text-decoration:none;min-height:44px;-webkit-tap-highlight-color:rgba(184,151,58,0.15)}
 .app-name svg{height:32px;width:auto}
 .header-right{display:flex;gap:8px;align-items:center}
@@ -420,6 +420,7 @@ body.light-mode #toast{background:#F5F0E8;border-color:#C8BFAD;color:#2C1F14}
 /* book-cover per JS gesteuert */
 body.light-mode .screen { background: #F5F0E8; }
 body.light-mode body.light-mode #screen-home { background: #F5F0E8; }
+#screen-home { padding-top: 62px; }
 
 
 body.light-mode .pill { color: #2C1F14; border-color: #C8BFAD; }
@@ -604,6 +605,9 @@ body.light-mode .protein-season-badge{background:#FFF3DC;color:#8A6E20}
 .nav-card-sub{font-size:12.1px;color:var(--smoke);letter-spacing:1px}
 .nav-card-arrow{font-size:21.8px;color:var(--border)}
 
+
+body.light-mode .recent-card-title{color:#2C1F14}
+body.light-mode .recent-card-cat{color:#5C7F5D}
 </style>
 </head>
 <body>
