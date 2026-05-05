@@ -818,8 +818,7 @@ html,body{overflow-y:auto;-webkit-overflow-scrolling:touch;height:auto}
 <div class="app">
 
 <!-- HOME -->
-<div id="screen-home" class="screen active">
-  <div class="header">
+<div class="header">
     <div class="app-name" onclick="logoTap()" style="cursor:pointer;padding:8px 12px 8px 0;-webkit-tap-highlight-color:rgba(184,151,58,0.2)">
       <svg viewBox="0 0 120 36" style="pointer-events:none" xmlns="http://www.w3.org/2000/svg" style="height:32px;width:auto">
         <defs>
@@ -863,6 +862,8 @@ html,body{overflow-y:auto;-webkit-overflow-scrolling:touch;height:auto}
       <button class="header-icon-btn" onclick="showScreen('settings')" title="Einstellungen">&#9881;</button>
     </div>
   </div>
+<div id="screen-home" class="screen active">
+  
   <div class="search-wrap" id="search-wrap">
     <span class="search-icon">&#128269;</span>
     <input class="search-input" id="search-input" oninput="onSearchInput()" placeholder="Rezept suchen">
@@ -1621,13 +1622,16 @@ async function init() {
 
 // ─── NAVIGATION ────────────────────────────────────────────────────────────
 function showScreen(name) {
+  // Header nur auf Home-Screen anzeigen
+  var mainHeader = document.querySelector('.header');
+  if(mainHeader) mainHeader.style.display = name === 'home' ? 'flex' : 'none';
+  
   if (name === 'home') {
     activeCat = 'all';
     _prevCat = null;
     window.scrollTo(0, 0);
     renderGrid();
     setTimeout(function() { renderRecent(); }, 80);
-    // book-cover sicherstellen
     var cover = document.getElementById('book-cover');
     if(cover) cover.style.display = 'flex';
     var hint = document.getElementById('book-cover-hint');
