@@ -105,7 +105,7 @@ textarea{resize:vertical}
 /* Anweisungen */
 .instructions-text{font-size:15px;color:var(--smoke);line-height:1.85;white-space:pre-wrap;letter-spacing:0.2px}
 .app{max-width:900px;margin:0 auto}
-.screen{display:none;background:transparent}.screen.active{display:block;opacity:1;transform:translateY(0)}
+.screen{display:none;background:transparent;overflow:hidden}.screen.active{display:block;opacity:1;transform:translateY(0);overflow-y:auto;-webkit-overflow-scrolling:touch;min-height:100vh}
 .screen.animating{opacity:0;transform:translateY(12px)}.screen.visible{opacity:1;transform:translateY(0)}
 /* Karten-Hover */
 .card{transition:transform .2s ease,box-shadow .2s ease}
@@ -1617,8 +1617,16 @@ function showScreen(name) {
   if (name === 'home') {
     activeCat = 'all';
     _prevCat = null;
+    window.scrollTo(0, 0);
     renderGrid();
     setTimeout(function() { renderRecent(); }, 80);
+    // book-cover sicherstellen
+    var cover = document.getElementById('book-cover');
+    if(cover) cover.style.display = 'flex';
+    var hint = document.getElementById('book-cover-hint');
+    if(hint) hint.style.display = 'block';
+    var catBtn = document.getElementById('cat-open-btn');
+    if(catBtn) catBtn.style.display = 'block';
   }
   document.querySelectorAll('.screen').forEach(function(s) {
     s.classList.remove('active');
@@ -2638,6 +2646,7 @@ function printRecipe(r) {
 
 // NAVIGATION
 function goBack() {
+  window.scrollTo(0, 0);
 
   var currentScreen = document.querySelector('.screen.active');
   var currentId = currentScreen ? currentScreen.id : '';
