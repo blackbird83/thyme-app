@@ -2143,8 +2143,14 @@ function renderCatSheet() {
 function selectCatFromSheet(id) {
   activeCat = id;
   _prevCat = null;
+  // Sicherstellen dass Home-Screen aktiv ist
+  document.querySelectorAll('.screen').forEach(function(s){ s.classList.remove('active'); });
+  document.getElementById('screen-home').classList.add('active');
+  var mainHeader = document.querySelector('.header');
+  if(mainHeader) mainHeader.style.display = 'flex';
   renderGrid();
   closeCatSheet();
+  window.scrollTo(0, 0);
 }
 
 // EINHEITEN
