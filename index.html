@@ -362,7 +362,7 @@ body.light-mode .fav-btn.inactive{color:rgba(0,0,0,0.2)}
 .header{display:flex;justify-content:space-between;align-items:center;padding:12px 20px;border-bottom:1px solid var(--border);position:fixed;top:0;left:0;right:0;background:var(--cream);z-index:30;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
 .app-name{display:flex;align-items:center;gap:0;cursor:pointer;user-select:none;text-decoration:none;min-height:44px;-webkit-tap-highlight-color:rgba(184,151,58,0.15)}
 .app-name svg{height:32px;width:auto}
-.header-right{display:flex;gap:8px;align-items:center}
+.header-right{display:flex;gap:4px;align-items:center}
 .lang-btn{background:#0A0805;border:none;border-radius:99px;padding:6px 12px;font-size:13.3px;font-weight:600;color:var(--thyme);letter-spacing:1px;cursor:pointer}
 .header-icon-btn{background:none;border:none;color:var(--smoke);font-size:21.8px;cursor:pointer;padding:4px 6px;opacity:0.7;transition:opacity .2s;line-height:1}
 .header-icon-btn:hover{opacity:1;color:var(--thyme)}
@@ -819,7 +819,7 @@ html,body{overflow-y:auto;-webkit-overflow-scrolling:touch;height:auto}
 
 <!-- HOME -->
 <div class="header">
-    <div class="app-name" onclick="logoTap()" style="cursor:pointer;padding:8px 12px 8px 0;-webkit-tap-highlight-color:rgba(184,151,58,0.2)">
+    <div class="app-name" onclick="logoTap()" style="cursor:pointer;padding:4px 8px 4px 0;-webkit-tap-highlight-color:rgba(184,151,58,0.2)">
       <svg viewBox="0 0 120 36" style="pointer-events:none" xmlns="http://www.w3.org/2000/svg" style="height:32px;width:auto">
         <defs>
           <linearGradient id="hL" x1="100%" y1="0%" x2="0%" y2="0%">
@@ -853,9 +853,9 @@ html,body{overflow-y:auto;-webkit-overflow-scrolling:touch;height:auto}
       </button>
       <button onclick="openShopList()" style="background:none;border:none;cursor:pointer;padding:4px 8px;display:flex;align-items:center;gap:4px;font-family:'DM Sans',sans-serif;font-size:14.3px;font-weight:600;color:var(--bark)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg></button><button class="fav-tab" id="fav-tab" onclick="toggleFavView()">
         <span class="fav-tab-icon">★</span>
-        <span id="fav-tab-label">Favoriten</span>
+        <span id="fav-tab-label">★</span>
       </button>
-      <div id="mode-badge" class="mode-badge online">
+      <div id="mode-badge" class="mode-badge online" style="display:none">
         <span class="mode-dot"></span>
         <span id="mode-label">ONLINE</span>
       </div>
