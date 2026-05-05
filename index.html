@@ -3553,29 +3553,32 @@ function katalogSetFilter(type, btn) {
 function katalogRender(type) {
   var el = document.getElementById('katalog-body');
   if(!el) return;
-  
-  // Lieferanten aus localStorage
   var suppliers = JSON.parse(localStorage.getItem('thyme_protein_suppliers') || '{}');
-  
   var data = PROTEIN_DATA_EXT[type] || (typeof PROTEIN_DATA !== 'undefined' ? PROTEIN_DATA[type] : null);
   if(!data) { el.innerHTML='<div style="text-align:center;padding:40px;color:var(--smoke)">Keine Daten</div>'; return; }
-  
   var out = '';
   data.forEach(function(group){
     out += '<div class="protein-group-title">'+group.group+'</div>';
     group.items.forEach(function(item){
       var supplierKey = type + '_' + item.name;
       var supplier = suppliers[supplierKey] || item.supplier || '';
-      out += '<div class="protein-item" onclick="katalogOpenDetail(''+type+'',''+item.name.replace(/'/g,"\'")+'')">';
+      var safeName = item.name.replace(/&/g,'&amp;').replace(/"/g,'&quot;');
+      out += '<div class="protein-item" data-ptype="'+type+'" data-pname="'+safeName+'" onclick="katalogItemTap(this)">';
       out += '<span class="protein-name">'+item.name+'</span>';
       out += '<div class="protein-right">';
       if(supplier) out += '<span class="protein-supplier">'+supplier+'</span>';
       if(item.season) out += '<span class="protein-season-badge">'+item.season+'</span>';
-      out += '<span style="font-size:14px;color:var(--border);margin-left:4px">›</span>';
+      out += '<span style="font-size:14px;color:var(--border);margin-left:4px">&#8250;</span>';
       out += '</div></div>';
     });
   });
   el.innerHTML = out;
+}
+
+function katalogItemTap(el) {
+  var type = el.dataset.ptype;
+  var name = el.dataset.pname;
+  katalogOpenDetail(type, name);
 }
 
 function katalogOpenDetail(type, name) {
