@@ -3635,6 +3635,9 @@ function katalogOpenDetail(type, name) {
   badge.style.display = season ? 'inline' : 'none';
   
   document.getElementById('katalog-detail-overlay').classList.add('open');
+  // Passende Rezepte laden
+  document.getElementById('kd-recipes').innerHTML = '';
+  setTimeout(function(){ renderMatchingRecipes(_kdCurrentName, 'kd-recipes'); }, 50);
 }
 
 function closeKatalogDetail() {
@@ -3675,6 +3678,60 @@ function addKatalogToShop() {
     saveShopList();
     showToast(_kdCurrentName + ' zur Einkaufsliste hinzugefügt', 'success');
   }
+}
+
+// ─── REZEPT-VERKNÜPFUNG ─────────────────────────────────────────────────────
+function findMatchingRecipes(productName) {
+  if (!recipes || !recipes.length) return [];
+  // Suchbegriffe aus Produktnamen extrahieren
+  var keywords = productName.toLowerCase()
+    .replace(/[()]/g, '')
+    .split(/[\s\/&,-]+/)
+    .filter(function(k) { return k.length > 2; });
+  
+  return recipes.filter(function(r) {
+    var searchText = [
+      r.title || '',
+      (r.ingredients || []).join(' '),
+      r.notes || ''
+    ].join(' ').toLowerCase();
+    // Mindestens ein Keyword muss matchen
+    return keywords.some(function(k) { return searchText.includes(k); });
+  });
+}
+
+function openRecipeFromOverlay(recipeId) {
+  // Alle Overlays schliessen
+  document.getElementById('katalog-detail-overlay').classList.remove('open');
+  document.getElementById('season-detail-overlay').classList.remove('open');
+  // Rezept öffnen
+  var r = recipes.find(function(x){ return x.id == recipeId; });
+  if(r) { showScreen('home'); setTimeout(function(){ openDetail(r); }, 100); }
+}
+
+function renderMatchingRecipes(productName, containerId) {
+  var el = document.getElementById(containerId);
+  if(!el) return;
+  var matches = findMatchingRecipes(productName);
+  if(!matches.length) {
+    el.innerHTML = '<div style="font-size:14px;color:var(--smoke);padding:8px 0">Keine passenden Rezepte im Archiv</div>';
+    return;
+  }
+  var out = '';
+  matches.forEach(function(r) {
+    var bg = r.color || '#3D5A3E';
+    var photo = r.photo
+      ? '<img src="'+r.photo+'" style="width:44px;height:44px;object-fit:cover;border-radius:8px;flex-shrink:0">'
+      : '<div style="width:44px;height:44px;border-radius:8px;background:'+bg+';flex-shrink:0"></div>';
+    var cat = r.category || '';
+    out += '<div data-recipe-id="'+r.id+'" onclick="openRecipeFromOverlay(this.dataset.recipeId)" style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:0.5px solid var(--border);cursor:pointer">';
+    out += photo;
+    out += '<div style="flex:1;min-width:0">';
+    out += '<div style="font-size:15px;color:var(--bark)">'+r.title+'</div>';
+    out += '<div style="font-size:11px;color:var(--smoke);margin-top:2px;letter-spacing:1px;text-transform:uppercase">'+cat+'</div>';
+    out += '</div><span style="font-size:18px;color:var(--border)">&#8250;</span></div>';
+  });
+  el.innerHTML = out;
 }
 </script>
 
@@ -3921,6 +3978,8 @@ function addKatalogToShop() {
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
       Zur Einkaufsliste hinzufügen
     </button>
+    <span class="kd-section" style="margin-top:20px">Passende Rezepte</span>
+    <div id="kd-recipes"></div>
   </div>
 </div>
 
