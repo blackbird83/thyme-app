@@ -1285,7 +1285,30 @@ function addRecipeToShopList(recipe) {
 function addCurrentRecipeToShop() {
   if (!currentRecipe) return;
   loadShopList();
-  addRecipeToShopList(currentRecipe);
+  
+  // Portionsfaktor berechnen
+  var factor = (window._currentRecipePortions || 1) / (window._basePortions || 1);
+  
+  if (factor !== 1 && window._baseIngredients) {
+    // Skalierte Zutaten erstellen
+    var scaledIngredients = window._baseIngredients.map(function(ing) {
+      try {
+        var obj = JSON.parse(ing);
+        if (obj && obj.a !== undefined) {
+          var scaledA = obj.a ? scaleAmount(String(obj.a), factor) : '';
+          return JSON.stringify({a: scaledA, u: obj.u, n: obj.n});
+        }
+      } catch(e) {}
+      return ing;
+    });
+    var scaledRecipe = Object.assign({}, currentRecipe, {
+      ingredients: scaledIngredients,
+      title: currentRecipe.title + ' (' + window._currentRecipePortions + ' Port.)'
+    });
+    addRecipeToShopList(scaledRecipe);
+  } else {
+    addRecipeToShopList(currentRecipe);
+  }
   showToast(currentRecipe.title + ' zur Einkaufsliste hinzugefügt', 'success');
 }
 
