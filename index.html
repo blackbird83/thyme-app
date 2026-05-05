@@ -3093,6 +3093,7 @@ function updatePageDots(){
   dots.forEach(function(d,i){d.classList.toggle('active',i===idx);});
 }
 function initProfiPages(){
+  try { seRebuildSeasonData(); } catch(e){ console.warn('seRebuildSeasonData:', e); }
   try { renderSeasonPage(); } catch(e){ console.warn('renderSeasonPage:', e); }
   try { renderProteinPage('fleisch'); } catch(e){ console.warn('renderProteinPage fleisch:', e); }
   try { renderProteinPage('fisch'); } catch(e){ console.warn('renderProteinPage fisch:', e); }
@@ -3456,6 +3457,7 @@ function renderSeasonPage2() {
 var _origInitProfiPages = typeof initProfiPages === 'function' ? initProfiPages : null;
 
 function openSaisonStandalone() {
+  seRebuildSeasonData();
   showScreen('saison-standalone');
   setTimeout(renderSeasonPage2, 50);
 }
@@ -3555,6 +3557,22 @@ function updateShopIndicator() {
   var hasItems = shopItems.some(function(i) { return !i.done; });
   dot.classList.toggle('active', hasItems);
 }
+
+// ─── SWIPE FÜR SAISONKALENDER ─────────────────────────────────────────────
+(function() {
+  var startX = 0;
+  document.addEventListener('touchstart', function(e) {
+    startX = e.touches[0].clientX;
+  }, {passive: true});
+  document.addEventListener('touchend', function(e) {
+    var screen = document.getElementById('screen-saison-standalone');
+    if (!screen || !screen.classList.contains('active')) return;
+    var dx = e.changedTouches[0].clientX - startX;
+    if (Math.abs(dx) > 50) {
+      seasonChangeMonth(dx < 0 ? 1 : -1);
+    }
+  }, {passive: true});
+})();
 </script>
 
 <!-- SCREEN: EINKAUFSLISTE -->
