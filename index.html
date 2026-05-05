@@ -610,6 +610,12 @@ body.light-mode .protein-season-badge{background:#FFF3DC;color:#8A6E20}
 body.light-mode .recent-card-cat{color:#5C7F5D}
 
 html,body{overflow-y:auto;-webkit-overflow-scrolling:touch;height:auto}
+
+/* ── SHOP INDIKATOR ─────────────────────────────────────────────────────── */
+.shop-indicator{position:relative;display:inline-flex}
+.shop-indicator-dot{position:absolute;top:2px;right:2px;width:8px;height:8px;border-radius:50%;background:#B8973A;border:1.5px solid var(--cream);display:none;z-index:5}
+.shop-indicator-dot.active{display:block}
+
 </style>
 </head>
 <body>
@@ -850,7 +856,10 @@ html,body{overflow-y:auto;-webkit-overflow-scrolling:touch;height:auto}
         </svg>
         
       </button>
-      <button onclick="openShopList()" style="background:none;border:none;cursor:pointer;padding:4px 8px;display:flex;align-items:center;gap:4px;font-family:'DM Sans',sans-serif;font-size:14.3px;font-weight:600;color:var(--bark)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg></button><button class="fav-tab" id="fav-tab" onclick="toggleFavView()" style="background:none;border:none;cursor:pointer;padding:4px 8px;font-size:20px;color:var(--bark)">
+      <div class="shop-indicator">
+        <button onclick="openShopList()" style="background:none;border:none;cursor:pointer;padding:4px 8px;display:flex;align-items:center;gap:4px;font-family:'DM Sans',sans-serif;font-size:14.3px;font-weight:600;color:var(--bark)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg></button>
+        <div class="shop-indicator-dot" id="shop-indicator-dot"></div>
+      </div><button class="fav-tab" id="fav-tab" onclick="toggleFavView()" style="background:none;border:none;cursor:pointer;padding:4px 8px;font-size:20px;color:var(--bark)">
         <span id="fav-tab-label">★</span>
       </button>
       <div id="mode-badge" class="mode-badge online" style="display:none">
@@ -1314,10 +1323,12 @@ function addCurrentRecipeToShop() {
 
 function saveShopList() {
   localStorage.setItem('thyme_shoplist', JSON.stringify(shopItems));
+  updateShopIndicator();
 }
 
 function loadShopList() {
   try { var s = localStorage.getItem('thyme_shoplist'); shopItems = s ? JSON.parse(s) : []; } catch(e) { shopItems = []; }
+  updateShopIndicator();
 }
 
 function setShopFilter(f) {
@@ -1627,6 +1638,7 @@ async function init() {
   obShow();
   localLoad();
   loadShopList();
+  setTimeout(updateShopIndicator, 200);
   renderCatScroll(); renderGrid(); renderCatList(); renderCatPicker('');
   // Stelle sicher dass book-cover sichtbar ist
   var cover = document.getElementById('book-cover');
@@ -3534,6 +3546,14 @@ function katalogOpenDetail(type, name) {
     katalogRender(type);
     showToast('Lieferant gespeichert', 'success');
   }
+}
+
+// ─── SHOP INDIKATOR ─────────────────────────────────────────────────────────
+function updateShopIndicator() {
+  var dot = document.getElementById('shop-indicator-dot');
+  if (!dot) return;
+  var hasItems = shopItems.some(function(i) { return !i.done; });
+  dot.classList.toggle('active', hasItems);
 }
 </script>
 
