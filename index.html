@@ -373,7 +373,7 @@ body.light-mode .fav-btn.inactive{color:rgba(0,0,0,0.2)}
 .cat-sheet.open{transform:translateY(0)}
 .cat-sheet-handle{width:36px;height:4px;background:var(--border);border-radius:99px;margin:14px auto 0}
 .cat-sheet-title{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:600;color:var(--bark);padding:16px 24px 8px;text-align:center}
-.cat-sheet-list{overflow-y:auto;padding:8px 16px 40px;-webkit-overflow-scrolling:touch}
+.cat-sheet-list{padding:0 16px 40px}
 .cat-sheet-item{display:flex;align-items:center;gap:18px;padding:16px 28px;cursor:pointer;transition:background .15s;border-bottom:1px solid #221A0E}
 .cat-sheet-item:active{background:#221A0E}
 .cat-sheet-dot{width:7px;height:7px;border-radius:50%;background:#2E2416;border:1.5px solid #4A3820;flex-shrink:0;transition:all .2s}
@@ -799,8 +799,8 @@ body.light-mode .protein-season-badge{background:#FFF3DC;color:#8A6E20}
 
 
   <!-- Swipe Pages -->
-  <div id="cs-pages">
-    <div class="cat-sheet-list" id="cat-sheet-list"></div>
+  <div id="cs-pages" style="overflow-y:auto;-webkit-overflow-scrolling:touch;max-height:65vh">
+    <div class="cat-sheet-list" id="cat-sheet-list" style="overflow-y:visible;padding:8px 0 60px"></div>
   </div>
   
 </div>
