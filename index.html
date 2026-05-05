@@ -1333,7 +1333,7 @@ function loadShopList() {
 
 function setShopFilter(f) {
   shopFilter = f;
-  document.querySelectorAll('.shop-filter').forEach(function(b) { b.classList.toggle('active', b.dataset.filter === f); });
+  document.querySelectorAll('#shop-filter-bar .pill').forEach(function(b) { b.classList.toggle('active', b.dataset.filter === f); });
   renderShopList();
 }
 
@@ -3226,7 +3226,7 @@ function openSeasonEditor() {
 
 function seSetFilter(f, btn) {
   seFilter = f;
-  document.querySelectorAll('#se-filter-bar button').forEach(function(b){ b.classList.remove('active'); });
+  document.querySelectorAll('#se-filter-bar .pill').forEach(function(b){ b.classList.remove('active'); });
   if(btn) btn.classList.add('active');
   seRenderList();
 }
@@ -3508,7 +3508,7 @@ var PROTEIN_DATA_EXT = Object.assign({}, typeof PROTEIN_DATA !== 'undefined' ? P
 });
 
 function katalogSetFilter(type, btn) {
-  document.querySelectorAll('#screen-katalog .shop-filter-bar button').forEach(function(b){ b.classList.remove('active'); });
+  document.querySelectorAll('#screen-katalog .pill').forEach(function(b){ b.classList.remove('active'); });
   if(btn) btn.classList.add('active');
   katalogRender(type);
 }
@@ -3593,14 +3593,14 @@ function updateShopIndicator() {
       <span id="shop-recipe-count" style="font-size:11px;color:#B8973A;letter-spacing:1px"></span>
     </div>
   </div>
-  <div class="shop-filter-bar" id="shop-filter-bar">
-    <button class="shop-filter active" onclick="setShopFilter('alle')" data-filter="alle">Alle</button>
-    <button class="shop-filter" onclick="setShopFilter('proteine')" data-filter="proteine">Proteine</button>
-    <button class="shop-filter" onclick="setShopFilter('milch')" data-filter="milch">Milchprodukte</button>
-    <button class="shop-filter" onclick="setShopFilter('gemuese')" data-filter="gemuese">Gemüse & Kräuter</button>
-    <button class="shop-filter" onclick="setShopFilter('kolonial')" data-filter="kolonial">Kolonialwaren</button>
-    <button class="shop-filter" onclick="setShopFilter('fisch')" data-filter="fisch">Fisch & Meeresfrüchte</button>
-    <button class="shop-filter" onclick="setShopFilter('sonstiges')" data-filter="sonstiges">Sonstiges</button>
+  <div class="cat-scroll" id="shop-filter-bar" style="padding:8px 16px;border-bottom:1px solid var(--border)">
+    <button class="pill active" onclick="setShopFilter('alle')" data-filter="alle">Alle</button>
+    <button class="pill" onclick="setShopFilter('proteine')" data-filter="proteine">Proteine</button>
+    <button class="pill" onclick="setShopFilter('milch')" data-filter="milch">Milchprodukte</button>
+    <button class="pill" onclick="setShopFilter('gemuese')" data-filter="gemuese">Gemüse & Kräuter</button>
+    <button class="pill" onclick="setShopFilter('kolonial')" data-filter="kolonial">Kolonialwaren</button>
+    <button class="pill" onclick="setShopFilter('fisch')" data-filter="fisch">Fisch & Meeresfrüchte</button>
+    <button class="pill" onclick="setShopFilter('sonstiges')" data-filter="sonstiges">Sonstiges</button>
   </div>
   <div class="shop-body" id="shop-body"></div>
   <div class="shop-footer">
@@ -3644,14 +3644,14 @@ function updateShopIndicator() {
     <span class="sub-title" style="font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:300;letter-spacing:2px">Saisonkalender</span>
     <button onclick="seOpenModal(null)" style="width:40px;height:40px;border-radius:50%;background:#3D5A3E;border:none;color:#FFFFFF;font-size:26px;line-height:40px;text-align:center;cursor:pointer;box-shadow:0 2px 12px rgba(61,90,62,.4);flex-shrink:0">+</button>
   </div>
-  <div class="se-filter-bar" id="se-filter-bar">
-    <button class="shop-filter active" onclick="seSetFilter('all',this)" style="font-size:10px;padding:3px 12px">Alle</button>
-    <button class="shop-filter" onclick="seSetFilter('g',this)" style="font-size:10px;padding:3px 12px">Gemüse</button>
-    <button class="shop-filter" onclick="seSetFilter('s',this)" style="font-size:10px;padding:3px 12px">Salat</button>
-    <button class="shop-filter" onclick="seSetFilter('o',this)" style="font-size:10px;padding:3px 12px">Obst</button>
-    <button class="shop-filter" onclick="seSetFilter('b',this)" style="font-size:10px;padding:3px 12px">Beeren</button>
-    <button class="shop-filter" onclick="seSetFilter('k',this)" style="font-size:10px;padding:3px 12px">Kräuter</button>
-    <button class="shop-filter" onclick="seSetFilter('p',this)" style="font-size:10px;padding:3px 12px">Pilze</button>
+  <div class="cat-scroll" id="se-filter-bar" style="padding:8px 16px;border-bottom:1px solid var(--border)">
+    <button class="pill active" onclick="seSetFilter('all',this)">Alle</button>
+    <button class="pill" onclick="seSetFilter('g',this)">Gemüse</button>
+    <button class="pill" onclick="seSetFilter('s',this)">Salat</button>
+    <button class="pill" onclick="seSetFilter('o',this)">Obst</button>
+    <button class="pill" onclick="seSetFilter('b',this)">Beeren</button>
+    <button class="pill" onclick="seSetFilter('k',this)">Kräuter</button>
+    <button class="pill" onclick="seSetFilter('p',this)">Pilze</button>
   </div>
   <div class="se-list" id="se-list"></div>
 </div>
@@ -3796,13 +3796,13 @@ function updateShopIndicator() {
     <span class="sub-title" style="font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:300;letter-spacing:2px">Produktkatalog</span>
     <div style="width:32px"></div>
   </div>
-  <div class="shop-filter-bar" style="display:flex;gap:6px;overflow-x:auto;padding:10px 16px;border-bottom:1px solid var(--border);scrollbar-width:none">
-    <button class="shop-filter active" onclick="katalogSetFilter('fleisch',this)" style="font-size:10px;padding:3px 12px">Fleisch</button>
-    <button class="shop-filter" onclick="katalogSetFilter('fisch',this)" style="font-size:10px;padding:3px 12px">Fisch</button>
-    <button class="shop-filter" onclick="katalogSetFilter('gefluegel',this)" style="font-size:10px;padding:3px 12px">Geflügel</button>
-    <button class="shop-filter" onclick="katalogSetFilter('meeresfruchte',this)" style="font-size:10px;padding:3px 12px">Meeresfrüchte</button>
-    <button class="shop-filter" onclick="katalogSetFilter('wild',this)" style="font-size:10px;padding:3px 12px">Wild</button>
-    <button class="shop-filter" onclick="katalogSetFilter('charcuterie',this)" style="font-size:10px;padding:3px 12px">Charcuterie</button>
+  <div class="cat-scroll" style="padding:8px 16px;border-bottom:1px solid var(--border)">
+    <button class="pill active" onclick="katalogSetFilter('fleisch',this)">Fleisch</button>
+    <button class="pill" onclick="katalogSetFilter('fisch',this)">Fisch</button>
+    <button class="pill" onclick="katalogSetFilter('gefluegel',this)">Geflügel</button>
+    <button class="pill" onclick="katalogSetFilter('meeresfruchte',this)">Meeresfrüchte</button>
+    <button class="pill" onclick="katalogSetFilter('wild',this)">Wild</button>
+    <button class="pill" onclick="katalogSetFilter('charcuterie',this)">Charcuterie</button>
   </div>
   <div id="katalog-body" style="padding:0 0 100px;overflow-y:auto"></div>
 </div>
