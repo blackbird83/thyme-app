@@ -2,6 +2,7 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
+<meta name="build" content="20260505102348">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -105,7 +106,7 @@ textarea{resize:vertical}
 /* Anweisungen */
 .instructions-text{font-size:18.2px;color:var(--smoke);line-height:1.85;white-space:pre-wrap;letter-spacing:0.2px}
 .app{max-width:900px;margin:0 auto}
-.screen{display:none;background:transparent;overflow:hidden}.screen.active{display:block;opacity:1;transform:translateY(0);overflow-y:auto;-webkit-overflow-scrolling:touch;min-height:100vh}
+.screen{display:none;background:transparent;overflow:hidden}.screen.active{display:block;opacity:1;transform:translateY(0);min-height:100vh}
 .screen.animating{opacity:0;transform:translateY(12px)}.screen.visible{opacity:1;transform:translateY(0)}
 /* Karten-Hover */
 .card{transition:transform .2s ease,box-shadow .2s ease}
@@ -608,6 +609,8 @@ body.light-mode .protein-season-badge{background:#FFF3DC;color:#8A6E20}
 
 body.light-mode .recent-card-title{color:#2C1F14}
 body.light-mode .recent-card-cat{color:#5C7F5D}
+
+html,body{overflow-y:auto;-webkit-overflow-scrolling:touch;height:auto}
 </style>
 </head>
 <body>
