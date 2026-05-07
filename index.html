@@ -4436,16 +4436,22 @@ function kdStateToSeasonString() {
   <div class="katalog-detail-hdr">
     <button class="katalog-detail-back" onclick="closeKatalogDetail()">&#8592;</button>
     <span class="katalog-detail-name" id="kd-name"></span>
-    <span id="kd-season-badge" class="protein-season-badge" style="margin-left:auto"></span>
+    <span id="kd-season-badge" class="protein-season-badge" style="margin-left:auto;display:none"></span>
   </div>
   <div class="katalog-detail-body">
-    <!-- Foto -->
+
+    <!-- 1. Foto -->
     <div class="kd-photo-wrap" id="kd-photo-wrap" onclick="kdAddPhoto()">
       <div class="kd-photo-placeholder" id="kd-photo-placeholder">+ FOTO HINZUFÜGEN</div>
     </div>
-    <!-- Jahresbalken -->
-    <div class="kd-year-bar" id="kd-year-bar" style="display:none">
-      <span class="kd-section" style="margin-top:0">Saison im Jahresverlauf</span>
+
+    <!-- 2. Saison: Monats-Grid (immer sichtbar) -->
+    <span class="kd-section">Saison</span>
+    <div class="se-months-hint" style="margin-bottom:8px;font-size:11px;color:var(--smoke)">1× = Saison &nbsp;·&nbsp; 2× = Hauptsaison &nbsp;·&nbsp; 3× = Zurücksetzen</div>
+    <div class="se-months-grid" id="kd-months-grid" style="margin-bottom:10px"></div>
+
+    <!-- 3. Jahresbalken (live Update) -->
+    <div class="kd-year-bar" id="kd-year-bar" style="display:none;margin-bottom:16px">
       <div class="kd-year-grid" id="kd-year-grid"></div>
       <div class="kd-year-labels" id="kd-year-labels"></div>
       <div class="kd-season-legend">
@@ -4453,26 +4459,26 @@ function kdStateToSeasonString() {
         <div class="kd-season-leg"><div class="kd-season-leg-dot" style="background:#3D5A3E"></div>Saison</div>
       </div>
     </div>
+
+    <!-- 4. Lieferant -->
     <span class="kd-section">Lieferant</span>
     <input type="text" id="kd-supplier" class="kd-input" placeholder="Lieferant eingeben...">
-    <span class="kd-section">Saison</span>
-    <div class="se-months-hint" style="margin-bottom:8px">1× tippen = Saison (grün) &nbsp;·&nbsp; 2× tippen = Hauptsaison (gold) &nbsp;·&nbsp; 3× = Zurücksetzen</div>
-    <div class="se-months-grid" id="kd-months-grid"></div>
-    <div class="se-legend" style="margin-top:8px;display:flex;gap:12px">
-      <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--smoke)"><div style="width:10px;height:10px;border-radius:2px;background:#B8973A"></div>Hauptsaison</div>
-      <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--smoke)"><div style="width:10px;height:10px;border-radius:2px;background:#3D5A3E"></div>Saison</div>
-    </div>
-    
+
+    <!-- 5. Notizen -->
     <span class="kd-section">Notizen</span>
     <textarea id="kd-notes" class="kd-textarea" placeholder="Herkunft, Qualitätsmerkmale, Besonderheiten..."></textarea>
-    
+
+    <!-- 6. Buttons -->
     <button class="kd-save-btn" onclick="saveKatalogDetail()">Speichern</button>
     <button class="kd-shop-btn" onclick="addKatalogToShop()">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
       Zur Einkaufsliste hinzufügen
     </button>
+
+    <!-- 7. Passende Rezepte -->
     <span class="kd-section" style="margin-top:20px">Passende Rezepte</span>
     <div id="kd-recipes"></div>
+
   </div>
 </div>
 
