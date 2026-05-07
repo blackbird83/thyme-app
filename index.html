@@ -3774,6 +3774,11 @@ function katalogOpenDetail(type, name) {
   document.getElementById('kd-name').textContent = name;
   document.getElementById('kd-supplier').value = data.supplier || '';
   document.getElementById('kd-notes').value = data.notes || '';
+  // Saison: gespeicherter Wert hat Priorität, dann item.season
+  var savedSeason = data.season || '';
+  document.getElementById('kd-season-input').value = savedSeason || season;
+  // _kdCurrentSeason für Jahresbalken
+  _kdCurrentSeason = savedSeason || season;
   var badge = document.getElementById('kd-season-badge');
   badge.textContent = season;
   badge.style.display = season ? 'inline' : 'none';
@@ -3801,8 +3806,11 @@ function getKatalogData(type, name) {
 function saveKatalogDetail() {
   var supplier = document.getElementById('kd-supplier').value.trim();
   var notes = document.getElementById('kd-notes').value.trim();
+  var season = document.getElementById('kd-season-input').value.trim();
   var key = 'thyme_katalog_' + _kdCurrentType + '_' + _kdCurrentName;
-  localStorage.setItem(key, JSON.stringify({supplier: supplier, notes: notes}));
+  localStorage.setItem(key, JSON.stringify({supplier: supplier, notes: notes, season: season}));
+  // Auch _kdCurrentSeason aktualisieren für Jahresbalken
+  if (season) _kdCurrentSeason = season;
   showToast(_kdCurrentName + ' gespeichert', 'success');
   closeKatalogDetail();
   katalogRender(_kdCurrentType);
@@ -4364,6 +4372,8 @@ function kdMiniYearBar(name, seasonStr) {
     </div>
     <span class="kd-section">Lieferant</span>
     <input type="text" id="kd-supplier" class="kd-input" placeholder="Lieferant eingeben...">
+    <span class="kd-section">Saison</span>
+    <input type="text" id="kd-season-input" class="kd-input" placeholder="z.B. Apr–Okt oder Jan–Dez">
     
     <span class="kd-section">Notizen</span>
     <textarea id="kd-notes" class="kd-textarea" placeholder="Herkunft, Qualitätsmerkmale, Besonderheiten..."></textarea>
