@@ -3720,20 +3720,7 @@ function katalogItemTap(el) {
   katalogOpenDetail(type, name);
 }
 
-function katalogOpenDetail(type, name) {
-  // Öffne Saisonkalender-Detail für passende Produkte
-  // Oder zeige Protein-Detail mit Lieferant editierbar
-  var suppliers = JSON.parse(localStorage.getItem('thyme_protein_suppliers') || '{}');
-  var key = type + '_' + name;
-  var supplier = suppliers[key] || '';
-  var newSupplier = prompt('Lieferant für ' + name + ':', supplier);
-  if(newSupplier !== null) {
-    suppliers[key] = newSupplier.trim();
-    localStorage.setItem('thyme_protein_suppliers', JSON.stringify(suppliers));
-    katalogRender(type);
-    showToast('Lieferant gespeichert', 'success');
-  }
-}
+
 
 // ─── SHOP INDIKATOR ─────────────────────────────────────────────────────────
 function updateShopIndicator() {
