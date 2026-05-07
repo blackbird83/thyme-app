@@ -650,6 +650,32 @@ html,body{overflow-y:auto;-webkit-overflow-scrolling:touch;height:auto}
 .leaf-mini .leaf-on{fill:#3D5A3E;stroke:#3D5A3E;stroke-width:1.5}
 .leaf-mini .leaf-off{fill:transparent;stroke:#8FAE90;stroke-width:1.5}
 
+
+/* ── PRODUKTKATALOG FOTO + JAHRESBALKEN ─────────────────────────────────── */
+.kd-photo-wrap{width:100%;height:200px;background:#0A0805;border-radius:12px;overflow:hidden;margin-bottom:16px;display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative}
+.kd-photo-wrap img{width:100%;height:100%;object-fit:cover}
+.kd-photo-placeholder{color:var(--smoke);font-size:13px;letter-spacing:2px;text-align:center;padding:20px}
+.kd-photo-del{position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.5);border:none;border-radius:50%;width:28px;height:28px;color:#fff;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+/* Jahresbalken im Produktkatalog */
+.kd-year-bar{margin-bottom:16px}
+.kd-year-grid{display:grid;grid-template-columns:repeat(12,1fr);gap:3px;margin-bottom:4px}
+.kd-year-cell{height:22px;border-radius:3px}
+.kd-year-cell.peak{background:#B8973A}
+.kd-year-cell.season{background:#3D5A3E}
+.kd-year-cell.off{background:var(--border)}
+.kd-year-cell.now{outline:2px solid var(--bark);outline-offset:1px}
+.kd-year-labels{display:grid;grid-template-columns:repeat(12,1fr);gap:3px}
+.kd-year-label{font-size:8px;color:var(--smoke);text-align:center}
+.kd-season-legend{display:flex;gap:12px;margin-top:6px}
+.kd-season-leg{display:flex;align-items:center;gap:4px;font-size:10px;color:var(--smoke)}
+.kd-season-leg-dot{width:8px;height:8px;border-radius:2px}
+/* Mini Jahresbalken in der Liste */
+.protein-year-mini{display:flex;gap:1px;margin-top:3px}
+.pym-cell{height:4px;border-radius:1px;flex:1}
+.pym-peak{background:#B8973A}
+.pym-season{background:#3D5A3E}
+.pym-off{background:var(--border)}
+
 </style>
 </head>
 <body>
@@ -3766,6 +3792,11 @@ function katalogOpenDetail(type, name) {
   badge.style.display = season ? 'inline' : 'none';
   
   document.getElementById('katalog-detail-overlay').classList.add('open');
+  // Foto laden
+  var photo = kdGetPhoto(type, name);
+  kdRenderPhoto(photo || null);
+  // Jahresbalken
+  setTimeout(function(){ kdRenderYearBar(name); }, 30);
   // Passende Rezepte laden
   document.getElementById('kd-recipes').innerHTML = '';
   setTimeout(function(){ renderMatchingRecipes(_kdCurrentName, 'kd-recipes'); }, 50);
@@ -3954,6 +3985,146 @@ function leafMiniHTML(rating) {
       + '</g></svg>';
   }
   out += '</span>';
+  return out;
+}
+
+// ─── PRODUKTKATALOG FOTO + JAHRESBALKEN ─────────────────────────────────────
+var KD_MONTHS_SHORT = ['J','F','M','A','M','J','J','A','S','O','N','D'];
+
+function kdGetSeasonData(name) {
+  // Suche in SEASON_DATA nach passendem Eintrag
+  if (typeof SEASON_DATA === 'undefined') return null;
+  var keyword = name.toLowerCase().split('(')[0].trim().split(' ')[0];
+  return SEASON_DATA.find(function(p) {
+    return p.name.toLowerCase().includes(keyword) || keyword.includes(p.name.toLowerCase().split(' ')[0]);
+  }) || null;
+}
+
+function kdRenderYearBar(name) {
+  var bar = document.getElementById('kd-year-bar');
+  var grid = document.getElementById('kd-year-grid');
+  var labels = document.getElementById('kd-year-labels');
+  if (!bar || !grid || !labels) return;
+  
+  // Suche Saisondaten — erst in SEASON_DATA, dann aus item.season String
+  var sd = kdGetSeasonData(name);
+  var season = sd ? sd.season : [];
+  var peak = sd ? sd.peak : [];
+  
+  // Falls kein SEASON_DATA Match — versuche aus _kdCurrentSeason String
+  if (!sd && _kdCurrentSeason) {
+    // z.B. "Apr–Sep" → Monate 3-8
+    var mMap = {jan:0,feb:1,mär:2,apr:3,mai:4,jun:5,jul:6,aug:7,sep:8,okt:9,nov:10,dez:11};
+    var parts = _kdCurrentSeason.toLowerCase().split('–');
+    if (parts.length === 2) {
+      var s = mMap[parts[0].trim().substring(0,3)];
+      var e = mMap[parts[1].trim().substring(0,3)];
+      if (s !== undefined && e !== undefined) {
+        for (var m = s; m !== (e+1)%12; m = (m+1)%12) {
+          season.push(m);
+          if (m === s || m === e) peak.push(m);
+        }
+      }
+    }
+  }
+  
+  if (!season.length && !peak.length) {
+    bar.style.display = 'none';
+    return;
+  }
+  
+  bar.style.display = 'block';
+  var now = new Date().getMonth();
+  var gridHTML = '', labelHTML = '';
+  for (var i = 0; i < 12; i++) {
+    var cls = peak.indexOf(i) >= 0 ? 'peak' : (season.indexOf(i) >= 0 ? 'season' : 'off');
+    if (i === now) cls += ' now';
+    gridHTML += '<div class="kd-year-cell ' + cls + '"></div>';
+    labelHTML += '<div class="kd-year-label">' + KD_MONTHS_SHORT[i] + '</div>';
+  }
+  grid.innerHTML = gridHTML;
+  labels.innerHTML = labelHTML;
+}
+
+function kdAddPhoto() {
+  var existingPhoto = document.getElementById('kd-photo-img');
+  if (existingPhoto) {
+    // Foto bereits vorhanden — Action anbieten
+    if (confirm('Foto ersetzen oder löschen? OK = ersetzen, Abbrechen = löschen')) {
+      kdSelectPhoto();
+    } else {
+      kdDeletePhoto();
+    }
+    return;
+  }
+  kdSelectPhoto();
+}
+
+function kdSelectPhoto() {
+  var input = document.createElement('input');
+  input.type = 'file';
+  input.accept = 'image/*';
+  input.onchange = function(e) {
+    var file = e.target.files[0];
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function(ev) {
+      compressPhoto(ev.target.result, function(compressed) {
+        kdSavePhoto(compressed);
+      });
+    };
+    reader.readAsDataURL(file);
+  };
+  input.click();
+}
+
+function kdSavePhoto(dataUrl) {
+  var key = 'thyme_katalog_photo_' + _kdCurrentType + '_' + _kdCurrentName;
+  try {
+    localStorage.setItem(key, dataUrl);
+    kdRenderPhoto(dataUrl);
+    showToast('Foto gespeichert', 'success');
+  } catch(e) {
+    showToast('Speicher voll', 'error');
+  }
+}
+
+function kdDeletePhoto() {
+  var key = 'thyme_katalog_photo_' + _kdCurrentType + '_' + _kdCurrentName;
+  localStorage.removeItem(key);
+  kdRenderPhoto(null);
+  showToast('Foto gelöscht', 'success');
+}
+
+function kdGetPhoto(type, name) {
+  return localStorage.getItem('thyme_katalog_photo_' + type + '_' + name);
+}
+
+function kdRenderPhoto(dataUrl) {
+  var wrap = document.getElementById('kd-photo-wrap');
+  if (!wrap) return;
+  if (dataUrl) {
+    wrap.innerHTML = '<img id="kd-photo-img" src="' + dataUrl + '">'
+      + '<button class="kd-photo-del" onclick="event.stopPropagation();kdDeletePhoto()">&#10005;</button>';
+  } else {
+    wrap.innerHTML = '<div class="kd-photo-placeholder" id="kd-photo-placeholder">+ FOTO HINZUFÜGEN</div>';
+  }
+}
+
+// Mini Jahresbalken für Produktliste
+function kdMiniYearBar(name, seasonStr) {
+  var sd = kdGetSeasonData(name);
+  if (!sd && !seasonStr) return '';
+  var season = sd ? sd.season : [];
+  var peak = sd ? sd.peak : [];
+  if (!season.length && !peak.length) return '';
+  var now = new Date().getMonth();
+  var out = '<div class="protein-year-mini">';
+  for (var i = 0; i < 12; i++) {
+    var cls = peak.indexOf(i) >= 0 ? 'pym-peak' : (season.indexOf(i) >= 0 ? 'pym-season' : 'pym-off');
+    out += '<div class="pym-cell ' + cls + '"></div>';
+  }
+  out += '</div>';
   return out;
 }
 </script>
@@ -4190,6 +4361,20 @@ function leafMiniHTML(rating) {
     <span id="kd-season-badge" class="protein-season-badge" style="margin-left:auto"></span>
   </div>
   <div class="katalog-detail-body">
+    <!-- Foto -->
+    <div class="kd-photo-wrap" id="kd-photo-wrap" onclick="kdAddPhoto()">
+      <div class="kd-photo-placeholder" id="kd-photo-placeholder">+ FOTO HINZUFÜGEN</div>
+    </div>
+    <!-- Jahresbalken -->
+    <div class="kd-year-bar" id="kd-year-bar" style="display:none">
+      <span class="kd-section" style="margin-top:0">Saison im Jahresverlauf</span>
+      <div class="kd-year-grid" id="kd-year-grid"></div>
+      <div class="kd-year-labels" id="kd-year-labels"></div>
+      <div class="kd-season-legend">
+        <div class="kd-season-leg"><div class="kd-season-leg-dot" style="background:#B8973A"></div>Hauptsaison</div>
+        <div class="kd-season-leg"><div class="kd-season-leg-dot" style="background:#3D5A3E"></div>Saison</div>
+      </div>
+    </div>
     <span class="kd-section">Lieferant</span>
     <input type="text" id="kd-supplier" class="kd-input" placeholder="Lieferant eingeben...">
     
