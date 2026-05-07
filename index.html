@@ -3774,11 +3774,18 @@ function katalogOpenDetail(type, name) {
   document.getElementById('kd-name').textContent = name;
   document.getElementById('kd-supplier').value = data.supplier || '';
   document.getElementById('kd-notes').value = data.notes || '';
-  // Saison: gespeicherter Wert hat Priorität, dann item.season
-  var savedSeason = data.season || '';
-  document.getElementById('kd-season-input').value = savedSeason || season;
-  // _kdCurrentSeason für Jahresbalken
-  _kdCurrentSeason = savedSeason || season;
+  // Saison: MonthState laden
+  var savedSeason = data.season || season || '';
+  _kdCurrentSeason = savedSeason;
+  // State aus gespeichertem Array oder Season-String
+  if (data.monthState) {
+    kdMonthState = data.monthState;
+  } else if (savedSeason) {
+    kdMonthState = kdSeasonStringToState(savedSeason);
+  } else {
+    kdMonthState = [0,0,0,0,0,0,0,0,0,0,0,0];
+  }
+  setTimeout(function(){ kdRenderMonthGrid(); }, 30);
   var badge = document.getElementById('kd-season-badge');
   badge.textContent = season;
   badge.style.display = season ? 'inline' : 'none';
@@ -3787,8 +3794,8 @@ function katalogOpenDetail(type, name) {
   // Foto laden
   var photo = kdGetPhoto(type, name);
   kdRenderPhoto(photo || null);
-  // Jahresbalken
-  setTimeout(function(){ kdRenderYearBar(name); }, 30);
+  // Jahresbalken nach Grid-Render
+  setTimeout(function(){ kdRenderMonthGrid(); kdUpdateYearBarFromState(); }, 60);
   // Passende Rezepte laden
   document.getElementById('kd-recipes').innerHTML = '';
   setTimeout(function(){ renderMatchingRecipes(_kdCurrentName, 'kd-recipes'); }, 50);
@@ -3806,11 +3813,10 @@ function getKatalogData(type, name) {
 function saveKatalogDetail() {
   var supplier = document.getElementById('kd-supplier').value.trim();
   var notes = document.getElementById('kd-notes').value.trim();
-  var season = document.getElementById('kd-season-input').value.trim();
+  var seasonStr = kdStateToSeasonString();
   var key = 'thyme_katalog_' + _kdCurrentType + '_' + _kdCurrentName;
-  localStorage.setItem(key, JSON.stringify({supplier: supplier, notes: notes, season: season}));
-  // Auch _kdCurrentSeason aktualisieren für Jahresbalken
-  if (season) _kdCurrentSeason = season;
+  localStorage.setItem(key, JSON.stringify({supplier: supplier, notes: notes, season: seasonStr, monthState: kdMonthState}));
+  _kdCurrentSeason = seasonStr;
   showToast(_kdCurrentName + ' gespeichert', 'success');
   closeKatalogDetail();
   katalogRender(_kdCurrentType);
@@ -4122,6 +4128,83 @@ function kdMiniYearBar(name, seasonStr) {
   out += '</div>';
   return out;
 }
+
+// ─── PRODUKTKATALOG MONATS-GRID ──────────────────────────────────────────────
+var kdMonthState = [0,0,0,0,0,0,0,0,0,0,0,0]; // 0=off,1=season,2=peak
+var KD_MONTH_NAMES = ['Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'];
+
+function kdRenderMonthGrid() {
+  var grid = document.getElementById('kd-months-grid');
+  if (!grid) return;
+  grid.innerHTML = KD_MONTH_NAMES.map(function(m, i) {
+    var state = kdMonthState[i];
+    var cls = state === 2 ? 'peak' : (state === 1 ? 'season' : '');
+    return '<button class="se-month-btn ' + cls + '" onclick="kdToggleMonth(' + i + ')">' + m + '</button>';
+  }).join('');
+}
+
+function kdToggleMonth(i) {
+  kdMonthState[i] = (kdMonthState[i] + 1) % 3;
+  kdRenderMonthGrid();
+  // Jahresbalken live aktualisieren
+  kdUpdateYearBarFromState();
+}
+
+function kdUpdateYearBarFromState() {
+  var bar = document.getElementById('kd-year-bar');
+  var grid = document.getElementById('kd-year-grid');
+  var labels = document.getElementById('kd-year-labels');
+  if (!bar || !grid) return;
+  var season = [], peak = [];
+  kdMonthState.forEach(function(s,i){ if(s>=1) season.push(i); if(s===2) peak.push(i); });
+  if (!season.length) { bar.style.display = 'none'; return; }
+  bar.style.display = 'block';
+  var now = new Date().getMonth();
+  var gridHTML = '', labelHTML = '';
+  for (var i = 0; i < 12; i++) {
+    var cls = peak.indexOf(i)>=0 ? 'kd-year-cell peak' : (season.indexOf(i)>=0 ? 'kd-year-cell season' : 'kd-year-cell off');
+    if (i===now) cls += ' now';
+    gridHTML += '<div class="' + cls + '"></div>';
+    labelHTML += '<div class="kd-year-label">' + KD_MONTHS_SHORT[i] + '</div>';
+  }
+  grid.innerHTML = gridHTML;
+  if (labels) labels.innerHTML = labelHTML;
+}
+
+function kdSeasonStringToState(seasonStr) {
+  // "Apr–Okt" → state Array
+  var state = [0,0,0,0,0,0,0,0,0,0,0,0];
+  if (!seasonStr) return state;
+  var mMap = {jan:0,feb:1,'mär':2,apr:3,mai:4,jun:5,jul:6,aug:7,sep:8,okt:9,nov:10,dez:11,
+              mar:2,maz:2};
+  var parts = seasonStr.toLowerCase().replace('ä','a').split('–');
+  if (parts.length === 2) {
+    var s = mMap[parts[0].trim().substring(0,3)];
+    var e = mMap[parts[1].trim().substring(0,3)];
+    if (s !== undefined && e !== undefined) {
+      var m = s;
+      var count = 0;
+      while (count < 12) {
+        state[m] = 1; // season
+        if (m === s || m === e) state[m] = 2; // peak an Grenzen
+        if (m === e) break;
+        m = (m + 1) % 12;
+        count++;
+      }
+    }
+  }
+  return state;
+}
+
+function kdStateToSeasonString() {
+  var season = [], peak = [];
+  kdMonthState.forEach(function(s,i){ if(s>=1) season.push(i); if(s===2) peak.push(i); });
+  if (!season.length) return '';
+  // Gib als "Mmm–Mmm" zurück
+  var months = ['Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'];
+  if (season.length === 12) return 'Jan–Dez';
+  return months[season[0]] + '–' + months[season[season.length-1]];
+}
 </script>
 
 <!-- SCREEN: EINKAUFSLISTE -->
@@ -4373,7 +4456,12 @@ function kdMiniYearBar(name, seasonStr) {
     <span class="kd-section">Lieferant</span>
     <input type="text" id="kd-supplier" class="kd-input" placeholder="Lieferant eingeben...">
     <span class="kd-section">Saison</span>
-    <input type="text" id="kd-season-input" class="kd-input" placeholder="z.B. Apr–Okt oder Jan–Dez">
+    <div class="se-months-hint" style="margin-bottom:8px">1× tippen = Saison (grün) &nbsp;·&nbsp; 2× tippen = Hauptsaison (gold) &nbsp;·&nbsp; 3× = Zurücksetzen</div>
+    <div class="se-months-grid" id="kd-months-grid"></div>
+    <div class="se-legend" style="margin-top:8px;display:flex;gap:12px">
+      <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--smoke)"><div style="width:10px;height:10px;border-radius:2px;background:#B8973A"></div>Hauptsaison</div>
+      <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--smoke)"><div style="width:10px;height:10px;border-radius:2px;background:#3D5A3E"></div>Saison</div>
+    </div>
     
     <span class="kd-section">Notizen</span>
     <textarea id="kd-notes" class="kd-textarea" placeholder="Herkunft, Qualitätsmerkmale, Besonderheiten..."></textarea>
