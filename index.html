@@ -484,7 +484,21 @@ html,body{overflow-y:auto;-webkit-overflow-scrolling:touch;height:auto}
 </head>
 <body>
 
-<script>
+<script>// Supabase Client sofort initialisieren
+window._supabaseReady = false;
+document.addEventListener('DOMContentLoaded', function() {
+  try {
+    if (typeof supabase !== 'undefined') {
+      window._supabaseClient = supabase.createClient(
+        'https://gzfthrcubvafdkgacrkn.supabase.co',
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd6ZnRocmN1YnZhZmRrZ2FjcmtuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU4NjA3MDQsImV4cCI6MjA2MTQzNjcwNH0.FuyfGMlSRmKlGECCDmXZVNcR39P5AJXrBD_q_LOBTiE'
+      );
+      window._supabaseReady = true;
+    }
+  } catch(e) { console.warn('Supabase init:', e); }
+});
+
+
 // ─── CLAUDE API DIREKT ────────────────────────────────────────────────────
 async function callClaude(payload) {
   var key = getClaudeKey();
@@ -3353,7 +3367,15 @@ async function authSubmit() {
 
   try {
     var supabaseClient = window._supabaseClient;
-    if (!supabaseClient) throw new Error('Supabase nicht verbunden');
+    if (!supabaseClient) {
+      try {
+        if (typeof supabase !== 'undefined') {
+          window._supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+          supabaseClient = window._supabaseClient;
+        }
+      } catch(e) {}
+    }
+    if (!supabaseClient) throw new Error('Supabase nicht verfügbar. Bitte Seite neu laden.');
 
     if (authMode === 'register') {
       var name = document.getElementById('auth-name').value.trim();
@@ -3425,13 +3447,13 @@ async function authLogout() {
 
 // Beim Start: Session prüfen
 async function authCheckSession() {
-  // Warte bis Supabase Client bereit
+  // Sicherstellen dass Client initialisiert ist
   if (!window._supabaseClient) {
     try {
-      if (typeof supabase !== 'undefined' && supabase.createClient) {
+      if (typeof supabase !== 'undefined') {
         window._supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
       }
-    } catch(e) { console.warn('Supabase late init:', e); }
+    } catch(e) {}
   }
   if (!window._supabaseClient) return false;
   try {
