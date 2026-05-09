@@ -676,6 +676,47 @@ html,body{overflow-y:auto;-webkit-overflow-scrolling:touch;height:auto}
 .pym-season{background:#3D5A3E}
 .pym-off{background:var(--border)}
 
+
+/* ── EINHEITLICHE DETAIL-OVERLAY ────────────────────────────────────────── */
+.do-overlay{display:none;position:fixed;inset:0;background:var(--cream);z-index:600;flex-direction:column;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.do-overlay.open{display:flex}
+.do-hdr{padding:14px 20px;border-bottom:1px solid var(--border);background:var(--cream);position:sticky;top:0;z-index:1;display:flex;align-items:center;gap:12px}
+.do-hdr-back{background:none;border:none;color:#5C7F5D;font-size:20px;cursor:pointer;padding:4px 8px}
+.do-hdr-name{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:300;color:var(--bark);letter-spacing:1px;flex:1}
+.do-body{padding:20px;display:flex;flex-direction:column}
+/* Foto */
+.do-photo{width:100%;height:190px;background:#111;border-radius:12px;overflow:hidden;margin-bottom:20px;display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative;flex-shrink:0}
+.do-photo img{width:100%;height:100%;object-fit:cover}
+.do-photo-hint{color:#5C7F5D;font-size:12px;letter-spacing:2px;text-transform:uppercase}
+.do-photo-del{position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.55);border:none;border-radius:50%;width:28px;height:28px;color:#fff;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+/* Label */
+.do-label{font-size:9px;letter-spacing:2.5px;text-transform:uppercase;color:#B8973A;margin:0 0 6px;display:block}
+/* Monate — 2 Reihen à 6 */
+.do-hint{font-size:11px;color:var(--smoke);margin-bottom:8px}
+.do-months{display:grid;grid-template-columns:repeat(6,1fr);gap:5px;margin-bottom:10px}
+.do-month{padding:7px 2px;border-radius:7px;border:1px solid var(--border);background:transparent;font-size:12px;color:var(--smoke);cursor:pointer;text-align:center;font-family:'DM Sans',sans-serif;transition:all .15s;-webkit-tap-highlight-color:rgba(0,0,0,0)}
+.do-month.season{background:#3D5A3E;border-color:#3D5A3E;color:#F0E8D8}
+.do-month.peak{background:#B8973A;border-color:#B8973A;color:#F0E8D8}
+/* Jahresbalken */
+.do-yearbar{margin-bottom:14px}
+.do-yb-grid{display:grid;grid-template-columns:repeat(12,1fr);gap:2px;margin-bottom:3px}
+.do-yb-cell{height:16px;border-radius:2px}
+.do-yb-cell.peak{background:#B8973A}
+.do-yb-cell.season{background:#3D5A3E}
+.do-yb-cell.off{background:var(--border)}
+.do-yb-cell.now{outline:2px solid var(--bark);outline-offset:1px}
+.do-yb-labels{display:grid;grid-template-columns:repeat(12,1fr);gap:2px;margin-bottom:6px}
+.do-yb-lbl{font-size:8px;color:var(--smoke);text-align:center}
+.do-legend{display:flex;gap:12px;margin-bottom:16px}
+.do-leg{display:flex;align-items:center;gap:4px;font-size:10px;color:var(--smoke)}
+.do-leg-dot{width:8px;height:8px;border-radius:2px}
+/* Felder */
+.do-input{width:100%;background:var(--parchment);border:1px solid var(--border);border-radius:10px;padding:11px 14px;font-size:14px;color:var(--bark);font-family:'DM Sans',sans-serif;margin-bottom:16px;box-sizing:border-box}
+.do-textarea{width:100%;background:var(--parchment);border:1px solid var(--border);border-radius:10px;padding:11px 14px;font-size:14px;color:var(--bark);font-family:'DM Sans',sans-serif;min-height:90px;resize:none;margin-bottom:16px;box-sizing:border-box}
+/* Buttons */
+.do-save{width:100%;padding:13px;background:#3D5A3E;border:none;border-radius:12px;color:#F0E8D8;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:500;cursor:pointer;margin-bottom:10px}
+.do-shop{width:100%;padding:13px;background:transparent;border:1px solid #3D5A3E;border-radius:12px;color:#5C7F5D;font-family:'DM Sans',sans-serif;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:20px}
+
 </style>
 </head>
 <body>
@@ -3274,60 +3315,7 @@ function initProfiPages(){
 // ─── SAISONKALENDER DETAIL ─────────────────────────────────────────────────
 var currentSeasonProduct = null;
 
-function openSeasonDetail(el) {
-  var productName = el ? (el.dataset ? el.dataset.product : el) : '';
-  var p = SEASON_DATA.find(function(x){return x.name===productName;});
-  if(!p) return;
-  currentSeasonProduct = p;
-  var m = seasonCurrentMonth;
 
-  // Name + Badge
-  document.getElementById('season-detail-name').textContent = p.name;
-  var badge = document.getElementById('season-detail-badge');
-  var isPeak = p.peak.indexOf(m) >= 0;
-  var inSeason = p.season.indexOf(m) >= 0;
-  badge.textContent = isPeak ? 'Hauptsaison' : (inSeason ? 'Saison' : 'Nicht verfügbar');
-  badge.className = 'season-badge ' + (isPeak ? 's-peak' : (inSeason ? 's-season' : ''));
-
-  // Jahresbalken
-  var MNMS = ['J','F','M','A','M','J','J','A','S','O','N','D'];
-  var barGrid = '';
-  var barLabels = '';
-  for(var i=0; i<12; i++){
-    var cls = p.peak.indexOf(i)>=0 ? 'peak' : (p.season.indexOf(i)>=0 ? 'season' : 'off');
-    if(i===m) cls += ' current';
-    barGrid += '<div class="year-bar-month ' + cls + '"></div>';
-    barLabels += '<div class="year-bar-label">' + MNMS[i] + '</div>';
-  }
-  document.getElementById('year-bar-grid').innerHTML = barGrid;
-  document.getElementById('year-bar-labels').innerHTML = barLabels;
-
-  // Lieferant
-  var suppliers = JSON.parse(localStorage.getItem('thyme_season_suppliers') || '{}');
-  document.getElementById('season-supplier-input').value = suppliers[p.name] || '';
-
-  // Passende Rezepte
-  var keyword = p.name.toLowerCase().split('(')[0].trim().split(' ')[0];
-  var matches = recipes.filter(function(r){
-    return (r.ingredients||[]).join(' ').toLowerCase().includes(keyword) ||
-           r.title.toLowerCase().includes(keyword);
-  });
-  var recipesHtml = matches.length
-    ? matches.map(function(r){
-        return '<div class="season-recipe-item" data-rid="'+r.id+'" onclick="openSeasonRecipe(this)">' +
-          '<span class="season-recipe-name">' + r.title + '</span>' +
-          '<span class="season-recipe-cat">' + (r.category||'') + ' \u203a</span></div>';
-      }).join('')
-    : '<div class="season-no-recipe">Keine passenden Rezepte im Archiv</div>';
-  document.getElementById('season-detail-recipes').innerHTML = recipesHtml;
-
-  document.getElementById('season-detail-overlay').classList.add('open');
-}
-
-function closeSeasonDetail() {
-  document.getElementById('season-detail-overlay').classList.remove('open');
-  currentSeasonProduct = null;
-}
 
 function saveSeasonSupplier() {
   if(!currentSeasonProduct) return;
@@ -3338,11 +3326,6 @@ function saveSeasonSupplier() {
   showToast('Lieferant gespeichert', 'success');
 }
 
-function openSeasonRecipe(el) {
-  var rid = el.dataset.rid;
-  var r = recipes.find(function(x){return x.id==rid;});
-  if(r){ closeSeasonDetail(); closeCatSheet(); openDetail(r); }
-}
 
 // ─── SAISONKALENDER EDITOR ─────────────────────────────────────────────────
 var seFilter = 'all';
@@ -3748,120 +3731,6 @@ function updateShopIndicator() {
 
 // ─── PRODUKTKATALOG DETAIL ─────────────────────────────────────────────────
 var _kdCurrentType = '';
-var _kdCurrentName = '';
-var _kdCurrentSeason = '';
-
-function katalogOpenDetail(type, name) {
-  _kdCurrentType = type;
-  _kdCurrentName = name;
-  
-  // Gespeicherte Daten laden
-  var data = getKatalogData(type, name);
-  
-  // Saison aus PROTEIN_DATA_EXT holen
-  var season = '';
-  var typeData = typeof PROTEIN_DATA_EXT !== 'undefined' ? PROTEIN_DATA_EXT[type] : null;
-  if (!typeData && typeof PROTEIN_DATA !== 'undefined') typeData = PROTEIN_DATA[type];
-  if (typeData) {
-    typeData.forEach(function(group) {
-      group.items.forEach(function(item) {
-        if (item.name === name) season = item.season || '';
-      });
-    });
-  }
-  _kdCurrentSeason = season;
-  
-  document.getElementById('kd-name').textContent = name;
-  document.getElementById('kd-supplier').value = data.supplier || '';
-  document.getElementById('kd-notes').value = data.notes || '';
-  // Saison: MonthState laden
-  var savedSeason = data.season || season || '';
-  _kdCurrentSeason = savedSeason;
-  // State aus gespeichertem Array oder Season-String
-  if (data.monthState) {
-    kdMonthState = data.monthState;
-  } else if (savedSeason) {
-    kdMonthState = kdSeasonStringToState(savedSeason);
-  } else {
-    kdMonthState = [0,0,0,0,0,0,0,0,0,0,0,0];
-  }
-  setTimeout(function(){ kdRenderMonthGrid(); }, 30);
-  var badge = document.getElementById('kd-season-badge');
-  badge.textContent = season;
-  badge.style.display = season ? 'inline' : 'none';
-  
-  document.getElementById('katalog-detail-overlay').classList.add('open');
-  // Foto laden
-  var photo = kdGetPhoto(type, name);
-  kdRenderPhoto(photo || null);
-  // Jahresbalken nach Grid-Render
-  setTimeout(function(){ kdRenderMonthGrid(); kdUpdateYearBarFromState(); }, 60);
-  // Passende Rezepte laden
-  document.getElementById('kd-recipes').innerHTML = '';
-  setTimeout(function(){ renderMatchingRecipes(_kdCurrentName, 'kd-recipes'); }, 50);
-}
-
-function closeKatalogDetail() {
-  document.getElementById('katalog-detail-overlay').classList.remove('open');
-}
-
-function getKatalogData(type, name) {
-  var key = 'thyme_katalog_' + type + '_' + name;
-  try { return JSON.parse(localStorage.getItem(key) || '{}'); } catch(e) { return {}; }
-}
-
-function saveKatalogDetail() {
-  var supplier = document.getElementById('kd-supplier').value.trim();
-  var notes = document.getElementById('kd-notes').value.trim();
-  var seasonStr = kdStateToSeasonString();
-  var key = 'thyme_katalog_' + _kdCurrentType + '_' + _kdCurrentName;
-  localStorage.setItem(key, JSON.stringify({supplier: supplier, notes: notes, season: seasonStr, monthState: kdMonthState}));
-  _kdCurrentSeason = seasonStr;
-  showToast(_kdCurrentName + ' gespeichert', 'success');
-  closeKatalogDetail();
-  katalogRender(_kdCurrentType);
-}
-
-function addKatalogToShop() {
-  loadShopList();
-  var supplier = document.getElementById('kd-supplier').value.trim();
-  var existing = shopItems.find(function(i) { return i.name.toLowerCase() === _kdCurrentName.toLowerCase(); });
-  if (existing) {
-    showToast(_kdCurrentName + ' bereits in der Einkaufsliste', '');
-  } else {
-    shopItems.push({
-      id: Date.now(),
-      name: _kdCurrentName,
-      amount: '',
-      cat: 'proteine',
-      sources: [supplier || _kdCurrentType],
-      done: false,
-      merged: false
-    });
-    saveShopList();
-    showToast(_kdCurrentName + ' zur Einkaufsliste hinzugefügt', 'success');
-  }
-}
-
-// ─── REZEPT-VERKNÜPFUNG ─────────────────────────────────────────────────────
-function findMatchingRecipes(productName) {
-  if (!recipes || !recipes.length) return [];
-  // Suchbegriffe aus Produktnamen extrahieren
-  var keywords = productName.toLowerCase()
-    .replace(/[()]/g, '')
-    .split(/[\s\/&,-]+/)
-    .filter(function(k) { return k.length > 2; });
-  
-  return recipes.filter(function(r) {
-    var searchText = [
-      r.title || '',
-      (r.ingredients || []).join(' '),
-      r.notes || ''
-    ].join(' ').toLowerCase();
-    // Mindestens ein Keyword muss matchen
-    return keywords.some(function(k) { return searchText.includes(k); });
-  });
-}
 
 function openRecipeFromOverlay(recipeId) {
   // Alle Overlays schliessen
@@ -3990,221 +3859,276 @@ function leafMiniHTML(rating) {
 }
 
 // ─── PRODUKTKATALOG FOTO + JAHRESBALKEN ─────────────────────────────────────
-var KD_MONTHS_SHORT = ['J','F','M','A','M','J','J','A','S','O','N','D'];
 
-function kdGetSeasonData(name) {
-  // Suche in SEASON_DATA nach passendem Eintrag
-  if (typeof SEASON_DATA === 'undefined') return null;
-  var keyword = name.toLowerCase().split('(')[0].trim().split(' ')[0];
-  return SEASON_DATA.find(function(p) {
-    return p.name.toLowerCase().includes(keyword) || keyword.includes(p.name.toLowerCase().split(' ')[0]);
-  }) || null;
-}
 
-function kdRenderYearBar(name) {
-  var bar = document.getElementById('kd-year-bar');
-  var grid = document.getElementById('kd-year-grid');
-  var labels = document.getElementById('kd-year-labels');
-  if (!bar || !grid || !labels) return;
-  
-  // Suche Saisondaten — erst in SEASON_DATA, dann aus item.season String
-  var sd = kdGetSeasonData(name);
-  var season = sd ? sd.season : [];
-  var peak = sd ? sd.peak : [];
-  
-  // Falls kein SEASON_DATA Match — versuche aus _kdCurrentSeason String
-  if (!sd && _kdCurrentSeason) {
-    // z.B. "Apr–Sep" → Monate 3-8
-    var mMap = {jan:0,feb:1,mär:2,apr:3,mai:4,jun:5,jul:6,aug:7,sep:8,okt:9,nov:10,dez:11};
-    var parts = _kdCurrentSeason.toLowerCase().split('–');
-    if (parts.length === 2) {
-      var s = mMap[parts[0].trim().substring(0,3)];
-      var e = mMap[parts[1].trim().substring(0,3)];
-      if (s !== undefined && e !== undefined) {
-        for (var m = s; m !== (e+1)%12; m = (m+1)%12) {
-          season.push(m);
-          if (m === s || m === e) peak.push(m);
-        }
-      }
-    }
-  }
-  
-  if (!season.length && !peak.length) {
-    bar.style.display = 'none';
-    return;
-  }
-  
-  bar.style.display = 'block';
-  var now = new Date().getMonth();
-  var gridHTML = '', labelHTML = '';
-  for (var i = 0; i < 12; i++) {
-    var cls = peak.indexOf(i) >= 0 ? 'peak' : (season.indexOf(i) >= 0 ? 'season' : 'off');
-    if (i === now) cls += ' now';
-    gridHTML += '<div class="kd-year-cell ' + cls + '"></div>';
-    labelHTML += '<div class="kd-year-label">' + KD_MONTHS_SHORT[i] + '</div>';
-  }
-  grid.innerHTML = gridHTML;
-  labels.innerHTML = labelHTML;
-}
 
-function kdAddPhoto() {
-  var existingPhoto = document.getElementById('kd-photo-img');
-  if (existingPhoto) {
-    // Foto bereits vorhanden — Action anbieten
-    if (confirm('Foto ersetzen oder löschen? OK = ersetzen, Abbrechen = löschen')) {
-      kdSelectPhoto();
-    } else {
-      kdDeletePhoto();
-    }
-    return;
-  }
-  kdSelectPhoto();
-}
 
-function kdSelectPhoto() {
-  var input = document.createElement('input');
-  input.type = 'file';
-  input.accept = 'image/*';
-  input.onchange = function(e) {
-    var file = e.target.files[0];
-    if (!file) return;
-    var reader = new FileReader();
-    reader.onload = function(ev) {
-      compressPhoto(ev.target.result, function(compressed) {
-        kdSavePhoto(compressed);
-      });
-    };
-    reader.readAsDataURL(file);
-  };
-  input.click();
-}
 
-function kdSavePhoto(dataUrl) {
-  var key = 'thyme_katalog_photo_' + _kdCurrentType + '_' + _kdCurrentName;
-  try {
-    localStorage.setItem(key, dataUrl);
-    kdRenderPhoto(dataUrl);
-    showToast('Foto gespeichert', 'success');
-  } catch(e) {
-    showToast('Speicher voll', 'error');
-  }
-}
 
-function kdDeletePhoto() {
-  var key = 'thyme_katalog_photo_' + _kdCurrentType + '_' + _kdCurrentName;
-  localStorage.removeItem(key);
-  kdRenderPhoto(null);
-  showToast('Foto gelöscht', 'success');
-}
 
-function kdGetPhoto(type, name) {
-  return localStorage.getItem('thyme_katalog_photo_' + type + '_' + name);
-}
-
-function kdRenderPhoto(dataUrl) {
-  var wrap = document.getElementById('kd-photo-wrap');
-  if (!wrap) return;
-  if (dataUrl) {
-    wrap.innerHTML = '<img id="kd-photo-img" src="' + dataUrl + '">'
-      + '<button class="kd-photo-del" onclick="event.stopPropagation();kdDeletePhoto()">&#10005;</button>';
-  } else {
-    wrap.innerHTML = '<div class="kd-photo-placeholder" id="kd-photo-placeholder">+ FOTO HINZUFÜGEN</div>';
-  }
-}
 
 // Mini Jahresbalken für Produktliste
-function kdMiniYearBar(name, seasonStr) {
-  var sd = kdGetSeasonData(name);
-  if (!sd && !seasonStr) return '';
-  var season = sd ? sd.season : [];
-  var peak = sd ? sd.peak : [];
-  if (!season.length && !peak.length) return '';
-  var now = new Date().getMonth();
-  var out = '<div class="protein-year-mini">';
-  for (var i = 0; i < 12; i++) {
-    var cls = peak.indexOf(i) >= 0 ? 'pym-peak' : (season.indexOf(i) >= 0 ? 'pym-season' : 'pym-off');
-    out += '<div class="pym-cell ' + cls + '"></div>';
-  }
-  out += '</div>';
-  return out;
-}
 
 // ─── PRODUKTKATALOG MONATS-GRID ──────────────────────────────────────────────
 var kdMonthState = [0,0,0,0,0,0,0,0,0,0,0,0]; // 0=off,1=season,2=peak
 var KD_MONTH_NAMES = ['Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'];
 
-function kdRenderMonthGrid() {
-  var grid = document.getElementById('kd-months-grid');
-  if (!grid) return;
-  grid.innerHTML = KD_MONTH_NAMES.map(function(m, i) {
-    var state = kdMonthState[i];
-    var cls = state === 2 ? 'peak' : (state === 1 ? 'season' : '');
-    return '<button class="se-month-btn ' + cls + '" onclick="kdToggleMonth(' + i + ')">' + m + '</button>';
+
+
+
+
+
+
+// ══════════════════════════════════════════════════════════════════════════════
+// EINHEITLICHE DETAIL-OVERLAY LOGIK
+// ══════════════════════════════════════════════════════════════════════════════
+var DO_MONTHS = ['Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'];
+var DO_MONTHS_S = ['J','F','M','A','M','J','J','A','S','O','N','D'];
+
+// Gemeinsame Hilfsfunktionen
+function doRenderMonths(gridId, monthState, toggleFn) {
+  var el = document.getElementById(gridId);
+  if (!el) return;
+  el.innerHTML = DO_MONTHS.map(function(m, i) {
+    var s = monthState[i];
+    var cls = s === 2 ? 'peak' : (s === 1 ? 'season' : '');
+    return '<button class="do-month ' + cls + '" onclick="' + toggleFn + '(' + i + ')">' + m + '</button>';
   }).join('');
 }
 
-function kdToggleMonth(i) {
-  kdMonthState[i] = (kdMonthState[i] + 1) % 3;
-  kdRenderMonthGrid();
-  // Jahresbalken live aktualisieren
-  kdUpdateYearBarFromState();
-}
-
-function kdUpdateYearBarFromState() {
-  var bar = document.getElementById('kd-year-bar');
-  var grid = document.getElementById('kd-year-grid');
-  var labels = document.getElementById('kd-year-labels');
-  if (!bar || !grid) return;
-  var season = [], peak = [];
-  kdMonthState.forEach(function(s,i){ if(s>=1) season.push(i); if(s===2) peak.push(i); });
-  if (!season.length) { bar.style.display = 'none'; return; }
-  bar.style.display = 'block';
+function doRenderYearBar(gridId, labelsId, barId, monthState) {
+  var grid = document.getElementById(gridId);
+  var labels = document.getElementById(labelsId);
+  var bar = document.getElementById(barId);
+  if (!grid || !bar) return;
   var now = new Date().getMonth();
-  var gridHTML = '', labelHTML = '';
-  for (var i = 0; i < 12; i++) {
-    var cls = peak.indexOf(i)>=0 ? 'kd-year-cell peak' : (season.indexOf(i)>=0 ? 'kd-year-cell season' : 'kd-year-cell off');
+  var hasSeason = monthState.some(function(s){ return s > 0; });
+  bar.style.display = hasSeason ? 'block' : 'none';
+  if (!hasSeason) return;
+  grid.innerHTML = monthState.map(function(s, i) {
+    var cls = s===2 ? 'peak' : (s===1 ? 'season' : 'off');
     if (i===now) cls += ' now';
-    gridHTML += '<div class="' + cls + '"></div>';
-    labelHTML += '<div class="kd-year-label">' + KD_MONTHS_SHORT[i] + '</div>';
-  }
-  grid.innerHTML = gridHTML;
-  if (labels) labels.innerHTML = labelHTML;
+    return '<div class="do-yb-cell ' + cls + '"></div>';
+  }).join('');
+  if (labels) labels.innerHTML = DO_MONTHS_S.map(function(m){
+    return '<div class="do-yb-lbl">' + m + '</div>';
+  }).join('');
 }
 
-function kdSeasonStringToState(seasonStr) {
-  // "Apr–Okt" → state Array
+function doToggleMonth(monthState, i, gridId, toggleFn, ybGridId, ybLabelsId, ybBarId) {
+  monthState[i] = (monthState[i] + 1) % 3;
+  doRenderMonths(gridId, monthState, toggleFn);
+  doRenderYearBar(ybGridId, ybLabelsId, ybBarId, monthState);
+}
+
+function doSeasonToState(p) {
   var state = [0,0,0,0,0,0,0,0,0,0,0,0];
-  if (!seasonStr) return state;
-  var mMap = {jan:0,feb:1,'mär':2,apr:3,mai:4,jun:5,jul:6,aug:7,sep:8,okt:9,nov:10,dez:11,
-              mar:2,maz:2};
-  var parts = seasonStr.toLowerCase().replace('ä','a').split('–');
-  if (parts.length === 2) {
-    var s = mMap[parts[0].trim().substring(0,3)];
-    var e = mMap[parts[1].trim().substring(0,3)];
-    if (s !== undefined && e !== undefined) {
-      var m = s;
-      var count = 0;
-      while (count < 12) {
-        state[m] = 1; // season
-        if (m === s || m === e) state[m] = 2; // peak an Grenzen
-        if (m === e) break;
-        m = (m + 1) % 12;
-        count++;
-      }
+  if (!p) return state;
+  if (p.season) p.season.forEach(function(m){ if(state[m]===0) state[m]=1; });
+  if (p.peak) p.peak.forEach(function(m){ state[m]=2; });
+  return state;
+}
+
+function doStateToString(monthState) {
+  var active = monthState.map(function(s,i){return s>0?i:-1;}).filter(function(i){return i>=0;});
+  if (!active.length) return '';
+  if (active.length===12) return 'Jan–Dez';
+  return DO_MONTHS[active[0]] + '–' + DO_MONTHS[active[active.length-1]];
+}
+
+function doRenderPhoto(wrapId, photoUrl) {
+  var wrap = document.getElementById(wrapId);
+  if (!wrap) return;
+  if (photoUrl) {
+    wrap.innerHTML = '<img src="' + photoUrl + '"><button class="do-photo-del" data-wid="' + wrapId + '" onclick="event.stopPropagation();doDeletePhoto(this.dataset.wid)">&#10005;</button>';
+    wrap.onclick = function(){ doReplacePhoto(wrapId); };
+  } else {
+    wrap.innerHTML = '<span class="do-photo-hint">+ Foto hinzufügen</span>';
+    wrap.onclick = function(){ doSelectPhoto(wrapId); };
+  }
+}
+
+function doSelectPhoto(wrapId) {
+  var input = document.createElement('input');
+  input.type = 'file'; input.accept = 'image/*';
+  input.onchange = function(e) {
+    var file = e.target.files[0]; if(!file) return;
+    var r = new FileReader();
+    r.onload = function(ev) {
+      compressPhoto(ev.target.result, function(compressed) {
+        var key = wrapId === 'kd-photo-wrap' 
+          ? 'thyme_katalog_photo_' + _kdCurrentType + '_' + _kdCurrentName
+          : 'thyme_season_photo_' + _sdCurrentName;
+        try { localStorage.setItem(key, compressed); } catch(e) { showToast('Speicher voll','error'); return; }
+        doRenderPhoto(wrapId, compressed);
+        showToast('Foto gespeichert','success');
+      });
+    };
+    r.readAsDataURL(file);
+  };
+  input.click();
+}
+
+function doReplacePhoto(wrapId) { doSelectPhoto(wrapId); }
+
+function doDeletePhoto(wrapId) {
+  var key = wrapId === 'kd-photo-wrap'
+    ? 'thyme_katalog_photo_' + _kdCurrentType + '_' + _kdCurrentName
+    : 'thyme_season_photo_' + _sdCurrentName;
+  localStorage.removeItem(key);
+  doRenderPhoto(wrapId, null);
+  showToast('Foto gelöscht','success');
+}
+
+// ── PRODUKTKATALOG DETAIL ────────────────────────────────────────────────────
+var _kdCurrentType = '', _kdCurrentName = '';
+var _kdMonthState = [0,0,0,0,0,0,0,0,0,0,0,0];
+
+function kdToggleMonth(i) {
+  doToggleMonth(_kdMonthState, i, 'kd-months-grid', 'kdToggleMonth', 'kd-yb-grid', 'kd-yb-labels', 'kd-yearbar');
+}
+
+function katalogOpenDetail(type, name) {
+  _kdCurrentType = type; _kdCurrentName = name;
+  var data = getKatalogData(type, name);
+  // MonthState
+  if (data.monthState) { _kdMonthState = data.monthState; }
+  else {
+    // Aus item.season String oder SEASON_DATA
+    var itemSeason = '';
+    var typeData = (typeof PROTEIN_DATA_EXT!=='undefined'?PROTEIN_DATA_EXT:{})[type]
+      || (typeof PROTEIN_DATA!=='undefined'?PROTEIN_DATA[type]:null);
+    if (typeData) typeData.forEach(function(g){ g.items.forEach(function(it){
+      if(it.name===name && it.season) itemSeason = it.season;
+    }); });
+    _kdMonthState = data.season ? seStringToState(data.season) : (itemSeason ? seStringToState(itemSeason) : [0,0,0,0,0,0,0,0,0,0,0,0]);
+  }
+  document.getElementById('kd-name').textContent = name;
+  document.getElementById('kd-supplier').value = data.supplier || '';
+  document.getElementById('kd-notes').value = data.notes || '';
+  var photo = localStorage.getItem('thyme_katalog_photo_' + type + '_' + name);
+  doRenderPhoto('kd-photo-wrap', photo);
+  document.getElementById('katalog-detail-overlay').classList.add('open');
+  setTimeout(function(){
+    doRenderMonths('kd-months-grid', _kdMonthState, 'kdToggleMonth');
+    doRenderYearBar('kd-yb-grid','kd-yb-labels','kd-yearbar', _kdMonthState);
+    renderMatchingRecipes(name, 'kd-recipes');
+  }, 30);
+}
+
+function closeKatalogDetail() {
+  document.getElementById('katalog-detail-overlay').classList.remove('open');
+}
+
+function saveKatalogDetail() {
+  var supplier = document.getElementById('kd-supplier').value.trim();
+  var notes = document.getElementById('kd-notes').value.trim();
+  var key = 'thyme_katalog_' + _kdCurrentType + '_' + _kdCurrentName;
+  localStorage.setItem(key, JSON.stringify({
+    supplier: supplier, notes: notes,
+    season: doStateToString(_kdMonthState),
+    monthState: _kdMonthState
+  }));
+  showToast(_kdCurrentName + ' gespeichert', 'success');
+  closeKatalogDetail();
+  katalogRender(_kdCurrentType);
+}
+
+function addKatalogToShop() {
+  loadShopList();
+  var name = _kdCurrentName;
+  var existing = shopItems.find(function(i){ return i.name.toLowerCase()===name.toLowerCase(); });
+  if (existing) { showToast(name + ' bereits in Einkaufsliste', ''); return; }
+  shopItems.push({id:Date.now(),name:name,amount:'',cat:'proteine',
+    sources:[document.getElementById('kd-supplier').value.trim()||_kdCurrentType],done:false,merged:false});
+  saveShopList();
+  showToast(name + ' zur Einkaufsliste hinzugefügt','success');
+}
+
+function getKatalogData(type, name) {
+  try { return JSON.parse(localStorage.getItem('thyme_katalog_'+type+'_'+name)||'{}'); } catch(e){ return {}; }
+}
+
+function seStringToState(str) {
+  var state = [0,0,0,0,0,0,0,0,0,0,0,0];
+  if(!str) return state;
+  var map = {jan:0,feb:1,'mär':2,mar:2,apr:3,mai:4,jun:5,jul:6,aug:7,sep:8,okt:9,nov:10,dez:11};
+  var parts = str.toLowerCase().replace(/ä/g,'a').split('–');
+  if(parts.length===2){
+    var s=map[parts[0].trim().substring(0,3)], e=map[parts[1].trim().substring(0,3)];
+    if(s!==undefined && e!==undefined){
+      var m=s, c=0;
+      while(c<12){ state[m]=1; if(m===s||m===e) state[m]=2; if(m===e) break; m=(m+1)%12; c++; }
     }
   }
   return state;
 }
 
-function kdStateToSeasonString() {
-  var season = [], peak = [];
-  kdMonthState.forEach(function(s,i){ if(s>=1) season.push(i); if(s===2) peak.push(i); });
-  if (!season.length) return '';
-  // Gib als "Mmm–Mmm" zurück
-  var months = ['Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'];
-  if (season.length === 12) return 'Jan–Dez';
-  return months[season[0]] + '–' + months[season[season.length-1]];
+// ── SAISONKALENDER DETAIL ────────────────────────────────────────────────────
+var _sdCurrentName = '', _sdCurrentProduct = null;
+var _sdMonthState = [0,0,0,0,0,0,0,0,0,0,0,0];
+
+function sdToggleMonth(i) {
+  doToggleMonth(_sdMonthState, i, 'season-detail-months', 'sdToggleMonth', 'season-detail-yb-grid', 'season-detail-yb-labels', 'season-detail-yearbar');
 }
+
+function openSeasonDetail(el) {
+  var name = el ? (el.dataset ? el.dataset.product : el.getAttribute('data-product')) : '';
+  if (!name) return;
+  _sdCurrentName = name;
+  var p = SEASON_DATA.find(function(x){ return x.name===name; });
+  _sdCurrentProduct = p || null;
+  _sdMonthState = p ? doSeasonToState(p) : [0,0,0,0,0,0,0,0,0,0,0,0];
+  // Gespeicherte Overrides laden
+  var saved = JSON.parse(localStorage.getItem('thyme_season_detail_'+name)||'{}');
+  if (saved.monthState) _sdMonthState = saved.monthState;
+  document.getElementById('season-detail-name').textContent = name;
+  document.getElementById('season-detail-supplier').value = saved.supplier || (p ? (localStorage.getItem('thyme_season_suppliers')?JSON.parse(localStorage.getItem('thyme_season_suppliers'))[name]||'':'') : '');
+  document.getElementById('season-detail-notes').value = saved.notes || '';
+  var photo = localStorage.getItem('thyme_season_photo_' + name);
+  doRenderPhoto('season-detail-photo-wrap', photo);
+  document.getElementById('season-detail-overlay').classList.add('open');
+  setTimeout(function(){
+    doRenderMonths('season-detail-months', _sdMonthState, 'sdToggleMonth');
+    doRenderYearBar('season-detail-yb-grid','season-detail-yb-labels','season-detail-yearbar', _sdMonthState);
+    renderMatchingRecipes(name, 'season-detail-recipes');
+  }, 30);
+}
+
+function closeSeasonDetail() {
+  document.getElementById('season-detail-overlay').classList.remove('open');
+}
+
+function saveSeasonDetail() {
+  var supplier = document.getElementById('season-detail-supplier').value.trim();
+  var notes = document.getElementById('season-detail-notes').value.trim();
+  localStorage.setItem('thyme_season_detail_' + _sdCurrentName, JSON.stringify({
+    supplier: supplier, notes: notes,
+    season: doStateToString(_sdMonthState),
+    monthState: _sdMonthState
+  }));
+  // Auch Lieferanten-Key setzen
+  var suppliers = JSON.parse(localStorage.getItem('thyme_season_suppliers')||'{}');
+  suppliers[_sdCurrentName] = supplier;
+  localStorage.setItem('thyme_season_suppliers', JSON.stringify(suppliers));
+  showToast(_sdCurrentName + ' gespeichert','success');
+  closeSeasonDetail();
+  renderSeasonPage2();
+}
+
+function addSeasonDetailToShop() {
+  loadShopList();
+  var name = _sdCurrentName;
+  var existing = shopItems.find(function(i){ return i.name.toLowerCase()===name.toLowerCase(); });
+  if (existing) { showToast(name + ' bereits in Einkaufsliste',''); return; }
+  var supplier = document.getElementById('season-detail-supplier').value.trim();
+  shopItems.push({id:Date.now(),name:name,amount:'',cat:'gemuese',
+    sources:[supplier||'Saisonkalender'],done:false,merged:false});
+  saveShopList();
+  showToast(name + ' zur Einkaufsliste hinzugefügt','success');
+}
+
+function seasonDetailAddPhoto() { doSelectPhoto('season-detail-photo-wrap'); }
 </script>
 
 <!-- SCREEN: EINKAUFSLISTE -->
@@ -4234,27 +4158,36 @@ function kdStateToSeasonString() {
 
 
 <!-- SAISONKALENDER DETAIL -->
-<div id="season-detail-overlay" class="season-detail-overlay">
-  <div class="season-detail-hdr">
-    <button class="season-detail-back" onclick="closeSeasonDetail()">&#8592;</button>
-    <span class="season-detail-name" id="season-detail-name"></span>
-    <span id="season-detail-badge" class="season-badge" style="margin-left:auto"></span>
+<div id="season-detail-overlay" class="do-overlay">
+  <div class="do-hdr">
+    <button class="do-hdr-back" onclick="closeSeasonDetail()">&#8592;</button>
+    <span class="do-hdr-name" id="season-detail-name"></span>
   </div>
-  <div class="season-detail-body">
-    <div class="year-bar-title">Saison im Jahresverlauf</div>
-    <div class="year-bar-grid" id="year-bar-grid"></div>
-    <div class="year-bar-labels" id="year-bar-labels"></div>
-    <div class="season-legend">
-      <div class="season-leg-item"><div class="season-leg-dot" style="background:#B8973A"></div>Hauptsaison</div>
-      <div class="season-leg-item"><div class="season-leg-dot" style="background:#3D5A3E"></div>Saison</div>
-      <div class="season-leg-item"><div class="season-leg-dot" style="background:var(--border)"></div>Nicht verfügbar</div>
+  <div class="do-body">
+    <div class="do-photo" id="season-detail-photo-wrap" onclick="seasonDetailAddPhoto()">
+      <span class="do-photo-hint">+ Foto hinzufügen</span>
     </div>
-    <div class="season-detail-section">Lieferant</div>
-    <div class="season-supplier-wrap">
-      <input type="text" id="season-supplier-input" class="season-supplier-input" placeholder="Lieferant eingeben...">
-      <button class="season-supplier-save" onclick="saveSeasonSupplier()">Speichern</button>
+    <span class="do-label">Saison</span>
+    <div class="do-hint">1× = Saison &nbsp;·&nbsp; 2× = Hauptsaison &nbsp;·&nbsp; 3× = Zurücksetzen</div>
+    <div class="do-months" id="season-detail-months"></div>
+    <div class="do-yearbar" id="season-detail-yearbar">
+      <div class="do-yb-grid" id="season-detail-yb-grid"></div>
+      <div class="do-yb-labels" id="season-detail-yb-labels"></div>
+      <div class="do-legend">
+        <div class="do-leg"><div class="do-leg-dot" style="background:#B8973A"></div>Hauptsaison</div>
+        <div class="do-leg"><div class="do-leg-dot" style="background:#3D5A3E"></div>Saison</div>
+      </div>
     </div>
-    <div class="season-detail-section">Passende Rezepte</div>
+    <span class="do-label">Lieferant</span>
+    <input type="text" id="season-detail-supplier" class="do-input" placeholder="Lieferant eingeben...">
+    <span class="do-label">Notizen</span>
+    <textarea id="season-detail-notes" class="do-textarea" placeholder="Herkunft, Besonderheiten..."></textarea>
+    <button class="do-save" onclick="saveSeasonDetail()">Speichern</button>
+    <button class="do-shop" onclick="addSeasonDetailToShop()">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+      Zur Einkaufsliste hinzufügen
+    </button>
+    <span class="do-label">Passende Rezepte</span>
     <div id="season-detail-recipes"></div>
   </div>
 </div>
@@ -4432,53 +4365,37 @@ function kdStateToSeasonString() {
 
 
 <!-- PRODUKTKATALOG DETAIL -->
-<div id="katalog-detail-overlay">
-  <div class="katalog-detail-hdr">
-    <button class="katalog-detail-back" onclick="closeKatalogDetail()">&#8592;</button>
-    <span class="katalog-detail-name" id="kd-name"></span>
-    <span id="kd-season-badge" class="protein-season-badge" style="margin-left:auto;display:none"></span>
+<div id="katalog-detail-overlay" class="do-overlay">
+  <div class="do-hdr">
+    <button class="do-hdr-back" onclick="closeKatalogDetail()">&#8592;</button>
+    <span class="do-hdr-name" id="kd-name"></span>
   </div>
-  <div class="katalog-detail-body">
-
-    <!-- 1. Foto -->
-    <div class="kd-photo-wrap" id="kd-photo-wrap" onclick="kdAddPhoto()">
-      <div class="kd-photo-placeholder" id="kd-photo-placeholder">+ FOTO HINZUFÜGEN</div>
+  <div class="do-body">
+    <div class="do-photo" id="kd-photo-wrap" onclick="kdAddPhoto()">
+      <span class="do-photo-hint">+ Foto hinzufügen</span>
     </div>
-
-    <!-- 2. Saison: Monats-Grid (immer sichtbar) -->
-    <span class="kd-section">Saison</span>
-    <div class="se-months-hint" style="margin-bottom:8px;font-size:11px;color:var(--smoke)">1× = Saison &nbsp;·&nbsp; 2× = Hauptsaison &nbsp;·&nbsp; 3× = Zurücksetzen</div>
-    <div class="se-months-grid" id="kd-months-grid" style="margin-bottom:10px"></div>
-
-    <!-- 3. Jahresbalken (live Update) -->
-    <div class="kd-year-bar" id="kd-year-bar" style="display:none;margin-bottom:16px">
-      <div class="kd-year-grid" id="kd-year-grid"></div>
-      <div class="kd-year-labels" id="kd-year-labels"></div>
-      <div class="kd-season-legend">
-        <div class="kd-season-leg"><div class="kd-season-leg-dot" style="background:#B8973A"></div>Hauptsaison</div>
-        <div class="kd-season-leg"><div class="kd-season-leg-dot" style="background:#3D5A3E"></div>Saison</div>
+    <span class="do-label">Saison</span>
+    <div class="do-hint">1× = Saison &nbsp;·&nbsp; 2× = Hauptsaison &nbsp;·&nbsp; 3× = Zurücksetzen</div>
+    <div class="do-months" id="kd-months-grid"></div>
+    <div class="do-yearbar" id="kd-yearbar">
+      <div class="do-yb-grid" id="kd-yb-grid"></div>
+      <div class="do-yb-labels" id="kd-yb-labels"></div>
+      <div class="do-legend">
+        <div class="do-leg"><div class="do-leg-dot" style="background:#B8973A"></div>Hauptsaison</div>
+        <div class="do-leg"><div class="do-leg-dot" style="background:#3D5A3E"></div>Saison</div>
       </div>
     </div>
-
-    <!-- 4. Lieferant -->
-    <span class="kd-section">Lieferant</span>
-    <input type="text" id="kd-supplier" class="kd-input" placeholder="Lieferant eingeben...">
-
-    <!-- 5. Notizen -->
-    <span class="kd-section">Notizen</span>
-    <textarea id="kd-notes" class="kd-textarea" placeholder="Herkunft, Qualitätsmerkmale, Besonderheiten..."></textarea>
-
-    <!-- 6. Buttons -->
-    <button class="kd-save-btn" onclick="saveKatalogDetail()">Speichern</button>
-    <button class="kd-shop-btn" onclick="addKatalogToShop()">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+    <span class="do-label">Lieferant</span>
+    <input type="text" id="kd-supplier" class="do-input" placeholder="Lieferant eingeben...">
+    <span class="do-label">Notizen</span>
+    <textarea id="kd-notes" class="do-textarea" placeholder="Herkunft, Qualitätsmerkmale, Besonderheiten..."></textarea>
+    <button class="do-save" onclick="saveKatalogDetail()">Speichern</button>
+    <button class="do-shop" onclick="addKatalogToShop()">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
       Zur Einkaufsliste hinzufügen
     </button>
-
-    <!-- 7. Passende Rezepte -->
-    <span class="kd-section" style="margin-top:20px">Passende Rezepte</span>
+    <span class="do-label">Passende Rezepte</span>
     <div id="kd-recipes"></div>
-
   </div>
 </div>
 
