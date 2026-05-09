@@ -718,25 +718,49 @@ html,body{overflow-y:auto;-webkit-overflow-scrolling:touch;height:auto}
 .do-shop{width:100%;padding:13px;background:transparent;border:1px solid #3D5A3E;border-radius:12px;color:#5C7F5D;font-family:'DM Sans',sans-serif;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:20px}
 
 
-/* ── AUTH ────────────────────────────────────────────────────────────────── */
-#screen-auth{position:fixed;inset:0;background:var(--cream);z-index:999;display:none;flex-direction:column;align-items:center;justify-content:center;padding:40px 32px}
-#screen-auth.active{display:flex}
-.auth-logo{font-family:'Cormorant Garamond',serif;font-size:42px;font-weight:300;color:#3D5A3E;letter-spacing:6px;margin-bottom:6px;text-align:center}
-.auth-tagline{font-size:10px;letter-spacing:3px;color:#B8973A;text-transform:uppercase;margin-bottom:40px;text-align:center}
-.auth-tab-wrap{display:flex;border-radius:12px;overflow:hidden;border:1px solid var(--border);margin-bottom:24px;width:100%;max-width:380px}
-.auth-tab{flex:1;padding:11px;background:transparent;border:none;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--smoke);cursor:pointer}
-.auth-tab.active{background:#3D5A3E;color:#F0E8D8}
-.auth-field{margin-bottom:12px;width:100%;max-width:380px}
-.auth-lbl{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#B8973A;display:block;margin-bottom:5px}
-.auth-inp{width:100%;background:var(--parchment);border:1px solid var(--border);border-radius:10px;padding:12px 14px;font-size:15px;color:var(--bark);font-family:'DM Sans',sans-serif;box-sizing:border-box}
-.auth-btn{width:100%;max-width:380px;padding:13px;background:#3D5A3E;border:none;border-radius:12px;color:#F0E8D8;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:500;cursor:pointer;margin-top:6px;margin-bottom:14px}
-.auth-skip{text-align:center;font-size:13px;color:var(--smoke);cursor:pointer;text-decoration:underline}
-.auth-msg{width:100%;max-width:380px;border-radius:8px;padding:10px 14px;font-size:13px;margin-bottom:12px;display:none}
-.auth-msg.error{background:#FBEAE8;border:1px solid #E8A09A;color:#8B2018}
-.auth-msg.ok{background:#EAF3DE;border:1px solid #9FC76A;color:#2D5A0E}
+/* AUTH */
+#screen-auth{position:fixed;inset:0;background:var(--cream);z-index:9999;display:none;flex-direction:column;align-items:center;justify-content:center;padding:40px 32px}
+#screen-auth.visible{display:flex}
+.a-logo{font-family:'Cormorant Garamond',serif;font-size:40px;font-weight:300;color:#3D5A3E;letter-spacing:6px;margin-bottom:6px}
+.a-tag{font-size:10px;letter-spacing:3px;color:#B8973A;text-transform:uppercase;margin-bottom:40px}
+.a-tabs{display:flex;border-radius:12px;overflow:hidden;border:1px solid var(--border);margin-bottom:22px;width:100%;max-width:360px}
+.a-tab{flex:1;padding:11px;background:transparent;border:none;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--smoke);cursor:pointer}
+.a-tab.on{background:#3D5A3E;color:#F0E8D8}
+.a-field{margin-bottom:12px;width:100%;max-width:360px}
+.a-lbl{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#B8973A;display:block;margin-bottom:5px}
+.a-inp{width:100%;background:var(--parchment);border:1px solid var(--border);border-radius:10px;padding:12px 14px;font-size:15px;color:var(--bark);font-family:'DM Sans',sans-serif;box-sizing:border-box}
+.a-btn{width:100%;max-width:360px;padding:13px;background:#3D5A3E;border:none;border-radius:12px;color:#F0E8D8;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:500;cursor:pointer;margin-top:6px;margin-bottom:14px}
+.a-skip{text-align:center;font-size:13px;color:var(--smoke);cursor:pointer;text-decoration:underline}
+.a-err{width:100%;max-width:360px;border-radius:8px;padding:10px 14px;font-size:13px;margin-bottom:10px;display:none;background:#FBEAE8;border:1px solid #E8A09A;color:#8B2018}
+.a-ok{width:100%;max-width:360px;border-radius:8px;padding:10px 14px;font-size:13px;margin-bottom:10px;display:none;background:#EAF3DE;border:1px solid #9FC76A;color:#2D5A0E}
 </style>
 </head>
 <body>
+<div id="screen-auth">
+  <div class="a-logo">thyme</div>
+  <div class="a-tag">Recipe Archive</div>
+  <div class="a-tabs">
+    <button class="a-tab on" id="at0" onclick="aTab('login')">Anmelden</button>
+    <button class="a-tab" id="at1" onclick="aTab('register')">Registrieren</button>
+  </div>
+  <div class="a-err" id="a-err"></div>
+  <div class="a-ok" id="a-ok"></div>
+  <div class="a-field" id="a-name-f" style="display:none">
+    <label class="a-lbl">Name</label>
+    <input type="text" id="a-name" class="a-inp" placeholder="Dein Name">
+  </div>
+  <div class="a-field">
+    <label class="a-lbl">E-Mail</label>
+    <input type="email" id="a-email" class="a-inp" placeholder="email@example.com" autocomplete="email">
+  </div>
+  <div class="a-field">
+    <label class="a-lbl">Passwort</label>
+    <input type="password" id="a-pw" class="a-inp" placeholder="Mindestens 6 Zeichen" autocomplete="current-password">
+  </div>
+  <button class="a-btn" id="a-btn" onclick="aSubmit()">Anmelden</button>
+  <div class="a-skip" onclick="aSkip()">Ohne Account fortfahren</div>
+</div>
+
 
 <!-- ONBOARDING -->
 <div id="onboarding" class="hidden">
@@ -941,31 +965,6 @@ html,body{overflow-y:auto;-webkit-overflow-scrolling:touch;height:auto}
 <div class="app">
 
 <!-- HOME -->
-
-<!-- AUTH SCREEN -->
-<div id="screen-auth">
-  <div class="auth-logo">thyme</div>
-  <div class="auth-tagline">Recipe Archive</div>
-  <div class="auth-tab-wrap">
-    <button class="auth-tab active" id="at-login" onclick="authTab('login')">Anmelden</button>
-    <button class="auth-tab" id="at-reg" onclick="authTab('register')">Registrieren</button>
-  </div>
-  <div class="auth-msg" id="auth-msg"></div>
-  <div class="auth-field" id="auth-name-wrap" style="display:none">
-    <label class="auth-lbl">Name</label>
-    <input type="text" id="auth-name" class="auth-inp" placeholder="Dein Name">
-  </div>
-  <div class="auth-field">
-    <label class="auth-lbl">E-Mail</label>
-    <input type="email" id="auth-email" class="auth-inp" placeholder="email@example.com">
-  </div>
-  <div class="auth-field">
-    <label class="auth-lbl">Passwort</label>
-    <input type="password" id="auth-pw" class="auth-inp" placeholder="Mindestens 6 Zeichen">
-  </div>
-  <button class="auth-btn" id="auth-btn" onclick="authSubmit()">Anmelden</button>
-  <div class="auth-skip" onclick="authSkip()">Ohne Account fortfahren</div>
-</div>
 <div class="header">
     <div class="app-name" onclick="logoTap()" style="cursor:pointer;padding:4px 8px 4px 0;-webkit-tap-highlight-color:rgba(184,151,58,0.2)">
       <svg viewBox="0 0 120 36" style="pointer-events:none" xmlns="http://www.w3.org/2000/svg" style="height:32px;width:auto">
@@ -1793,6 +1792,8 @@ async function init() {
       await syncToCloud();
     } catch(e) { console.warn('Supabase nicht verfuegbar:', e); db = null; }
   }
+
+  aInit();
 }
 
 // ─── NAVIGATION ────────────────────────────────────────────────────────────
@@ -4172,124 +4173,80 @@ function addSeasonDetailToShop() {
 
 function seasonDetailAddPhoto() { doSelectPhoto('season-detail-photo-wrap'); }
 
-// ── AUTH ───────────────────────────────────────────────────────────────────
-var currentUser = null;
-var _authMode = 'login';
-
-function authGetClient() {
-  if (!window._sc) {
-    try { window._sc = supabase.createClient(SUPABASE_URL, SUPABASE_ANON); } catch(e) {}
-  }
-  return window._sc;
+// ── AUTH ────────────────────────────────────────────────────────────────────
+var _aUser = null, _aMode = 'login';
+function _aSC() {
+  if (!window._SC) { try { window._SC = supabase.createClient(SUPABASE_URL,SUPABASE_ANON); } catch(e){} }
+  return window._SC;
 }
-
-function authTab(mode) {
-  _authMode = mode;
-  document.getElementById('at-login').classList.toggle('active', mode==='login');
-  document.getElementById('at-reg').classList.toggle('active', mode==='register');
-  document.getElementById('auth-name-wrap').style.display = mode==='register'?'block':'none';
-  document.getElementById('auth-btn').textContent = mode==='login'?'Anmelden':'Registrieren';
-  authMsg('','');
+function aTab(m) {
+  _aMode = m;
+  document.getElementById('at0').classList.toggle('on', m==='login');
+  document.getElementById('at1').classList.toggle('on', m==='register');
+  document.getElementById('a-name-f').style.display = m==='register'?'block':'none';
+  document.getElementById('a-btn').textContent = m==='login'?'Anmelden':'Registrieren';
+  document.getElementById('a-err').style.display = 'none';
+  document.getElementById('a-ok').style.display = 'none';
 }
-
-function authMsg(txt, type) {
-  var el = document.getElementById('auth-msg');
-  el.textContent = txt;
-  el.className = 'auth-msg' + (type?' '+type:'');
-  el.style.display = txt ? 'block' : 'none';
-}
-
-async function authSubmit() {
-  var email = document.getElementById('auth-email').value.trim();
-  var pw = document.getElementById('auth-pw').value;
-  var btn = document.getElementById('auth-btn');
-  if (!email || !pw) { authMsg('Bitte E-Mail und Passwort eingeben','error'); return; }
-  if (pw.length < 6) { authMsg('Passwort mind. 6 Zeichen','error'); return; }
-  btn.disabled = true;
-  btn.textContent = '...';
+async function aSubmit() {
+  var email = document.getElementById('a-email').value.trim();
+  var pw = document.getElementById('a-pw').value;
+  var btn = document.getElementById('a-btn');
+  var err = document.getElementById('a-err');
+  var ok = document.getElementById('a-ok');
+  err.style.display = 'none'; ok.style.display = 'none';
+  if (!email||!pw) { err.textContent='Bitte E-Mail und Passwort eingeben'; err.style.display='block'; return; }
+  if (pw.length<6) { err.textContent='Passwort mind. 6 Zeichen'; err.style.display='block'; return; }
+  btn.disabled=true; btn.textContent='...';
   try {
-    var client = authGetClient();
-    if (!client) throw new Error('Verbindungsfehler');
-    if (_authMode === 'register') {
-      var name = document.getElementById('auth-name').value.trim();
-      var res = await client.auth.signUp({email:email,password:pw,options:{data:{name:name||email.split('@')[0]}}});
+    var c = _aSC(); if (!c) throw new Error('Verbindungsfehler — Seite neu laden');
+    if (_aMode==='register') {
+      var name = document.getElementById('a-name').value.trim();
+      var res = await c.auth.signUp({email:email,password:pw,options:{data:{name:name||email.split('@')[0]}}});
       if (res.error) throw res.error;
-      authMsg('Registrierung erfolgreich! Bitte anmelden.','ok');
-      authTab('login');
+      ok.textContent='Registrierung erfolgreich! Bitte anmelden.'; ok.style.display='block';
+      aTab('login');
     } else {
-      var res = await client.auth.signInWithPassword({email:email,password:pw});
+      var res = await c.auth.signInWithPassword({email:email,password:pw});
       if (res.error) throw res.error;
-      currentUser = res.data.user;
-      authDone();
+      _aUser = res.data.user;
+      aClose(); aUpdateUI();
+      setTimeout(syncToCloud, 500);
     }
   } catch(e) {
-    var msg = e.message||'Fehler';
-    if(msg.includes('Invalid login')) msg = 'E-Mail oder Passwort falsch';
-    if(msg.includes('already registered')) msg = 'E-Mail bereits registriert';
-    if(msg.includes('Email not confirmed')) msg = 'Bitte E-Mail bestätigen';
-    authMsg(msg,'error');
+    var msg=e.message||'Fehler';
+    if(msg.includes('Invalid login')) msg='E-Mail oder Passwort falsch';
+    if(msg.includes('already registered')) msg='E-Mail bereits registriert';
+    if(msg.includes('Email not confirmed')) msg='Bitte E-Mail bestätigen';
+    err.textContent=msg; err.style.display='block';
   }
-  btn.disabled = false;
-  btn.textContent = _authMode==='login'?'Anmelden':'Registrieren';
+  btn.disabled=false; btn.textContent=_aMode==='login'?'Anmelden':'Registrieren';
 }
-
-function authSkip() {
-  localStorage.setItem('thyme_no_auth','1');
-  authDone();
+function aSkip() { localStorage.setItem('thyme_skip_auth','1'); aClose(); }
+function aClose() { document.getElementById('screen-auth').classList.remove('visible'); }
+function aOpen() { document.getElementById('screen-auth').classList.add('visible'); }
+function aUpdateUI() {
+  var badge=document.getElementById('auth-badge');
+  var lbtn=document.getElementById('auth-lbtn');
+  var obtn=document.getElementById('auth-obtn');
+  if(!badge) return;
+  if(_aUser){ badge.textContent=(_aUser.user_metadata&&_aUser.user_metadata.name)||_aUser.email||''; badge.style.display='block'; if(lbtn)lbtn.style.display='none'; if(obtn)obtn.style.display='block'; }
+  else { badge.style.display='none'; if(lbtn)lbtn.style.display='block'; if(obtn)obtn.style.display='none'; }
 }
-
-function authDone() {
-  document.getElementById('screen-auth').classList.remove('active');
-  updateAuthSettings();
-}
-
-function authShowScreen() {
-  document.getElementById('screen-auth').classList.add('active');
-}
-
-async function authInit() {
-  if (localStorage.getItem('thyme_no_auth')) return;
-  var client = authGetClient();
-  if (!client) return;
+async function aInit() {
+  if (localStorage.getItem('thyme_skip_auth')) return;
+  var c = _aSC(); if (!c) return;
   try {
-    var res = await client.auth.getSession();
-    if (res.data && res.data.session) {
-      currentUser = res.data.session.user;
-      updateAuthSettings();
-      return;
-    }
+    var res = await c.auth.getSession();
+    if (res.data&&res.data.session) { _aUser=res.data.session.user; aUpdateUI(); return; }
   } catch(e) {}
-  // Kein Login — Auth Screen zeigen
-  setTimeout(authShowScreen, 1000);
+  setTimeout(aOpen, 1200);
 }
-
-function updateAuthSettings() {
-  var badge = document.getElementById('auth-user-badge');
-  var loginBtn = document.getElementById('auth-login-btn');
-  var logoutBtn = document.getElementById('auth-logout-btn');
-  if (!badge) return;
-  if (currentUser) {
-    var name = (currentUser.user_metadata&&currentUser.user_metadata.name)||currentUser.email||'';
-    badge.textContent = name;
-    badge.style.display = 'block';
-    if(loginBtn) loginBtn.style.display = 'none';
-    if(logoutBtn) logoutBtn.style.display = 'block';
-  } else {
-    badge.style.display = 'none';
-    if(loginBtn) loginBtn.style.display = 'block';
-    if(logoutBtn) logoutBtn.style.display = 'none';
-  }
-}
-
-async function authLogout() {
-  var client = authGetClient();
-  if (client) await client.auth.signOut();
-  currentUser = null;
-  localStorage.removeItem('thyme_no_auth');
-  updateAuthSettings();
+async function aLogout() {
+  var c=_aSC(); if(c) await c.auth.signOut();
+  _aUser=null; localStorage.removeItem('thyme_skip_auth'); aUpdateUI();
   showToast('Abgemeldet','success');
 }
-
 </script>
 
 <!-- SCREEN: EINKAUFSLISTE -->
