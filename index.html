@@ -10,20 +10,40 @@
 <meta name="theme-color" content="#3D5A3E">
 <title>thyme</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js">
+// ─── CLAUDE API DIREKT ────────────────────────────────────────────────────
+async function callClaude(payload) {
+  var key = getClaudeKey();
+  if (!key) { showToast('Bitte API Key in Einstellungen hinterlegen', 'error'); showScreen('settings'); throw new Error('Kein API Key'); }
+  var res = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': key,
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-access': 'true'
+    },
+    body: JSON.stringify(payload)
+  });
+  if (!res.ok) { var err = await res.json().catch(function(){return {};}); throw new Error(err.error && err.error.message ? err.error.message : 'API Fehler ' + res.status); }
+  return res.json();
+}
+
+</script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{
-  --cream:#1A1208;--parchment:#221A0E;--border:#2E2416;
+  --cream:#000000;--parchment:#0A0805;--border:#4A3828;
   --thyme:#5C7F5D;--thyme-mid:#7FA882;--gold:#B8973A;
-  --bark:#F0E8D8;--smoke:#8A9E8B;
-  --bg-grad: linear-gradient(160deg,#2A1E10 0%,#1A1208 50%,#0A0A08 100%);
+  --bark:#F0E8D8;--smoke:#B0C4B1;
+  --bg-grad: #000000;
 }
 body.light-mode{
   --cream:#F5F0E8;--parchment:#EDE5D0;--border:#E0D9CC;
   --thyme:#3D5A3E;--thyme-mid:#5C7F5D;--gold:#B8973A;
   --bark:#2C1F14;--smoke:#6B7B6C;
   --bg-grad: linear-gradient(160deg,#F5F0E8 0%,#EDE5D0 100%);
+  background:#F5F0E8 !important;
 }
 body.light-mode .cat-sheet { background: #F5F0E8; }
 body.light-mode .cat-sheet-title { color: #2C1F14; }
@@ -31,7 +51,7 @@ body.light-mode .cat-sheet-name { color: #2C1F14; }
 body.light-mode .cat-sheet-item.active .cat-sheet-name { color: #B8973A; }
 body.light-mode .cat-sheet-item { border-bottom-color: #E0D9CC; }
 body.light-mode .cat-sheet-handle { background: #C8BFAD; }
-body.light-mode .sub-header { background: #F5F0E8 !important; border-bottom-color: #E0D9CC; }
+body.light-mode .sub-header { background: #F5F0E8 !important; border-bottom-color: #E0D9CC; ;position:sticky;top:0;z-index:20;background:var(--cream)}
 body.light-mode .sub-title { color: #2C1F14; }
 body.light-mode .back-btn { color: #3D5A3E !important; }
 body.light-mode .header { background: #F5F0E8 !important; border-bottom-color: #E0D9CC; }
@@ -60,33 +80,33 @@ body.light-mode #cat-active-bar { border-bottom-color: #E0D9CC; }
 body.light-mode .fab-menu-panel { background: #F5F0E8; border-color: #E0D9CC; }
 body.light-mode .fab-option { color: #2C1F14; border-bottom-color: #E0D9CC; }
 body.light-mode .recipe-photo-placeholder { background: #EDE5D0; border-color: #C8BFAD; }
-body{background:var(--bg-grad);background-attachment:fixed;font-family:'DM Sans',sans-serif;color:var(--bark);min-height:100vh}
-input,textarea{font-family:'DM Sans',sans-serif;font-size:15px;outline:none;-webkit-appearance:none}
+body{background:#000000;background-attachment:fixed;font-family:'DM Sans',sans-serif;color:var(--bark);min-height:100vh}
+input,textarea{font-family:'DM Sans',sans-serif;font-size:18.2px;outline:none;-webkit-appearance:none}
 textarea{resize:vertical}
 
 /* ── TYPOGRAFIE HIERARCHIE ────────────────────────────── */
 /* Titel: gross, Serif, luftig */
-.detail-title{font-family:'Cormorant Garamond',serif;font-size:38px;font-weight:300;color:var(--bark);margin-bottom:4px;line-height:1.15;letter-spacing:0.5px}
+.detail-title{font-family:'Cormorant Garamond',serif;font-size:46px;font-weight:300;color:var(--bark);margin-bottom:4px;line-height:1.15;letter-spacing:0.5px}
 /* Meta: sehr klein, versaliert, gedämpft */
-.detail-meta{font-size:11px;color:var(--smoke);margin-bottom:16px;letter-spacing:2px;text-transform:uppercase}
+.detail-meta{font-size:13.3px;color:var(--smoke);margin-bottom:16px;letter-spacing:2px;text-transform:uppercase}
 /* Section Labels: winzig, gold, viel Spacing */
-.section-label{font-size:9px;color:var(--gold);letter-spacing:3px;text-transform:uppercase;margin-bottom:10px;margin-top:24px;display:block;font-weight:600;opacity:0.9}
+.section-label{font-size:10.9px;color:var(--gold);letter-spacing:3px;text-transform:uppercase;margin-bottom:10px;margin-top:24px;display:block;font-weight:600;opacity:0.9}
 /* Zutat Amount: sehr gross, Serif */
-.ingredient-amount{font-family:'Cormorant Garamond',serif;font-size:22px;color:var(--gold);font-weight:400;min-width:52px;text-align:right;flex-shrink:0;line-height:1.2}
+.ingredient-amount{font-family:'Cormorant Garamond',serif;font-size:26.6px;color:var(--gold);font-weight:400;min-width:52px;text-align:right;flex-shrink:0;line-height:1.2}
 /* Zutat Unit: winzig */
-.ingredient-unit{min-width:36px;font-size:10px;color:var(--smoke);text-transform:uppercase;letter-spacing:1.5px;padding-top:4px;flex-shrink:0}
+.ingredient-unit{min-width:36px;font-size:12.1px;color:var(--smoke);text-transform:uppercase;letter-spacing:1.5px;padding-top:4px;flex-shrink:0}
 /* Zutat Name: klar, etwas grösser */
-.ingredient-name{font-size:16px;color:var(--bark);flex:1;line-height:1.4}
+.ingredient-name{font-size:19.4px;color:var(--bark);flex:1;line-height:1.4}
 /* Karten-Titel: grösser, mehr Gewicht */
-.card-title{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:400;color:var(--bark);line-height:1.25;margin-bottom:8px;letter-spacing:0.3px}
+.card-title{font-family:'Cormorant Garamond',serif;font-size:31.5px;font-weight:400;color:var(--bark);line-height:1.25;margin-bottom:8px;letter-spacing:0.3px}
 /* Badge: winzig, versaliert */
-.badge{background:transparent;border-radius:99px;padding:3px 0;font-size:10px;color:var(--smoke);display:inline-block;letter-spacing:2px;text-transform:uppercase}
+.badge{background:transparent;border-radius:99px;padding:3px 0;font-size:12.1px;color:var(--smoke);display:inline-block;letter-spacing:2px;text-transform:uppercase}
 /* Sub-title im Header */
-.sub-title{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:300;color:var(--bark);letter-spacing:1px}
+.sub-title{font-family:'Cormorant Garamond',serif;font-size:26.6px;font-weight:300;color:var(--bark);letter-spacing:1px}
 /* Anweisungen */
-.instructions-text{font-size:15px;color:var(--smoke);line-height:1.85;white-space:pre-wrap;letter-spacing:0.2px}
+.instructions-text{font-size:18.2px;color:var(--smoke);line-height:1.85;white-space:pre-wrap;letter-spacing:0.2px}
 .app{max-width:900px;margin:0 auto}
-.screen{display:none}.screen.active{display:block;opacity:1;transform:translateY(0)}
+.screen{display:none;background:transparent;overflow:hidden}.screen.active{display:block;opacity:1;transform:translateY(0);min-height:100vh}
 .screen.animating{opacity:0;transform:translateY(12px)}.screen.visible{opacity:1;transform:translateY(0)}
 /* Karten-Hover */
 .card{transition:transform .2s ease,box-shadow .2s ease}
@@ -105,83 +125,83 @@ textarea{resize:vertical}
 .ingredient{transition:background .15s ease}
 .ingredient:hover{background:rgba(184,151,58,.05)}
 
-.mode-badge{display:flex;align-items:center;gap:5px;font-size:10px;font-weight:700;letter-spacing:1px;padding:5px 10px;border-radius:99px}
+.mode-badge{display:flex;align-items:center;gap:5px;font-size:12.1px;font-weight:700;letter-spacing:1px;padding:5px 10px;border-radius:99px}
 .mode-badge.online{background:#1E2E1E;color:#7FA882}
 .mode-badge.offline{background:#2A2010;color:#B8973A}
 .mode-dot{width:6px;height:6px;border-radius:50%}
 .mode-badge.online .mode-dot{background:#3D5A3E}
 .mode-badge.offline .mode-dot{background:#B8973A}
 .sub-header{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--border);background:var(--cream);position:sticky;top:0;z-index:10}
-.back-btn{font-size:14px;font-weight:600;color:var(--thyme);background:none;border:none;cursor:pointer;padding:4px 0}
-.sub-title{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--bark)}
+.back-btn{font-size:16.9px;font-weight:600;color:var(--thyme);background:none;border:none;cursor:pointer;padding:4px 0}
+.sub-title{font-family:'Cormorant Garamond',serif;font-size:24.2px;font-weight:600;color:var(--bark)}
 .search-wrap{display:flex;align-items:center;margin:10px 16px;background:transparent;border-radius:0;border:none;border-bottom:1.5px solid var(--border);padding:0 4px;transition:border-color .25s ease}
 .search-wrap:focus-within{border-bottom-color:var(--gold)}
-.search-icon{font-size:15px;margin-right:10px;color:var(--smoke);opacity:0.5;transition:opacity .2s}
+.search-icon{font-size:18.2px;margin-right:10px;color:var(--smoke);opacity:0.5;transition:opacity .2s}
 .search-wrap:focus-within .search-icon{opacity:1;color:var(--gold)}
-.search-input{flex:1;border:none;background:transparent;padding:13px 0;font-size:16px;color:var(--bark);letter-spacing:0.3px;font-family:'Cormorant Garamond',serif;font-weight:300}
-.search-input::placeholder{color:var(--smoke);opacity:0.5;font-family:'DM Sans',sans-serif;font-size:13px;letter-spacing:1.5px;text-transform:uppercase}
-.search-clear{background:none;border:none;color:var(--smoke);font-size:14px;cursor:pointer;padding:0 4px;opacity:0;transition:opacity .15s;line-height:1}
+.search-input{flex:1;border:none;background:transparent;padding:13px 0;font-size:19.4px;color:var(--bark);letter-spacing:0.3px;font-family:'Cormorant Garamond',serif;font-weight:300}
+.search-input::placeholder{color:var(--bark);opacity:0.6;font-family:'DM Sans',sans-serif;font-size:18.2px;letter-spacing:1.5px;text-transform:uppercase}
+.search-clear{background:none;border:none;color:var(--smoke);font-size:16.9px;cursor:pointer;padding:0 4px;opacity:0;transition:opacity .15s;line-height:1}
 .search-clear.visible{opacity:0.5}
 .search-clear:hover{opacity:1;color:var(--gold)}
 .cat-scroll{overflow-x:auto;padding:8px 16px;border-bottom:1px solid var(--border);display:flex;gap:8px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
 .cat-scroll::-webkit-scrollbar{display:none}
-.pill{padding:6px 16px;border-radius:99px;border:1px solid var(--border);background:transparent;font-size:11px;color:var(--smoke);cursor:pointer;white-space:nowrap;font-family:'DM Sans',sans-serif;transition:all .2s ease;letter-spacing:1px;text-transform:uppercase}
+.pill{padding:8px 18px;border-radius:99px;border:1px solid var(--border);background:transparent;font-size:15.7px;color:var(--bark);cursor:pointer;white-space:nowrap;font-family:'DM Sans',sans-serif;transition:all .2s ease;letter-spacing:0.5px;text-transform:uppercase;font-weight:500}
 .pill:hover{border-color:var(--thyme);color:var(--thyme)}
 .pill.active{background:var(--thyme);border-color:var(--thyme);color:white;font-weight:500;letter-spacing:1px}
 .grid{display:flex;flex-direction:column;gap:0;padding:0 0 120px;border-top:1px solid var(--border)}
-.card{background:var(--parchment);border-radius:0;padding:14px 20px;border-left:none;border-bottom:1px solid var(--border);cursor:pointer;transition:background .18s ease;position:relative;display:flex;align-items:center;gap:16px;overflow:hidden}
+.card{background:#0A0805;border-radius:0;padding:14px 20px;border-left:none;border-bottom:1px solid var(--border);cursor:pointer;transition:background .18s ease;position:relative;display:flex;align-items:center;gap:16px;overflow:hidden}
 .card:active{background:var(--cream)}
 .card-emoji{display:none}
 /* Karte mit Foto — etwas höher */
 .card.has-photo{padding:0;flex-direction:column;align-items:stretch;gap:0}
 .card.has-photo .card-photo-hero{width:100%;height:160px;object-fit:cover;display:block}
 .card.has-photo .card-body{padding:12px 20px 14px;display:flex;align-items:center;gap:12px}
-.card.has-photo .card-title{margin-bottom:2px;font-size:20px}
+.card.has-photo .card-title{margin-bottom:2px;font-size:24.2px}
 /* Karte ohne Foto — Farbstreifen links */
 .card-stripe{position:absolute;left:0;top:0;bottom:0;width:5px;border-radius:0;opacity:0.9}
 .card-body{flex:1;min-width:0}
-.card-title{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:400;color:var(--bark);line-height:1.25;margin-bottom:3px;letter-spacing:0.2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.card-arrow{color:var(--border);font-size:16px;flex-shrink:0;opacity:0.4;transition:opacity .15s}
+.card-title{font-family:'Cormorant Garamond',serif;font-size:24.2px;font-weight:400;color:var(--bark);line-height:1.25;margin-bottom:3px;letter-spacing:0.2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card-arrow{color:var(--border);font-size:19.4px;flex-shrink:0;opacity:0.4;transition:opacity .15s}
 .card:active .card-arrow{opacity:0.8}
-.badge{background:transparent;padding:0;font-size:10px;color:var(--smoke);display:inline-block;letter-spacing:2px;text-transform:uppercase}
-.empty{text-align:center;color:var(--smoke);padding:60px 20px;font-size:15px}
+.badge{background:transparent;padding:0;font-size:12.1px;color:var(--smoke);display:inline-block;letter-spacing:2px;text-transform:uppercase}
+.empty{text-align:center;color:var(--smoke);padding:60px 20px;font-size:18.2px}
 /* ── ZULETZT VERWENDET ───────────────────────────────── */
 .recent-section{padding:24px 20px 0}
-.recent-label{font-size:9px;color:var(--smoke);letter-spacing:3px;text-transform:uppercase;margin-bottom:14px;display:block;opacity:0.7}
+.recent-label{font-size:14.5px;color:var(--bark);letter-spacing:2px;text-transform:uppercase;margin-bottom:14px;display:block;opacity:0.9;font-weight:500}
 .recent-scroll{display:flex;gap:12px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
 .recent-scroll::-webkit-scrollbar{display:none}
-.recent-card{flex-shrink:0;width:140px;cursor:pointer;border-radius:12px;overflow:hidden;background:var(--parchment);border:1px solid var(--border);transition:transform .2s ease}
+.recent-card{flex-shrink:0;width:161px;cursor:pointer;border-radius:13px;overflow:hidden;background:#0A0805;border:1px solid var(--border);transition:transform .2s ease}
 .recent-card:active{transform:scale(0.96)}
-.recent-card-photo{width:100%;height:80px;object-fit:cover;display:block}
-.recent-card-color{width:100%;height:80px;display:block;opacity:0.7}
-.recent-card-body{padding:10px 12px}
-.recent-card-title{font-family:'Cormorant Garamond',serif;font-size:15px;font-weight:400;color:var(--bark);line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.recent-card-cat{font-size:9px;color:var(--smoke);letter-spacing:1.5px;text-transform:uppercase;margin-top:3px}
+.recent-card-photo{width:100%;height:92px;object-fit:cover;display:block}
+.recent-card-color{width:100%;height:92px;display:block;opacity:0.7}
+.recent-card-body{padding:11px 13px}
+.recent-card-title{font-family:'Cormorant Garamond',serif;font-size:18.2px;font-weight:400;color:#F0E8D8;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.recent-card-cat{font-size:10.9px;color:#8FAE90;letter-spacing:1.5px;text-transform:uppercase;margin-top:3px}
 .recent-divider{height:1px;background:var(--border);margin:20px 0 0}
 /* ── FAVORITEN ────────────────────────────────────────── */
-.fav-btn{background:none;border:none;cursor:pointer;font-size:20px;padding:4px 6px;line-height:1;transition:transform .2s ease, color .2s ease;flex-shrink:0}
+.fav-btn{background:none;border:none;cursor:pointer;font-size:24.2px;padding:4px 6px;line-height:1;transition:transform .2s ease, color .2s ease;flex-shrink:0}
 .fav-btn:active{transform:scale(1.3)}
 .fav-btn.active{color:#B8973A}
 .fav-btn.inactive{color:rgba(255,255,255,0.35)}
 body.light-mode .fav-btn.inactive{color:rgba(0,0,0,0.2)}
 /* Favoriten-Tab in Header */
-.fav-tab{display:flex;align-items:center;gap:6px;background:none;border:none;cursor:pointer;padding:6px 10px;border-radius:99px;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:600;letter-spacing:1px;color:var(--smoke);transition:all .2s}
+.fav-tab{display:flex;align-items:center;gap:6px;background:none;border:none;cursor:pointer;padding:6px 10px;border-radius:99px;font-family:'DM Sans',sans-serif;font-size:18.2px;font-weight:600;letter-spacing:0.5px;color:var(--bark);transition:all .2s}
 .fav-tab.active{background:rgba(184,151,58,.12);color:#B8973A}
-.fav-tab-icon{font-size:14px}
+.fav-tab-icon{font-size:16.9px}
 /* FAB - zentriert unten */
 .fab-center-wrap{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);z-index:21;display:flex;flex-direction:column;align-items:center;gap:12px}
-.fab-plus{height:52px;padding:0 28px;border-radius:99px;background:var(--thyme);border:none;cursor:pointer;font-size:14px;font-family:'DM Sans',sans-serif;font-weight:500;letter-spacing:1px;color:white;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 4px 24px rgba(61,90,62,.5);transition:transform .2s,background .2s,box-shadow .2s;white-space:nowrap}
+.fab-plus{height:52px;padding:0 28px;border-radius:99px;background:var(--thyme);border:none;cursor:pointer;font-size:16.9px;font-family:'DM Sans',sans-serif;font-weight:500;letter-spacing:1px;color:white;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 4px 24px rgba(61,90,62,.5);transition:transform .2s,background .2s,box-shadow .2s;white-space:nowrap}
 .fab-plus:active{transform:scale(0.95)}
 .fab-plus.open{background:var(--bark)}
-.fab-plus-icon{font-size:20px;transition:transform .25s ease;display:inline-block;line-height:1}
+.fab-plus-icon{font-size:24.2px;transition:transform .25s ease;display:inline-block;line-height:1}
 .fab-plus.open .fab-plus-icon{transform:rotate(45deg)}
 /* Einstellungen - unten rechts */
-.fab-settings{position:fixed;bottom:32px;right:24px;width:44px;height:44px;border-radius:50%;background:#221A0E;border:1.5px solid #2E2416;cursor:pointer;font-size:20px;display:flex;align-items:center;justify-content:center;z-index:21;box-shadow:0 2px 8px rgba(0,0,0,.4)}
+.fab-settings{position:fixed;bottom:32px;right:24px;width:44px;height:44px;border-radius:50%;background:#221A0E;border:1.5px solid #2E2416;cursor:pointer;font-size:24.2px;display:flex;align-items:center;justify-content:center;z-index:21;box-shadow:0 2px 8px rgba(0,0,0,.4)}
 /* Optionen-Faecher */
 .fab-menu{display:flex;flex-direction:column;align-items:center;gap:12px;opacity:0;pointer-events:none;transform:translateY(8px);transition:opacity .2s,transform .2s}
 .fab-menu.open{opacity:1;pointer-events:all;transform:translateY(0)}
 .fab-menu-panel{background:#1E1610;border:1px solid #2E2416;border-radius:16px;overflow:hidden;min-width:180px;box-shadow:0 8px 32px rgba(0,0,0,.5)}
-.fab-option{display:flex;align-items:center;gap:12px;background:transparent;border:none;border-bottom:1px solid #2A2010;padding:14px 20px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:400;color:var(--bark);white-space:nowrap;width:100%;text-align:left;letter-spacing:0.5px;transition:background .15s}
+.fab-option{display:flex;align-items:center;gap:12px;background:transparent;border:none;border-bottom:1px solid #2A2010;padding:14px 20px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:15.7px;font-weight:400;color:var(--bark);white-space:nowrap;width:100%;text-align:left;letter-spacing:0.5px;transition:background .15s}
 .fab-option:last-child{border-bottom:none}
 .fab-option:active{background:#2A2010}
 .fab-option-icon{width:20px;height:20px;text-align:center;opacity:0.9;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center}.fab-option-icon svg{width:20px;height:20px}
@@ -191,45 +211,45 @@ body.light-mode .fav-btn.inactive{color:rgba(0,0,0,0.2)}
 .fab-overlay.open{display:block}
 .detail-body{padding:28px 28px 100px;max-width:680px}
 .recipe-hero{width:calc(100% + 40px);margin:-24px -20px 20px;height:240px;object-fit:cover;display:block}
-.recipe-hero-placeholder{width:calc(100% + 40px);margin:-24px -20px 20px;height:120px;background:var(--parchment);display:flex;align-items:center;justify-content:center;cursor:pointer;border-bottom:1px solid var(--border)}
-.recipe-hero-placeholder span{font-size:11px;color:var(--smoke);letter-spacing:2px;text-transform:uppercase}
+.recipe-hero-placeholder{width:calc(100% + 40px);margin:-24px -20px 20px;height:120px;background:#0A0805;display:flex;align-items:center;justify-content:center;cursor:pointer;border-bottom:1px solid var(--border)}
+.recipe-hero-placeholder span{font-size:13.3px;color:var(--smoke);letter-spacing:2px;text-transform:uppercase}
 .recipe-photo{width:100%;height:240px;object-fit:cover;border-radius:0;margin-bottom:16px;display:block}
-.recipe-photo-placeholder{width:100%;height:120px;background:var(--parchment);border-radius:0;margin-bottom:16px;display:flex;align-items:center;justify-content:center;cursor:pointer;border-bottom:1px solid var(--border)}
-.recipe-photo-placeholder span{font-size:11px;color:var(--smoke);letter-spacing:2px;text-transform:uppercase}
+.recipe-photo-placeholder{width:100%;height:120px;background:#0A0805;border-radius:0;margin-bottom:16px;display:flex;align-items:center;justify-content:center;cursor:pointer;border-bottom:1px solid var(--border)}
+.recipe-photo-placeholder span{font-size:13.3px;color:var(--smoke);letter-spacing:2px;text-transform:uppercase}
 .detail-stripe{height:3px;width:100%;margin-bottom:24px;display:block}
-.detail-emoji{font-size:52px;margin-bottom:10px;display:block}
-.detail-title{font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:600;color:var(--bark);margin-bottom:6px;line-height:1.2}
-.detail-meta{font-size:13px;color:var(--smoke);margin-bottom:16px}
+.detail-emoji{font-size:62.9px;margin-bottom:10px;display:block}
+.detail-title{font-family:'Cormorant Garamond',serif;font-size:38.7px;font-weight:600;color:var(--bark);margin-bottom:6px;line-height:1.2}
+.detail-meta{font-size:15.7px;color:var(--smoke);margin-bottom:16px}
 .meta-chips{display:flex;gap:12px;margin-bottom:24px;flex-wrap:wrap;align-items:center}
 /* Portionen-Rechner — prominent */
 .portions-wrap{display:flex;flex-direction:column;gap:6px}
-.portions-label{font-size:9px;color:var(--smoke);letter-spacing:3px;text-transform:uppercase;opacity:0.7}
-.portions-ctrl{display:flex;align-items:center;gap:0;background:var(--parchment);border-radius:12px;overflow:hidden;border:1px solid var(--border)}
-.portions-btn{background:none;border:none;color:var(--gold);font-size:24px;width:48px;height:48px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-weight:300;transition:background .15s,transform .1s}
+.portions-label{font-size:10.9px;color:var(--smoke);letter-spacing:3px;text-transform:uppercase;opacity:0.7}
+.portions-ctrl{display:flex;align-items:center;gap:0;background:#0A0805;border-radius:12px;overflow:hidden;border:1px solid var(--border)}
+.portions-btn{background:none;border:none;color:var(--gold);font-size:29px;width:48px;height:48px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-weight:300;transition:background .15s,transform .1s}
 .portions-btn:active{background:var(--border);transform:scale(0.9)}
 .portions-divider{width:1px;height:32px;background:var(--border)}
 .portions-center{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 20px;min-width:80px}
-.portions-num{font-family:'Cormorant Garamond',serif;font-size:28px;color:var(--bark);text-align:center;font-weight:300;transition:transform .15s ease,opacity .15s ease;display:block;line-height:1}
+.portions-num{font-family:'Cormorant Garamond',serif;font-size:33.9px;color:var(--bark);text-align:center;font-weight:300;transition:transform .15s ease,opacity .15s ease;display:block;line-height:1}
 .portions-num.bump{transform:scale(1.3);opacity:0.7}
-.portions-unit{font-size:9px;color:var(--smoke);letter-spacing:2px;text-transform:uppercase;margin-top:2px}
-.meta-chip{background:var(--parchment);border-radius:99px;padding:6px 14px;font-size:13px;color:var(--thyme);font-weight:500}
-.section-label{font-size:10px;color:var(--thyme);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;margin-top:20px;display:block}
+.portions-unit{font-size:10.9px;color:var(--smoke);letter-spacing:2px;text-transform:uppercase;margin-top:2px}
+.meta-chip{background:#0A0805;border-radius:99px;padding:6px 14px;font-size:15.7px;color:var(--thyme);font-weight:500}
+.section-label{font-size:12.1px;color:var(--thyme);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;margin-top:20px;display:block}
 .ingredient{display:flex;flex-direction:row;align-items:baseline;gap:8px;padding:11px 0;border-bottom:1px solid #2A2010}
-.ingredient-amount{font-family:'Cormorant Garamond',serif;font-size:19px;color:#B8973A;font-weight:400;min-width:44px;text-align:right;flex-shrink:0}
-.ingredient-unit{font-size:12px;color:var(--smoke);letter-spacing:1px;text-transform:uppercase;min-width:32px;flex-shrink:0}
-.ingredient-name{font-size:16px;color:var(--bark);flex:1}
+.ingredient-amount{font-family:'Cormorant Garamond',serif;font-size:23px;color:#B8973A;font-weight:400;min-width:44px;text-align:right;flex-shrink:0}
+.ingredient-unit{font-size:14.5px;color:var(--smoke);letter-spacing:1px;text-transform:uppercase;min-width:32px;flex-shrink:0}
+.ingredient-name{font-size:19.4px;color:var(--bark);flex:1}
 .ing-row{display:grid;grid-template-columns:64px 90px 1fr 32px;gap:6px;margin-bottom:8px;align-items:center}
-.ing-input{background:#221A0E;border:1px solid #3D3020;border-radius:8px;padding:10px 10px;font-size:14px;color:var(--bark);font-family:'DM Sans',sans-serif;width:100%;outline:none}
+.ing-input{background:#221A0E;border:1px solid #3D3020;border-radius:8px;padding:10px 10px;font-size:16.9px;color:var(--bark);font-family:'DM Sans',sans-serif;width:100%;outline:none}
 .ing-input:focus{border-color:#B8973A}
-.ing-select{background:#221A0E;border:1px solid #3D3020;border-radius:8px;padding:10px 6px;font-size:13px;color:var(--smoke);font-family:'DM Sans',sans-serif;width:100%;outline:none;-webkit-appearance:none;cursor:pointer}
+.ing-select{background:#221A0E;border:1px solid #3D3020;border-radius:8px;padding:10px 6px;font-size:15.7px;color:var(--smoke);font-family:'DM Sans',sans-serif;width:100%;outline:none;-webkit-appearance:none;cursor:pointer}
 .ing-select:focus{border-color:#B8973A}
-.ing-del{background:none;border:none;color:#5C3A3A;font-size:18px;cursor:pointer;padding:4px;width:32px;text-align:center}
-.add-ing-btn{width:100%;background:transparent;border:1px dashed #3D3020;border-radius:8px;padding:12px;font-size:13px;color:var(--smoke);cursor:pointer;margin-top:4px;letter-spacing:1px;font-family:'DM Sans',sans-serif}
+.ing-del{background:none;border:none;color:#5C3A3A;font-size:21.8px;cursor:pointer;padding:4px;width:32px;text-align:center}
+.add-ing-btn{width:100%;background:transparent;border:1px dashed #3D3020;border-radius:8px;padding:12px;font-size:15.7px;color:var(--smoke);cursor:pointer;margin-top:4px;letter-spacing:1px;font-family:'DM Sans',sans-serif}
 .add-ing-btn:active{border-color:#B8973A;color:#B8973A}
-.instructions-text{font-size:14px;color:#555;line-height:1.7;white-space:pre-wrap}
-.notes-text{font-size:13px;color:#888;font-style:italic}
+.instructions-text{font-size:16.9px;color:#555;line-height:1.7;white-space:pre-wrap}
+.notes-text{font-size:15.7px;color:#888;font-style:italic}
 .detail-actions{margin-top:28px}
-.detail-actions-btn{width:100%;background:transparent;border:1px solid #2E2416;border-radius:10px;padding:14px 18px;font-size:13px;font-weight:400;color:var(--smoke);cursor:pointer;letter-spacing:1px;font-family:'DM Sans',sans-serif;text-align:left;display:flex;align-items:center;gap:12px;transition:background .15s}
+.detail-actions-btn{width:100%;background:transparent;border:1px solid #2E2416;border-radius:10px;padding:14px 18px;font-size:15.7px;font-weight:400;color:var(--smoke);cursor:pointer;letter-spacing:1px;font-family:'DM Sans',sans-serif;text-align:left;display:flex;align-items:center;gap:12px;transition:background .15s}
 .detail-actions-btn:active{background:#221A0E}
 /* Action Sheet */
 .action-sheet-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:50;backdrop-filter:blur(4px)}
@@ -237,12 +257,12 @@ body.light-mode .fav-btn.inactive{color:rgba(0,0,0,0.2)}
 .action-sheet{position:fixed;bottom:0;left:0;right:0;max-width:900px;margin:0 auto;z-index:51;transform:translateY(100%);transition:transform .3s cubic-bezier(.4,0,.2,1)}
 .action-sheet.open{transform:translateY(0)}
 .action-sheet-panel{background:#1E1610;border-radius:20px 20px 0 0;border:1px solid #2E2416;border-bottom:none;overflow:hidden}
-.action-sheet-item{display:flex;align-items:center;gap:14px;padding:16px 24px;border-bottom:1px solid #2A2010;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:400;color:var(--bark);transition:background .15s;background:transparent;border-left:none;border-right:none;width:100%;text-align:left}
+.action-sheet-item{display:flex;align-items:center;gap:14px;padding:16px 24px;border-bottom:1px solid #2A2010;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:18.2px;font-weight:400;color:var(--bark);transition:background .15s;background:transparent;border-left:none;border-right:none;width:100%;text-align:left}
 .action-sheet-item:last-child{border-bottom:none}
 .action-sheet-item:active{background:#2A2010}
 .action-sheet-item.danger{color:#8B4040}
-.action-sheet-item-icon{font-size:16px;width:24px;text-align:center;opacity:0.8}
-.action-sheet-cancel{display:block;width:100%;margin:8px 0 0;background:#1E1610;border:1px solid #2E2416;border-radius:14px;padding:16px;font-size:15px;font-weight:500;color:var(--smoke);cursor:pointer;font-family:'DM Sans',sans-serif;transition:background .15s}
+.action-sheet-item-icon{font-size:19.4px;width:24px;text-align:center;opacity:0.8}
+.action-sheet-cancel{display:block;width:100%;margin:8px 0 0;background:#1E1610;border:1px solid #2E2416;border-radius:14px;padding:16px;font-size:18.2px;font-weight:500;color:var(--smoke);cursor:pointer;font-family:'DM Sans',sans-serif;transition:background .15s}
 .action-sheet-cancel:active{background:#2A2010}
 @page { size: A4; margin: 48px 56px; }
 @media print {
@@ -280,71 +300,71 @@ body.light-mode .fav-btn.inactive{color:rgba(0,0,0,0.2)}
 }
 .form-body{padding:20px;max-width:680px;padding-bottom:60px}
 .form-group{margin-bottom:16px}
-.form-label{font-size:10px;color:var(--thyme);letter-spacing:2px;text-transform:uppercase;display:block;margin-bottom:6px}
-.form-input{width:100%;background:var(--parchment);border:1.5px solid var(--border);border-radius:12px;padding:13px 14px;font-size:15px;color:var(--bark);transition:border-color .2s}
+.form-label{font-size:12.1px;color:var(--thyme);letter-spacing:2px;text-transform:uppercase;display:block;margin-bottom:6px}
+.form-input{width:100%;background:#0A0805;border:1.5px solid var(--border);border-radius:12px;padding:13px 14px;font-size:18.2px;color:var(--bark);transition:border-color .2s}
 .form-input:focus{border-color:var(--thyme-mid)}
 .form-input::placeholder{color:#b0a898}
 .form-row{display:flex;gap:12px}
 .ing-row{display:flex;gap:6px;align-items:center;margin-bottom:8px}
-.ing-amount{width:64px;background:#2A2010;border:1px solid #3D3020;border-radius:8px;padding:10px 8px;font-size:14px;color:var(--bark);text-align:center;font-family:'DM Sans',sans-serif}
-.ing-unit{width:72px;background:#2A2010;border:1px solid #3D3020;border-radius:8px;padding:10px 6px;font-size:13px;color:var(--smoke);font-family:'DM Sans',sans-serif;cursor:pointer;-webkit-appearance:none;appearance:none}
+.ing-amount{width:64px;background:#2A2010;border:1px solid #3D3020;border-radius:8px;padding:10px 8px;font-size:16.9px;color:var(--bark);text-align:center;font-family:'DM Sans',sans-serif}
+.ing-unit{width:72px;background:#2A2010;border:1px solid #3D3020;border-radius:8px;padding:10px 6px;font-size:15.7px;color:var(--smoke);font-family:'DM Sans',sans-serif;cursor:pointer;-webkit-appearance:none;appearance:none}
 .ing-unit option{background:#2A2010;color:var(--bark)}
-.ing-name{flex:1;background:#2A2010;border:1px solid #3D3020;border-radius:8px;padding:10px 10px;font-size:14px;color:var(--bark);font-family:'DM Sans',sans-serif}
+.ing-name{flex:1;background:#2A2010;border:1px solid #3D3020;border-radius:8px;padding:10px 10px;font-size:16.9px;color:var(--bark);font-family:'DM Sans',sans-serif}
 .ing-amount:focus,.ing-unit:focus,.ing-name:focus{outline:none;border-color:#5C7F5D}
-.ing-del{background:none;border:none;color:#4A3020;cursor:pointer;font-size:18px;padding:4px;flex-shrink:0}
+.ing-del{background:none;border:none;color:#4A3020;cursor:pointer;font-size:21.8px;padding:4px;flex-shrink:0}
 .ing-del:active{color:#8B4040}
-.add-ing-btn{width:100%;background:none;border:1px dashed #3D3020;border-radius:8px;padding:10px;font-size:13px;color:#5C7F5D;cursor:pointer;font-family:'DM Sans',sans-serif;letter-spacing:1px;margin-top:4px}
+.add-ing-btn{width:100%;background:none;border:1px dashed #3D3020;border-radius:8px;padding:10px;font-size:15.7px;color:#5C7F5D;cursor:pointer;font-family:'DM Sans',sans-serif;letter-spacing:1px;margin-top:4px}
 .add-ing-btn:active{background:#2A2010}
 .ing-display{display:flex;gap:12px;padding:8px 0;border-bottom:1px solid #2E2416;align-items:baseline}
-.ing-display-amount{font-family:'Cormorant Garamond',serif;font-size:18px;color:#B8973A;min-width:50px;text-align:right;font-weight:400}
-.ing-display-unit{font-size:12px;color:var(--smoke);min-width:32px;letter-spacing:1px}
-.ing-display-name{font-size:15px;color:var(--bark);flex:1}
+.ing-display-amount{font-family:'Cormorant Garamond',serif;font-size:21.8px;color:#B8973A;min-width:50px;text-align:right;font-weight:400}
+.ing-display-unit{font-size:14.5px;color:var(--smoke);min-width:32px;letter-spacing:1px}
+.ing-display-name{font-size:18.2px;color:var(--bark);flex:1}
 .form-row .form-group{flex:1}
 .cat-picker{display:flex;gap:8px;flex-wrap:wrap;padding:4px 0}
 .form-actions{display:flex;gap:10px;margin-top:20px}
-.btn-cancel{flex:1;background:var(--parchment);border:none;border-radius:12px;padding:14px;font-size:15px;color:var(--smoke);cursor:pointer}
-.btn-save{flex:2;background:var(--thyme);border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:600;color:white;cursor:pointer}
-.upload-box{background:var(--parchment);border-radius:16px;padding:32px;text-align:center;border:2px dashed var(--border);margin-bottom:20px}
-.upload-box p{font-size:14px;color:var(--smoke);margin:10px 0 16px}
-.file-btn{background:var(--thyme);color:white;border:none;border-radius:12px;padding:13px 28px;font-size:15px;font-weight:600;cursor:pointer;display:inline-block}
+.btn-cancel{flex:1;background:#0A0805;border:none;border-radius:12px;padding:14px;font-size:18.2px;color:var(--smoke);cursor:pointer}
+.btn-save{flex:2;background:var(--thyme);border:none;border-radius:12px;padding:14px;font-size:18.2px;font-weight:600;color:white;cursor:pointer}
+.upload-box{background:#0A0805;border-radius:16px;padding:32px;text-align:center;border:2px dashed var(--border);margin-bottom:20px}
+.upload-box p{font-size:16.9px;color:var(--smoke);margin:10px 0 16px}
+.file-btn{background:var(--thyme);color:white;border:none;border-radius:12px;padding:13px 28px;font-size:18.2px;font-weight:600;cursor:pointer;display:inline-block}
 .scan-preview{width:100%;max-height:260px;object-fit:contain;border-radius:12px;margin-bottom:16px}
-.scanning-box{text-align:center;padding:32px;color:var(--smoke);font-size:15px}
-.spinner{display:block;font-size:36px;margin-bottom:14px;animation:spin 1.5s linear infinite}
+.scanning-box{text-align:center;padding:32px;color:var(--smoke);font-size:18.2px}
+.spinner{display:block;font-size:43.6px;margin-bottom:14px;animation:spin 1.5s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 .cat-list-item{display:flex;align-items:center;padding:13px 0;border-bottom:1px solid var(--border)}
-.cat-list-emoji{font-size:26px;margin-right:14px}
-.cat-list-name{flex:1;font-size:15px;font-weight:500}
-.cat-delete{background:#FFE8E8;border:none;border-radius:50%;width:30px;height:30px;color:#CC3333;font-weight:700;cursor:pointer;font-size:13px}
+.cat-list-emoji{font-size:31.5px;margin-right:14px}
+.cat-list-name{flex:1;font-size:18.2px;font-weight:500}
+.cat-delete{background:#FFE8E8;border:none;border-radius:50%;width:30px;height:30px;color:#CC3333;font-weight:700;cursor:pointer;font-size:15.7px}
 .new-cat-row{display:flex;gap:10px;align-items:center}
 .import-section{margin-bottom:32px}
-.import-desc{font-size:13px;color:#888;margin-bottom:12px;line-height:1.5}
-.btn-import{width:100%;background:var(--thyme);color:white;border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:600;cursor:pointer;margin-top:8px}
+.import-desc{font-size:15.7px;color:#888;margin-bottom:12px;line-height:1.5}
+.btn-import{width:100%;background:var(--thyme);color:white;border:none;border-radius:12px;padding:14px;font-size:18.2px;font-weight:600;cursor:pointer;margin-top:8px}
 .btn-import-secondary{background:var(--thyme-mid)}
-.notice{background:#2A2010;border:1px solid #3D3020;border-radius:12px;padding:12px 16px;font-size:13px;color:#B8973A;margin-bottom:16px}
+.notice{background:#2A2010;border:1px solid #3D3020;border-radius:12px;padding:12px 16px;font-size:15.7px;color:#B8973A;margin-bottom:16px}
 .settings-section{background:#221A0E;border-radius:16px;padding:18px;margin-bottom:16px;border:1px solid #2E2416}
-.settings-section h3{font-size:11px;font-weight:700;color:var(--thyme);margin-bottom:10px;letter-spacing:2px;text-transform:uppercase}
-.key-status{font-size:12px;margin-top:8px;font-weight:500}
+.settings-section h3{font-size:13.3px;font-weight:700;color:var(--thyme);margin-bottom:10px;letter-spacing:2px;text-transform:uppercase}
+.key-status{font-size:14.5px;margin-top:8px;font-weight:500}
 .key-status.ok{color:#3D5A3E}
 .key-status.missing{color:#CC3333}
 
 /* ── SPLASH SCREEN ─────────────────────────────── */
-#splash{position:fixed;inset:0;background:#1A1208;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:100;transition:opacity .8s ease}
+#splash{position:fixed;inset:0;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:100;transition:opacity .8s ease}
 #splash.hide{opacity:0;pointer-events:none}
 #splash svg{width:280px;height:auto}
 
 /* ── BUCHCOVER (Home ohne Kategorie) ────────────── */
-#book-cover{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px 20px 80px;cursor:pointer;min-height:70vh}
-#book-cover-inner{display:flex;flex-direction:column;align-items:center;border:1px solid #2E2416;border-radius:16px;padding:40px 48px 32px;background:rgba(34,26,14,0.4)}
+#book-cover{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px 20px 80px;cursor:pointer;min-height:70vh;-webkit-tap-highlight-color:rgba(184,151,58,0.15)}
+#book-cover-inner{display:flex;flex-direction:column;align-items:center;padding:20px 0 0}
 #book-cover svg{width:380px;height:auto;margin-bottom:4px}
-#book-cover-hint{font-family:'DM Sans',sans-serif;font-size:10px;color:#4A6741;letter-spacing:3px;text-transform:uppercase;margin-top:12px}
+#book-cover-hint{font-family:'DM Sans',sans-serif;font-size:12.1px;color:#4A6741;letter-spacing:3px;text-transform:uppercase;margin-top:12px}
 
 /* ── HEADER mit anklickbarem Logo ──────────────── */
-.header{display:flex;justify-content:space-between;align-items:center;padding:12px 20px;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--cream);z-index:10;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
-.app-name{display:flex;align-items:center;gap:0;cursor:pointer;user-select:none;text-decoration:none}
+.header{display:flex;justify-content:space-between;align-items:center;padding:12px 20px;border-bottom:1px solid var(--border);position:fixed;top:0;left:0;right:0;background:var(--cream);z-index:30;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+.app-name{display:flex;align-items:center;gap:0;cursor:pointer;user-select:none;text-decoration:none;min-height:44px;-webkit-tap-highlight-color:rgba(184,151,58,0.15)}
 .app-name svg{height:32px;width:auto}
-.header-right{display:flex;gap:8px;align-items:center}
-.lang-btn{background:var(--parchment);border:none;border-radius:99px;padding:6px 12px;font-size:11px;font-weight:600;color:var(--thyme);letter-spacing:1px;cursor:pointer}
-.header-icon-btn{background:none;border:none;color:var(--smoke);font-size:18px;cursor:pointer;padding:4px 6px;opacity:0.7;transition:opacity .2s;line-height:1}
+.header-right{display:flex;gap:4px;align-items:center}
+.lang-btn{background:#0A0805;border:none;border-radius:99px;padding:6px 12px;font-size:13.3px;font-weight:600;color:var(--thyme);letter-spacing:1px;cursor:pointer}
+.header-icon-btn{background:none;border:none;color:var(--smoke);font-size:21.8px;cursor:pointer;padding:4px 6px;opacity:0.7;transition:opacity .2s;line-height:1}
 .header-icon-btn:hover{opacity:1;color:var(--thyme)}
 
 /* ── KATEGORIE SHEET ────────────────────────────── */
@@ -353,15 +373,15 @@ body.light-mode .fav-btn.inactive{color:rgba(0,0,0,0.2)}
 .cat-sheet{position:fixed;bottom:0;left:0;right:0;max-width:900px;margin:0 auto;background:#1E1610;border-radius:24px 24px 0 0;z-index:41;transform:translateY(100%);transition:transform .35s cubic-bezier(.4,0,.2,1);max-height:80vh;overflow:hidden;display:flex;flex-direction:column}
 .cat-sheet.open{transform:translateY(0)}
 .cat-sheet-handle{width:36px;height:4px;background:var(--border);border-radius:99px;margin:14px auto 0}
-.cat-sheet-title{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:600;color:var(--bark);padding:16px 24px 8px;text-align:center}
-.cat-sheet-list{overflow-y:auto;padding:8px 16px 40px;-webkit-overflow-scrolling:touch}
+.cat-sheet-title{font-family:'Cormorant Garamond',serif;font-size:26.6px;font-weight:600;color:var(--bark);padding:16px 24px 8px;text-align:center}
+.cat-sheet-list{padding:0 16px 40px}
 .cat-sheet-item{display:flex;align-items:center;gap:18px;padding:16px 28px;cursor:pointer;transition:background .15s;border-bottom:1px solid #221A0E}
 .cat-sheet-item:active{background:#221A0E}
 .cat-sheet-dot{width:7px;height:7px;border-radius:50%;background:#2E2416;border:1.5px solid #4A3820;flex-shrink:0;transition:all .2s}
 .cat-sheet-item.active .cat-sheet-dot{background:#B8973A;border-color:#B8973A;box-shadow:0 0 6px rgba(184,151,58,.4)}
 .cat-sheet-icon svg{transition:opacity .2s;width:28px;height:28px;opacity:0.75}
 .cat-sheet-item.active .cat-sheet-icon svg{opacity:1}
-.cat-sheet-name{font-family:'Cormorant Garamond',serif;font-size:21px;font-weight:300;color:var(--bark);flex:1;letter-spacing:1px}
+.cat-sheet-name{font-family:'Cormorant Garamond',serif;font-size:25.4px;font-weight:300;color:var(--bark);flex:1;letter-spacing:1px}
 .cat-sheet-item.active .cat-sheet-name{color:#B8973A}
 .cat-sheet-all{color:var(--smoke)}
 
@@ -370,52 +390,273 @@ body.light-mode .fav-btn.inactive{color:rgba(0,0,0,0.2)}
 #ptr-indicator.visible{transform:translateY(0)}
 #ptr-spinner{width:22px;height:22px;border:2px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:ptr-spin .7s linear infinite}
 @keyframes ptr-spin{to{transform:rotate(360deg)}}
-#ptr-label{font-size:11px;color:var(--smoke);letter-spacing:2px;margin-left:8px}
+#ptr-label{font-size:13.3px;color:var(--smoke);letter-spacing:2px;margin-left:8px}
 
-/* ── AUTH / LOGIN ────────────────────────────────────────────────────────── */
-#screen-auth{background:var(--cream);display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:40px 32px}
-.auth-logo{font-family:'Cormorant Garamond',serif;font-size:42px;font-weight:300;color:#3D5A3E;letter-spacing:6px;margin-bottom:8px;text-align:center}
-.auth-tagline{font-size:11px;letter-spacing:3px;color:#B8973A;text-transform:uppercase;margin-bottom:48px;text-align:center}
-.auth-tab-wrap{display:flex;border-radius:12px;overflow:hidden;border:1px solid var(--border);margin-bottom:28px;width:100%}
-.auth-tab{flex:1;padding:12px;background:transparent;border:none;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--smoke);cursor:pointer;transition:all .2s}
-.auth-tab.active{background:#3D5A3E;color:#F0E8D8}
-.auth-field{margin-bottom:14px;width:100%}
-.auth-label{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#B8973A;display:block;margin-bottom:6px}
-.auth-input{width:100%;background:var(--parchment);border:1px solid var(--border);border-radius:10px;padding:13px 16px;font-size:15px;color:var(--bark);font-family:'DM Sans',sans-serif}
-.auth-btn{width:100%;padding:14px;background:#3D5A3E;border:none;border-radius:12px;color:#F0E8D8;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:500;cursor:pointer;margin-top:8px;margin-bottom:16px}
-.auth-btn:disabled{opacity:0.6;cursor:not-allowed}
-.auth-skip{text-align:center;font-size:13px;color:var(--smoke);cursor:pointer;text-decoration:underline;opacity:0.7}
-.auth-error{background:#FBEAE8;border:1px solid #E8A09A;border-radius:8px;padding:10px 14px;font-size:13px;color:#8B2018;margin-bottom:14px;display:none}
-.auth-success{background:#EAF3DE;border:1px solid #9FC76A;border-radius:8px;padding:10px 14px;font-size:13px;color:#2D5A0E;margin-bottom:14px;display:none}
+/* ── TOAST ───────────────────────────────────────────────────────────── */
+#toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%) translateY(20px);
+  background:#2A2010;border:1px solid #3D3020;border-radius:12px;
+  padding:13px 22px;font-size:15.7px;color:var(--bark);letter-spacing:0.3px;
+  opacity:0;pointer-events:none;transition:opacity .25s ease,transform .25s ease;
+  z-index:200;white-space:nowrap;max-width:90vw;text-align:center;
+  box-shadow:0 4px 24px rgba(0,0,0,.5)}
+#toast.success{border-color:#3D5A3E;color:#7FA882}
+#toast.error{border-color:#6B2020;color:#E07070}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+body.light-mode #toast{background:#F5F0E8;border-color:#C8BFAD;color:#2C1F14}
+/* ── CONFIRM SHEET ───────────────────────────────────────────────────── */
+#confirm-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);
+  z-index:300;backdrop-filter:blur(4px)}
+#confirm-overlay.open{display:flex;align-items:flex-end;justify-content:center}
+#confirm-panel{background:#1E1610;border-radius:16px 16px 0 0;padding:24px 20px 40px;
+  width:100%;max-width:900px;border-top:1px solid #2E2416}
+#confirm-msg{font-family:'Cormorant Garamond',serif;font-size:24.2px;font-weight:300;
+  color:var(--bark);text-align:center;margin-bottom:20px}
+#confirm-btns{display:flex;flex-direction:column;gap:10px}
+#confirm-ok{background:#8B2020;border:none;border-radius:12px;padding:15px;
+  font-size:18.2px;font-weight:500;color:white;cursor:pointer}
+#confirm-cancel{background:transparent;border:1px solid var(--border);border-radius:12px;
+  padding:15px;font-size:18.2px;color:var(--smoke);cursor:pointer}
 
-/* ── NAVIGATION ──────────────────────────────────────────────────────────── */
+/* Light-Mode Book Cover */
+/* book-cover per JS gesteuert */
+body.light-mode .screen { background: #F5F0E8; }
+body.light-mode body.light-mode #screen-home { background: #F5F0E8; }
+#screen-home { padding-top: 62px; }
+
+
+body.light-mode .pill { color: #2C1F14; border-color: #C8BFAD; }
+body.light-mode .pill.active { background: #3D5A3E; color: #F5F0E8; border-color: #3D5A3E; }
+body.light-mode .recent-label { color: #2C1F14; }
+body.light-mode .cat-scroll { background: #F5F0E8; }
+body.light-mode #cat-scroll-wrap { background: #F5F0E8; border-color: #E0D9CC; }
+
+
+/* Book Cover SVG Sichtbarkeit */
+#bc-light { display: none; }
+#bc-dark { display: block; }
+body.light-mode #bc-light { display: block !important; }
+body.light-mode #bc-dark { display: none !important; }
+
+
+/* ── ONBOARDING ──────────────────────────────────────────────────────────── */
+#onboarding{position:fixed;inset:0;background:#000;z-index:500;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 28px}
+#onboarding.hidden{display:none}
+.ob-slide{display:none;flex-direction:column;align-items:center;justify-content:space-between;width:100%;max-width:360px;min-height:80vh;text-align:center;padding:40px 0 20px}
+.ob-slide.active{display:flex}
+.ob-icon{flex:1;display:flex;align-items:center;justify-content:center}
+.ob-title{font-family:'Cormorant Garamond','Palatino Linotype',Georgia,serif;font-size:36.3px;font-weight:300;color:#F0E8D8;letter-spacing:1px;margin-bottom:12px;line-height:1.3}
+.ob-sub{font-size:16.9px;color:#B0C4B1;line-height:1.7;letter-spacing:0.2px;margin-bottom:24px}
+.ob-dots{display:flex;gap:8px;margin-bottom:24px;justify-content:center}
+.ob-dot{width:6px;height:6px;border-radius:50%;background:#2E2416;transition:background .3s}
+.ob-dot.active{background:#B8973A}
+.ob-btn-next{width:100%;padding:16px;background:#3D5A3E;border:none;border-radius:14px;color:#F0E8D8;font-family:'DM Sans',system-ui,sans-serif;font-size:18.2px;font-weight:500;letter-spacing:0.5px;cursor:pointer;margin-bottom:12px}
+.ob-btn-next.gold{background:#B8973A}
+.ob-btn-skip{font-size:13.3px;color:#5C7F5D;letter-spacing:2px;text-transform:uppercase;background:none;border:none;cursor:pointer;padding:8px}
+body.light-mode #onboarding{background:#F5F0E8}
+body.light-mode .ob-title{color:#2C1F14}
+body.light-mode .ob-sub{color:#6B7B6C}
+body.light-mode .ob-dot{background:#E0D9CC}
+body.light-mode .ob-btn-next{background:#3D5A3E}
+
+
+/* ── EINKAUFSLISTE ───────────────────────────────────────────────────────── */
+#screen-shopping .sub-header{display:flex;align-items:center;justify-content:space-between;padding:12px 20px;border-bottom:1px solid var(--border)}
+.shop-filter-bar{display:flex;gap:8px;overflow-x:auto;padding:12px 20px;border-bottom:1px solid var(--border);scrollbar-width:none}
+.shop-filter-bar::-webkit-scrollbar{display:none}
+.shop-filter{font-size:13.3px;padding:5px 14px;border-radius:99px;border:1px solid var(--border);color:var(--smoke);white-space:nowrap;cursor:pointer;letter-spacing:0.5px;background:transparent;font-family:'DM Sans',sans-serif}
+.shop-filter.active{background:#3D5A3E;border-color:#3D5A3E;color:#F0E8D8}
+.shop-body{padding:0 20px 100px;overflow-y:auto}
+.shop-cat-title{font-size:10.9px;letter-spacing:2.5px;text-transform:uppercase;color:#B8973A;padding:16px 0 8px;display:flex;align-items:center;justify-content:space-between}
+.shop-cat-count{font-size:12.1px;color:var(--smoke);letter-spacing:0}
+.shop-item{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:0.5px solid var(--border)}
+.shop-item:last-child{border:none}
+.shop-cb{width:20px;height:20px;border-radius:50%;border:1.5px solid #3D5A3E;flex-shrink:0;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.shop-cb.done{background:#3D5A3E;border-color:#3D5A3E}
+.shop-cb.done::after{content:'';width:5px;height:9px;border:2px solid #F0E8D8;border-top:none;border-left:none;transform:rotate(45deg);margin-top:-2px;display:block}
+.shop-item-main{flex:1;min-width:0}
+.shop-item-name{font-size:16.9px;color:var(--bark);transition:color .2s}
+.shop-item-name.done{color:var(--border);text-decoration:line-through}
+.shop-item-src{font-size:12.1px;color:var(--smoke);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.shop-item-amt{font-size:14.5px;color:#5C7F5D;text-align:right;white-space:nowrap}
+.shop-merged{font-size:12.1px;color:#B8973A;margin-left:4px}
+.shop-empty{text-align:center;padding:60px 20px;color:var(--smoke);font-size:16.9px}
+.shop-footer{position:fixed;bottom:0;left:0;right:0;background:var(--cream);border-top:1px solid var(--border);padding:12px 20px 32px;display:flex;gap:10px;max-width:900px;margin:0 auto}
+.shop-footer-btn{flex:1;padding:12px;border-radius:12px;font-size:15.7px;font-weight:500;font-family:'DM Sans',sans-serif;cursor:pointer;letter-spacing:0.5px}
+.shop-btn-clear{background:transparent;border:1px solid var(--border);color:var(--smoke)}
+.shop-btn-export{background:#3D5A3E;border:none;color:#F0E8D8}
+.shop-add-btn{display:block;width:100%;padding:10px;background:transparent;border:1px dashed var(--border);border-radius:10px;color:var(--smoke);font-size:15.7px;letter-spacing:1px;cursor:pointer;margin-top:12px;font-family:'DM Sans',sans-serif}
+body.light-mode .shop-filter.active{background:#3D5A3E;color:#F5F0E8}
+body.light-mode .shop-footer{background:#F5F0E8}
+
+
+/* ── CARD THUMB ──────────────────────────────────────────────────────────── */
+.card-thumb{width:100%;height:160px;object-fit:cover;display:block;border-radius:12px 12px 0 0}
+.card-thumb-placeholder{height:6px;border-left:4px solid;border-radius:0}
+
+
+/* ── PROFI SWIPE PAGES ───────────────────────────────────────────────────── */
+.cat-sheet-pages{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;-webkit-overflow-scrolling:touch;width:100%}
+.cat-sheet-pages::-webkit-scrollbar{display:none}
+.cat-sheet-page{flex:0 0 100%;width:100%;scroll-snap-align:start;overflow-y:auto;max-height:72vh}
+.cs-page-header{display:flex;align-items:center;justify-content:space-between;padding:14px 24px 10px;border-bottom:1px solid var(--border)}
+.cs-page-title{font-family:'Cormorant Garamond',serif;font-size:24.2px;font-weight:300;color:var(--bark);letter-spacing:2px}
+.cs-page-subtitle{font-size:10.9px;letter-spacing:2px;text-transform:uppercase;color:var(--smoke);padding:10px 24px 6px}
+.page-dots{display:flex;gap:5px;justify-content:center;padding:8px 0 4px}
+.page-dot{width:5px;height:5px;border-radius:50%;background:var(--border);transition:background .2s}
+.page-dot.active{background:#B8973A}
+.swipe-hint{font-size:12.1px;color:var(--smoke);text-align:center;padding:4px 0 8px;letter-spacing:1px;opacity:0.7}
+
+/* Saisonkalender */
+.season-month-nav{display:flex;align-items:center;justify-content:space-between;padding:10px 24px}
+.season-month-btn{background:none;border:none;color:#5C7F5D;font-size:24.2px;cursor:pointer;padding:4px 8px}
+.season-month-name{font-family:'Cormorant Garamond',serif;font-size:21.8px;font-weight:300;color:var(--bark);letter-spacing:2px}
+.season-prod-list{padding:0 16px 16px}
+.season-prod-item{display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--parchment);border-radius:8px;margin-bottom:4px;border:0.5px solid var(--border);cursor:pointer}
+.season-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.season-prod-name{font-size:15.7px;color:var(--bark);flex:1}
+.season-badge{font-size:10.9px;padding:2px 7px;border-radius:99px}
+.s-peak{background:#2A1E08;color:#B8973A;border:0.5px solid #B8973A44}
+.s-season{background:#1A2E1A;color:#5C7F5D;border:0.5px solid #3D5A3E44}
+body.light-mode .s-peak{background:#FFF3DC;color:#8A6E20}
+body.light-mode .s-season{background:#E8F3E8;color:#2E5A2E}
+
+/* Protein Lists */
+.protein-group-title{font-size:10.9px;letter-spacing:2px;text-transform:uppercase;color:#B8973A;padding:10px 24px 5px}
+.protein-item{display:flex;align-items:center;justify-content:space-between;padding:8px 24px;border-bottom:0.5px solid var(--border)}
+.protein-item:last-child{border:none}
+.protein-name{font-size:16.9px;color:var(--bark)}
+.protein-right{display:flex;align-items:center;gap:8px}
+.protein-supplier{font-size:13.3px;color:var(--smoke)}
+.protein-season-badge{font-size:10.9px;padding:2px 6px;border-radius:4px;background:#2A1E08;color:#B8973A}
+body.light-mode .protein-season-badge{background:#FFF3DC;color:#8A6E20}
+
+
+/* ── SAISONKALENDER DETAIL ───────────────────────────────────────────────── */
+.season-detail-overlay{display:none;position:fixed;inset:0;background:var(--cream);z-index:600;flex-direction:column;overflow-y:auto}
+.season-detail-overlay.open{display:flex}
+.season-detail-hdr{padding:14px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;background:var(--cream);position:sticky;top:0;z-index:1}
+.season-detail-back{background:none;border:none;color:#5C7F5D;font-size:24.2px;cursor:pointer;padding:4px}
+.season-detail-name{font-family:'Cormorant Garamond',serif;font-size:26.6px;font-weight:300;color:var(--bark);letter-spacing:1px;flex:1}
+.season-detail-body{padding:20px}
+.year-bar-wrap{margin-bottom:24px}
+.year-bar-title{font-size:10.9px;letter-spacing:2px;text-transform:uppercase;color:#B8973A;margin-bottom:10px}
+.year-bar-grid{display:grid;grid-template-columns:repeat(12,1fr);gap:3px}
+.year-bar-month{border-radius:3px;height:28px;position:relative;display:flex;align-items:center;justify-content:center}
+.year-bar-month.peak{background:#B8973A}
+.year-bar-month.season{background:#3D5A3E}
+.year-bar-month.off{background:var(--border)}
+.year-bar-month.current{outline:2px solid #F0E8D8;outline-offset:1px}
+.year-bar-label{font-size:9.7px;color:var(--bark);text-align:center;margin-top:4px;opacity:0.6}
+.year-bar-labels{display:grid;grid-template-columns:repeat(12,1fr);gap:3px}
+.season-legend{display:flex;gap:16px;margin-top:10px}
+.season-leg-item{display:flex;align-items:center;gap:5px;font-size:13.3px;color:var(--smoke)}
+.season-leg-dot{width:10px;height:10px;border-radius:2px}
+.season-detail-section{font-size:10.9px;letter-spacing:2px;text-transform:uppercase;color:#5C7F5D;margin:20px 0 10px}
+.season-recipe-item{padding:10px 14px;background:var(--parchment);border-radius:8px;border:0.5px solid var(--border);margin-bottom:6px;display:flex;align-items:center;justify-content:space-between;cursor:pointer}
+.season-recipe-name{font-size:16.9px;color:var(--bark)}
+.season-recipe-cat{font-size:12.1px;color:var(--smoke)}
+.season-no-recipe{font-size:15.7px;color:var(--smoke);padding:8px 0}
+.season-supplier-wrap{margin-top:8px}
+.season-supplier-input{width:100%;background:var(--parchment);border:1px solid var(--border);border-radius:10px;padding:10px 14px;font-size:16.9px;color:var(--bark);font-family:'DM Sans',sans-serif}
+.season-supplier-save{margin-top:8px;width:100%;padding:10px;background:#3D5A3E;border:none;border-radius:10px;color:#F0E8D8;font-family:'DM Sans',sans-serif;font-size:15.7px;cursor:pointer}
+
+
+/* ── SAISONKALENDER EDITOR ───────────────────────────────────────────────── */
+#screen-season-editor .sub-header{display:flex;align-items:center;justify-content:space-between;padding:12px 20px;border-bottom:1px solid var(--border)}
+.se-list{padding:0 0 100px}
+.se-item{display:flex;align-items:center;gap:10px;padding:12px 20px;border-bottom:0.5px solid var(--border)}
+.se-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.se-name{font-size:16.9px;color:var(--bark);flex:1}
+.se-cat{font-size:12.1px;color:var(--smoke);margin-top:2px}
+.se-edit-btn{background:none;border:none;color:#5C7F5D;font-size:19.4px;cursor:pointer;padding:4px 8px}
+.se-del-btn{background:none;border:none;color:#8B2020;font-size:19.4px;cursor:pointer;padding:4px 8px}
+
+.se-filter-bar{display:flex;gap:6px;overflow-x:auto;padding:10px 16px;border-bottom:1px solid var(--border);scrollbar-width:none}
+.se-filter-bar::-webkit-scrollbar{display:none}
+
+/* Editor Modal */
+#se-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:700;align-items:flex-end;justify-content:center}
+#se-modal-overlay.open{display:flex}
+#se-modal{background:var(--cream);border-radius:20px 20px 0 0;padding:24px 20px 40px;width:100%;max-width:900px;max-height:85vh;overflow-y:auto}
+.se-modal-title{font-family:'Cormorant Garamond',serif;font-size:26.6px;font-weight:300;color:var(--bark);margin-bottom:20px}
+.se-form-label{font-size:12.1px;letter-spacing:2px;text-transform:uppercase;color:var(--smoke);margin-bottom:6px;display:block}
+.se-form-input{width:100%;background:var(--parchment);border:1px solid var(--border);border-radius:10px;padding:10px 14px;font-size:16.9px;color:var(--bark);font-family:'DM Sans',sans-serif;margin-bottom:16px}
+.se-form-select{width:100%;background:var(--parchment);border:1px solid var(--border);border-radius:10px;padding:10px 14px;font-size:16.9px;color:var(--bark);font-family:'DM Sans',sans-serif;margin-bottom:16px;-webkit-appearance:none}
+.se-months-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin-bottom:8px}
+.se-month-btn{padding:8px 4px;border-radius:8px;border:1px solid var(--border);background:transparent;font-size:13.3px;color:var(--smoke);cursor:pointer;text-align:center;font-family:'DM Sans',sans-serif}
+.se-month-btn.season{background:#3D5A3E;border-color:#3D5A3E;color:#F0E8D8}
+.se-month-btn.peak{background:#B8973A;border-color:#B8973A;color:#F0E8D8}
+.se-months-hint{font-size:12.1px;color:var(--smoke);margin-bottom:16px}
+.se-save-btn{width:100%;padding:14px;background:#3D5A3E;border:none;border-radius:12px;color:#F0E8D8;font-family:'DM Sans',sans-serif;font-size:18.2px;font-weight:500;cursor:pointer;margin-bottom:10px}
+.se-cancel-btn{width:100%;padding:12px;background:transparent;border:1px solid var(--border);border-radius:12px;color:var(--smoke);font-family:'DM Sans',sans-serif;font-size:16.9px;cursor:pointer}
+.se-legend{display:flex;gap:12px;margin-bottom:16px}
+.se-leg{display:flex;align-items:center;gap:5px;font-size:13.3px;color:var(--smoke)}
+.se-leg-dot{width:10px;height:10px;border-radius:2px}
+
+
+/* ── NAVIGATION DECKSEITE ────────────────────────────────────────────────── */
 #screen-navigation{background:var(--cream)}
 .nav-body{padding:24px 20px 100px}
-.nav-card{background:var(--parchment);border:0.5px solid var(--border);border-radius:16px;padding:18px 20px;margin-bottom:12px;cursor:pointer;display:flex;align-items:center;gap:16px}
-.nav-card:active{opacity:0.8}
+.nav-header-title{font-size:10.9px;letter-spacing:4px;text-transform:uppercase;color:var(--smoke);text-align:center;margin-bottom:24px}
+.nav-card{background:var(--parchment);border:0.5px solid var(--border);border-radius:16px;padding:18px 20px;margin-bottom:12px;cursor:pointer;display:flex;align-items:center;gap:16px;-webkit-tap-highlight-color:rgba(61,90,62,.1)}
+.nav-card:active{opacity:0.8;transform:scale(0.99)}
 .nav-card-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .nav-card-texts{flex:1}
-.nav-card-name{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:300;color:var(--bark);letter-spacing:0.5px;margin-bottom:2px}
-.nav-card-sub{font-size:11px;color:var(--smoke);letter-spacing:1px}
-.nav-card-arrow{font-size:20px;color:var(--border)}
+.nav-card-name{font-family:'Cormorant Garamond',serif;font-size:21.8px;font-weight:300;color:var(--bark);letter-spacing:0.5px;margin-bottom:2px}
+.nav-card-sub{font-size:12.1px;color:var(--smoke);letter-spacing:1px}
+.nav-card-arrow{font-size:21.8px;color:var(--border)}
 
-/* ── SHOP INDIKATOR ──────────────────────────────────────────────────────── */
+
+body.light-mode .recent-card-cat{color:#5C7F5D}
+
+html,body{overflow-y:auto;-webkit-overflow-scrolling:touch;height:auto}
+
+/* ── SHOP INDIKATOR ─────────────────────────────────────────────────────── */
 .shop-indicator{position:relative;display:inline-flex}
 .shop-indicator-dot{position:absolute;top:2px;right:2px;width:8px;height:8px;border-radius:50%;background:#B8973A;border:1.5px solid var(--cream);display:none;z-index:5}
 .shop-indicator-dot.active{display:block}
 
-/* ── BLATT BEWERTUNG ─────────────────────────────────────────────────────── */
+
+/* ── PRODUKTKATALOG DETAIL ───────────────────────────────────────────────── */
+#katalog-detail-overlay{display:none;position:fixed;inset:0;background:var(--cream);z-index:600;flex-direction:column;overflow-y:auto}
+#katalog-detail-overlay.open{display:flex}
+.katalog-detail-hdr{padding:14px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;background:var(--cream);position:sticky;top:0;z-index:1}
+.katalog-detail-back{background:none;border:none;color:#5C7F5D;font-size:20px;cursor:pointer;padding:4px}
+.katalog-detail-name{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:300;color:var(--bark);letter-spacing:1px;flex:1}
+.katalog-detail-body{padding:20px}
+.kd-section{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#B8973A;margin:16px 0 8px;display:block}
+.kd-section:first-child{margin-top:0}
+.kd-input{width:100%;background:var(--parchment);border:1px solid var(--border);border-radius:10px;padding:11px 14px;font-size:15px;color:var(--bark);font-family:'DM Sans',sans-serif;margin-bottom:8px}
+.kd-textarea{width:100%;background:var(--parchment);border:1px solid var(--border);border-radius:10px;padding:11px 14px;font-size:15px;color:var(--bark);font-family:'DM Sans',sans-serif;margin-bottom:8px;min-height:100px;resize:none}
+.kd-save-btn{width:100%;padding:13px;background:#3D5A3E;border:none;border-radius:12px;color:#F0E8D8;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:500;cursor:pointer;margin-bottom:10px}
+.kd-shop-btn{width:100%;padding:13px;background:transparent;border:1px solid #3D5A3E;border-radius:12px;color:#5C7F5D;font-family:'DM Sans',sans-serif;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px}
+.kd-info-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:0.5px solid var(--border);font-size:14px}
+.kd-info-label{color:var(--smoke)}
+.kd-info-value{color:var(--bark);font-weight:500}
+
+
+/* ── BLATT BEWERTUNG ────────────────────────────────────────────────────── */
 .leaf-rating{display:flex;gap:3px;align-items:center}
-.leaf-btn{background:none;border:none;cursor:pointer;padding:2px;display:flex;align-items:center}
+.leaf-btn{background:none;border:none;cursor:pointer;padding:2px;display:flex;align-items:center;-webkit-tap-highlight-color:rgba(61,90,62,0.2)}
+.leaf-btn svg{transition:all .2s;fill:transparent;stroke:#3D5A3E;stroke-width:1.5}
+.leaf-btn.active svg{fill:#3D5A3E;stroke:#3D5A3E}
+.leaf-btn.active svg path{filter:none}
+/* Im Rezept-Detail */
 .rating-wrap{display:flex;align-items:center;gap:8px;margin:6px 0}
 .rating-label{font-size:10px;letter-spacing:2px;color:var(--smoke);text-transform:uppercase}
+/* In der Karte (klein) */
 .leaf-mini{display:inline-flex;gap:1px;align-items:center;vertical-align:middle}
+.leaf-mini svg{width:11px;height:11px}
+.leaf-mini .leaf-on{fill:#3D5A3E;stroke:#3D5A3E;stroke-width:1.5}
+.leaf-mini .leaf-off{fill:transparent;stroke:#8FAE90;stroke-width:1.5}
 
-/* ── PRODUKTKATALOG FOTO ─────────────────────────────────────────────────── */
+
+/* ── PRODUKTKATALOG FOTO + JAHRESBALKEN ─────────────────────────────────── */
 .kd-photo-wrap{width:100%;height:200px;background:#0A0805;border-radius:12px;overflow:hidden;margin-bottom:16px;display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative}
 .kd-photo-wrap img{width:100%;height:100%;object-fit:cover}
-.kd-photo-placeholder{color:var(--smoke);font-size:13px;letter-spacing:2px;text-align:center}
+.kd-photo-placeholder{color:var(--smoke);font-size:13px;letter-spacing:2px;text-align:center;padding:20px}
 .kd-photo-del{position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.5);border:none;border-radius:50%;width:28px;height:28px;color:#fff;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+/* Jahresbalken im Produktkatalog */
 .kd-year-bar{margin-bottom:16px}
 .kd-year-grid{display:grid;grid-template-columns:repeat(12,1fr);gap:3px;margin-bottom:4px}
 .kd-year-cell{height:22px;border-radius:3px}
@@ -425,29 +666,38 @@ body.light-mode .fav-btn.inactive{color:rgba(0,0,0,0.2)}
 .kd-year-cell.now{outline:2px solid var(--bark);outline-offset:1px}
 .kd-year-labels{display:grid;grid-template-columns:repeat(12,1fr);gap:3px}
 .kd-year-label{font-size:8px;color:var(--smoke);text-align:center}
+.kd-season-legend{display:flex;gap:12px;margin-top:6px}
+.kd-season-leg{display:flex;align-items:center;gap:4px;font-size:10px;color:var(--smoke)}
+.kd-season-leg-dot{width:8px;height:8px;border-radius:2px}
+/* Mini Jahresbalken in der Liste */
 .protein-year-mini{display:flex;gap:1px;margin-top:3px}
 .pym-cell{height:4px;border-radius:1px;flex:1}
 .pym-peak{background:#B8973A}
 .pym-season{background:#3D5A3E}
 .pym-off{background:var(--border)}
 
-/* ── EINHEITLICHE DETAIL OVERLAY ─────────────────────────────────────────── */
+
+/* ── EINHEITLICHE DETAIL-OVERLAY ────────────────────────────────────────── */
 .do-overlay{display:none;position:fixed;inset:0;background:var(--cream);z-index:600;flex-direction:column;overflow-y:auto;-webkit-overflow-scrolling:touch}
 .do-overlay.open{display:flex}
 .do-hdr{padding:14px 20px;border-bottom:1px solid var(--border);background:var(--cream);position:sticky;top:0;z-index:1;display:flex;align-items:center;gap:12px}
 .do-hdr-back{background:none;border:none;color:#5C7F5D;font-size:20px;cursor:pointer;padding:4px 8px}
 .do-hdr-name{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:300;color:var(--bark);letter-spacing:1px;flex:1}
 .do-body{padding:20px;display:flex;flex-direction:column}
+/* Foto */
 .do-photo{width:100%;height:190px;background:#111;border-radius:12px;overflow:hidden;margin-bottom:20px;display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative;flex-shrink:0}
 .do-photo img{width:100%;height:100%;object-fit:cover}
 .do-photo-hint{color:#5C7F5D;font-size:12px;letter-spacing:2px;text-transform:uppercase}
 .do-photo-del{position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.55);border:none;border-radius:50%;width:28px;height:28px;color:#fff;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+/* Label */
 .do-label{font-size:9px;letter-spacing:2.5px;text-transform:uppercase;color:#B8973A;margin:0 0 6px;display:block}
+/* Monate — 2 Reihen à 6 */
 .do-hint{font-size:11px;color:var(--smoke);margin-bottom:8px}
 .do-months{display:grid;grid-template-columns:repeat(6,1fr);gap:5px;margin-bottom:10px}
-.do-month{padding:7px 2px;border-radius:7px;border:1px solid var(--border);background:transparent;font-size:12px;color:var(--smoke);cursor:pointer;text-align:center;font-family:'DM Sans',sans-serif;transition:all .15s}
+.do-month{padding:7px 2px;border-radius:7px;border:1px solid var(--border);background:transparent;font-size:12px;color:var(--smoke);cursor:pointer;text-align:center;font-family:'DM Sans',sans-serif;transition:all .15s;-webkit-tap-highlight-color:rgba(0,0,0,0)}
 .do-month.season{background:#3D5A3E;border-color:#3D5A3E;color:#F0E8D8}
 .do-month.peak{background:#B8973A;border-color:#B8973A;color:#F0E8D8}
+/* Jahresbalken */
 .do-yearbar{margin-bottom:14px}
 .do-yb-grid{display:grid;grid-template-columns:repeat(12,1fr);gap:2px;margin-bottom:3px}
 .do-yb-cell{height:16px;border-radius:2px}
@@ -460,52 +710,677 @@ body.light-mode .fav-btn.inactive{color:rgba(0,0,0,0.2)}
 .do-legend{display:flex;gap:12px;margin-bottom:16px}
 .do-leg{display:flex;align-items:center;gap:4px;font-size:10px;color:var(--smoke)}
 .do-leg-dot{width:8px;height:8px;border-radius:2px}
+/* Felder */
 .do-input{width:100%;background:var(--parchment);border:1px solid var(--border);border-radius:10px;padding:11px 14px;font-size:14px;color:var(--bark);font-family:'DM Sans',sans-serif;margin-bottom:16px;box-sizing:border-box}
 .do-textarea{width:100%;background:var(--parchment);border:1px solid var(--border);border-radius:10px;padding:11px 14px;font-size:14px;color:var(--bark);font-family:'DM Sans',sans-serif;min-height:90px;resize:none;margin-bottom:16px;box-sizing:border-box}
+/* Buttons */
 .do-save{width:100%;padding:13px;background:#3D5A3E;border:none;border-radius:12px;color:#F0E8D8;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:500;cursor:pointer;margin-bottom:10px}
 .do-shop{width:100%;padding:13px;background:transparent;border:1px solid #3D5A3E;border-radius:12px;color:#5C7F5D;font-family:'DM Sans',sans-serif;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:20px}
 
-/* ── PILLS (Saisonkalender etc.) ─────────────────────────────────────────── */
-.pill{padding:8px 18px;border-radius:99px;border:1px solid var(--border);background:transparent;font-size:14px;color:var(--bark);cursor:pointer;white-space:nowrap;font-family:'DM Sans',sans-serif;transition:all .2s ease;letter-spacing:0.5px;text-transform:uppercase;font-weight:500}
-.pill.active{background:#3D5A3E;border-color:#3D5A3E;color:white}
-body.light-mode .pill{color:#2C1F14;border-color:#C8BFAD}
-body.light-mode .pill.active{background:#3D5A3E;color:#F5F0E8;border-color:#3D5A3E}
 
-/* ── KATALOG DETAIL ──────────────────────────────────────────────────────── */
-#katalog-detail-overlay{display:none;position:fixed;inset:0;background:var(--cream);z-index:600;flex-direction:column;overflow-y:auto}
-#katalog-detail-overlay.open{display:flex}
-
-/* ── SCREEN HOME PADDING ─────────────────────────────────────────────────── */
-#screen-home{padding-top:62px}
-html,body{overflow-y:auto;-webkit-overflow-scrolling:touch;height:auto}
-.screen.active{display:block;opacity:1;transform:translateY(0);min-height:100vh}
-
+/* ── AUTH ────────────────────────────────────────────────────────────────── */
+#screen-auth{position:fixed;inset:0;background:var(--cream);z-index:999;display:none;flex-direction:column;align-items:center;justify-content:center;padding:40px 32px}
+#screen-auth.active{display:flex}
+.auth-logo{font-family:'Cormorant Garamond',serif;font-size:42px;font-weight:300;color:#3D5A3E;letter-spacing:6px;margin-bottom:6px;text-align:center}
+.auth-tagline{font-size:10px;letter-spacing:3px;color:#B8973A;text-transform:uppercase;margin-bottom:40px;text-align:center}
+.auth-tab-wrap{display:flex;border-radius:12px;overflow:hidden;border:1px solid var(--border);margin-bottom:24px;width:100%;max-width:380px}
+.auth-tab{flex:1;padding:11px;background:transparent;border:none;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--smoke);cursor:pointer}
+.auth-tab.active{background:#3D5A3E;color:#F0E8D8}
+.auth-field{margin-bottom:12px;width:100%;max-width:380px}
+.auth-lbl{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#B8973A;display:block;margin-bottom:5px}
+.auth-inp{width:100%;background:var(--parchment);border:1px solid var(--border);border-radius:10px;padding:12px 14px;font-size:15px;color:var(--bark);font-family:'DM Sans',sans-serif;box-sizing:border-box}
+.auth-btn{width:100%;max-width:380px;padding:13px;background:#3D5A3E;border:none;border-radius:12px;color:#F0E8D8;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:500;cursor:pointer;margin-top:6px;margin-bottom:14px}
+.auth-skip{text-align:center;font-size:13px;color:var(--smoke);cursor:pointer;text-decoration:underline}
+.auth-msg{width:100%;max-width:380px;border-radius:8px;padding:10px 14px;font-size:13px;margin-bottom:12px;display:none}
+.auth-msg.error{background:#FBEAE8;border:1px solid #E8A09A;color:#8B2018}
+.auth-msg.ok{background:#EAF3DE;border:1px solid #9FC76A;color:#2D5A0E}
 </style>
 </head>
 <body>
 
+<!-- ONBOARDING -->
+<div id="onboarding" class="hidden">
+
+  <!-- Slide 1: Willkommen -->
+  <div class="ob-slide active" id="ob0">
+    <div class="ob-icon">
+      <svg width="110" height="130" viewBox="0 0 100 120">
+        <line x1="50" y1="108" x2="50" y2="38" stroke="#3D5A3E" stroke-width="2.5" stroke-linecap="round"/>
+        <circle cx="50" cy="32" r="8" fill="#B8973A"/>
+        <circle cx="50" cy="32" r="5" fill="#C9A84C"/>
+        <circle cx="50" cy="32" r="2.2" fill="#DDB85A"/>
+        <circle cx="37" cy="37" r="4" fill="#C9A84C"/>
+        <circle cx="63" cy="41" r="3.5" fill="#DDB85A" opacity="0.85"/>
+        <path d="M48 52 Q32 42 20 47 Q32 58 48 52Z" fill="#3D5A3E"/>
+        <path d="M52 52 Q68 41 80 46 Q68 57 52 52Z" fill="#5C7F5D"/>
+        <path d="M48 66 Q30 55 18 60 Q30 71 48 66Z" fill="#3D5A3E"/>
+        <path d="M52 66 Q70 54 82 59 Q70 70 52 66Z" fill="#5C7F5D"/>
+        <path d="M48 80 Q32 69 20 74 Q32 85 48 80Z" fill="#3D5A3E"/>
+        <path d="M52 80 Q68 68 80 73 Q68 84 52 80Z" fill="#5C7F5D"/>
+        <path d="M50 96 Q62 90 74 94" stroke="#5C7F5D" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+        <circle cx="76" cy="95" r="5.5" fill="#B8973A"/>
+        <circle cx="76" cy="95" r="3.5" fill="#C9A84C"/>
+        <circle cx="76" cy="95" r="1.5" fill="#DDB85A"/>
+      </svg>
+    </div>
+    <div class="ob-title">Willkommen bei thyme</div>
+    <div class="ob-sub">Dein persönliches Premium-Rezeptarchiv — elegant, übersichtlich und immer griffbereit.</div>
+    <div class="ob-dots">
+      <div class="ob-dot active"></div><div class="ob-dot"></div><div class="ob-dot"></div><div class="ob-dot"></div>
+    </div>
+    <button class="ob-btn-next" onclick="obNext()">Weiter</button>
+    <button class="ob-btn-skip" onclick="obFinish()">Überspringen</button>
+  </div>
+
+  <!-- Slide 2: Erfassen -->
+  <div class="ob-slide" id="ob1">
+    <div class="ob-icon">
+      <svg width="100" height="100" viewBox="0 0 90 90">
+        <rect x="15" y="8" width="60" height="72" rx="8" fill="#1A1208" stroke="#3D3020" stroke-width="1.5"/>
+        <line x1="27" y1="28" x2="63" y2="28" stroke="#B8973A" stroke-width="1.2" opacity="0.7"/>
+        <line x1="27" y1="40" x2="63" y2="40" stroke="#5C7F5D" stroke-width="1" opacity="0.6"/>
+        <line x1="27" y1="52" x2="50" y2="52" stroke="#5C7F5D" stroke-width="1" opacity="0.6"/>
+        <rect x="50" y="56" width="24" height="24" rx="12" fill="#B8973A"/>
+        <line x1="62" y1="63" x2="62" y2="73" stroke="#000" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="57" y1="68" x2="67" y2="68" stroke="#000" stroke-width="2.5" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <div class="ob-title">Rezepte erfassen</div>
+    <div class="ob-sub">Tippe Rezepte manuell ein — oder fotografiere sie. Claude erkennt Handschrift, Bücher und gedruckte Rezepte automatisch.</div>
+    <div class="ob-dots">
+      <div class="ob-dot"></div><div class="ob-dot active"></div><div class="ob-dot"></div><div class="ob-dot"></div>
+    </div>
+    <button class="ob-btn-next" onclick="obNext()">Weiter</button>
+    <button class="ob-btn-skip" onclick="obFinish()">Überspringen</button>
+  </div>
+
+  <!-- Slide 3: Organisieren -->
+  <div class="ob-slide" id="ob2">
+    <div class="ob-icon">
+      <svg width="100" height="100" viewBox="0 0 90 90">
+        <rect x="8" y="18" width="34" height="40" rx="6" fill="#1A1208" stroke="#3D5A3E" stroke-width="1.5"/>
+        <rect x="48" y="18" width="34" height="40" rx="6" fill="#1A1208" stroke="#B8973A" stroke-width="1.5"/>
+        <rect x="8" y="62" width="34" height="20" rx="6" fill="#1A1208" stroke="#3D5A3E" stroke-width="1"/>
+        <rect x="48" y="62" width="34" height="20" rx="6" fill="#1A1208" stroke="#B8973A" stroke-width="1"/>
+        <text x="25" y="42" text-anchor="middle" font-family="Georgia,serif" font-size="9" fill="#5C7F5D">Fleisch</text>
+        <text x="65" y="42" text-anchor="middle" font-family="Georgia,serif" font-size="9" fill="#B8973A">Backen</text>
+        <text x="25" y="76" text-anchor="middle" font-family="Georgia,serif" font-size="8" fill="#5C7F5D">Suppen</text>
+        <text x="65" y="76" text-anchor="middle" font-family="Georgia,serif" font-size="8" fill="#B8973A">Desserts</text>
+      </svg>
+    </div>
+    <div class="ob-title">Alles organisiert</div>
+    <div class="ob-sub">Kategorien, Favoriten und Suche helfen dir jedes Rezept in Sekunden zu finden — egal wie gross dein Archiv wird.</div>
+    <div class="ob-dots">
+      <div class="ob-dot"></div><div class="ob-dot"></div><div class="ob-dot active"></div><div class="ob-dot"></div>
+    </div>
+    <button class="ob-btn-next" onclick="obNext()">Weiter</button>
+    <button class="ob-btn-skip" onclick="obFinish()">Überspringen</button>
+  </div>
+
+  <!-- Slide 4: Los geht's -->
+  <div class="ob-slide" id="ob3">
+    <div class="ob-icon">
+      <svg width="100" height="100" viewBox="0 0 90 90">
+        <circle cx="45" cy="45" r="30" fill="none" stroke="#B8973A" stroke-width="0.8" opacity="0.3"/>
+        <circle cx="45" cy="45" r="22" fill="none" stroke="#B8973A" stroke-width="1" opacity="0.5"/>
+        <circle cx="45" cy="45" r="14" fill="#B8973A" opacity="0.15"/>
+        <circle cx="45" cy="45" r="14" stroke="#B8973A" stroke-width="1.5" fill="none"/>
+        <path d="M38 45 L43 51 L55 38" stroke="#B8973A" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <div class="ob-title">Bereit loszulegen</div>
+    <div class="ob-sub">Dein Archiv wartet. Starte mit einem Rezept — tippe es ein oder fotografiere es direkt.</div>
+    <div class="ob-dots">
+      <div class="ob-dot"></div><div class="ob-dot"></div><div class="ob-dot"></div><div class="ob-dot active"></div>
+    </div>
+    <button class="ob-btn-next gold" onclick="obFinish()">Los geht's</button>
+  </div>
+
+</div>
+
+<!-- SPLASH -->
+<div id="splash">
+  <svg viewBox="0 0 340 420" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:340px">
+    <defs>
+      <linearGradient id="splL" x1="100%" y1="0%" x2="0%" y2="0%">
+        <stop offset="0%" stop-color="#3D5A3E"/><stop offset="100%" stop-color="#5C7F5D"/>
+      </linearGradient>
+      <linearGradient id="splR" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" stop-color="#6B9E6E"/><stop offset="100%" stop-color="#9DC49D"/>
+      </linearGradient>
+      <linearGradient id="splS" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" stop-color="#6B9E6E"/><stop offset="100%" stop-color="#9DC49D"/>
+      </linearGradient>
+      <linearGradient id="goldFrame" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#DDB85A"/>
+        <stop offset="40%" stop-color="#B8973A"/>
+        <stop offset="100%" stop-color="#8A6E20"/>
+      </linearGradient>
+      <filter id="glow">
+        <feGaussianBlur stdDeviation="6" result="blur"/>
+        <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+      </filter>
+      <clipPath id="iconClip">
+        <rect x="95" y="20" width="150" height="150" rx="34"/>
+      </clipPath>
+    </defs>
+
+    <!-- Goldene Aura -->
+    <ellipse cx="170" cy="98" rx="90" ry="85" fill="#B8973A" opacity="0.07"/>
+
+    <!-- Icon Rahmen aussen (3D Effekt) -->
+    <rect x="92" y="17" width="156" height="156" rx="36" fill="#8A6E20" opacity="0.6"/>
+    <!-- Icon Rahmen Gold -->
+    <rect x="93" y="18" width="154" height="154" rx="35" fill="none" stroke="url(#goldFrame)" stroke-width="2.5"/>
+    <!-- Icon Hintergrund -->
+    <rect x="95" y="20" width="150" height="150" rx="34" fill="#0E0C06"/>
+    <!-- Glanzlicht oben -->
+    <rect x="95" y="20" width="150" height="50" rx="34" fill="rgba(255,255,255,0.04)" clip-path="url(#iconClip)"/>
+    <!-- Goldkante oben -->
+    <line x1="115" y1="21" x2="225" y2="21" stroke="#DDB85A" stroke-width="0.8" opacity="0.5"/>
+
+    <!-- Logo: Stamm -->
+    <line x1="170" y1="148" x2="170" y2="62" stroke="#3D5A3E" stroke-width="3" stroke-linecap="round"/>
+    <!-- Goldknospe oben -->
+    <circle cx="170" cy="54" r="8.5" fill="#B8973A"/>
+    <circle cx="170" cy="54" r="5.5" fill="#C9A84C"/>
+    <circle cx="170" cy="54" r="2.5" fill="#DDB85A"/>
+    <circle cx="158" cy="58" r="3.8" fill="#C9A84C"/>
+    <circle cx="182" cy="62" r="3.3" fill="#DDB85A" opacity="0.85"/>
+    <!-- Blattpaar oben -->
+    <path d="M168 78 Q144 66 127 72 Q144 84 168 78Z" fill="url(#splL)"/>
+    <path d="M172 78 Q196 65 213 71 Q196 83 172 78Z" fill="url(#splR)"/>
+    <!-- Blattpaar Mitte -->
+    <path d="M168 100 Q142 88 124 94 Q142 106 168 100Z" fill="url(#splL)"/>
+    <path d="M172 100 Q198 87 216 93 Q198 105 172 100Z" fill="url(#splR)"/>
+    <!-- Blattpaar unten -->
+    <path d="M168 122 Q144 110 127 116 Q144 128 168 122Z" fill="url(#splL)"/>
+    <path d="M172 122 Q196 109 213 115 Q196 127 172 122Z" fill="url(#splR)"/>
+    <!-- Seitenast -->
+    <path d="M170 138 Q192 128 214 136" stroke="#5C7F5D" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <path d="M188 128 Q200 115 210 119 Q203 132 188 128Z" fill="url(#splS)"/>
+    <path d="M202 134 Q214 122 222 127 Q215 140 202 134Z" fill="url(#splS)"/>
+    <!-- Seitenknospe -->
+    <circle cx="224" cy="133" r="6" fill="#B8973A"/>
+    <circle cx="224" cy="133" r="4" fill="#C9A84C"/>
+    <circle cx="224" cy="133" r="1.8" fill="#DDB85A"/>
+
+    <!-- Trennlinie -->
+    <line x1="100" y1="208" x2="240" y2="208" stroke="#B8973A" stroke-width="0.6" opacity="0.6"/>
+
+    <!-- thyme Schriftzug -->
+    <text x="170" y="248" text-anchor="middle"
+      font-family="'Cormorant Garamond','Palatino Linotype',Palatino,Georgia,serif"
+      font-size="52" font-weight="300" fill="#F0E8D8" letter-spacing="8">thyme</text>
+
+    <!-- RECIPE ARCHIVE -->
+    <text x="170" y="278" text-anchor="middle"
+      font-family="'DM Sans',system-ui,sans-serif"
+      font-size="11" fill="#B8973A" letter-spacing="6">RECIPE ARCHIVE</text>
+  </svg>
+</div>
+
+<!-- KATEGORIE SHEET -->
+<div class="cat-sheet-overlay" id="cat-sheet-overlay" onclick="closeCatSheet()"></div>
+<div class="cat-sheet" id="cat-sheet">
+  <div class="cat-sheet-handle"></div>
+
+  <!-- Page Dots -->
+
+
+  <!-- Swipe Pages -->
+  <div id="cs-pages" style="overflow-y:auto;-webkit-overflow-scrolling:touch;max-height:65vh">
+    <div class="cat-sheet-list" id="cat-sheet-list" style="overflow-y:visible;padding:8px 0 60px"></div>
+  </div>
+  
+</div>
+
+<div id="print-area" style="display:none"></div>
+
+<div id="ptr-indicator"><div id="ptr-spinner"></div><span id="ptr-label">SYNCHRONISIEREN</span></div>
+<div class="app">
+
+<!-- HOME -->
+
+<!-- AUTH SCREEN -->
+<div id="screen-auth">
+  <div class="auth-logo">thyme</div>
+  <div class="auth-tagline">Recipe Archive</div>
+  <div class="auth-tab-wrap">
+    <button class="auth-tab active" id="at-login" onclick="authTab('login')">Anmelden</button>
+    <button class="auth-tab" id="at-reg" onclick="authTab('register')">Registrieren</button>
+  </div>
+  <div class="auth-msg" id="auth-msg"></div>
+  <div class="auth-field" id="auth-name-wrap" style="display:none">
+    <label class="auth-lbl">Name</label>
+    <input type="text" id="auth-name" class="auth-inp" placeholder="Dein Name">
+  </div>
+  <div class="auth-field">
+    <label class="auth-lbl">E-Mail</label>
+    <input type="email" id="auth-email" class="auth-inp" placeholder="email@example.com">
+  </div>
+  <div class="auth-field">
+    <label class="auth-lbl">Passwort</label>
+    <input type="password" id="auth-pw" class="auth-inp" placeholder="Mindestens 6 Zeichen">
+  </div>
+  <button class="auth-btn" id="auth-btn" onclick="authSubmit()">Anmelden</button>
+  <div class="auth-skip" onclick="authSkip()">Ohne Account fortfahren</div>
+</div>
+<div class="header">
+    <div class="app-name" onclick="logoTap()" style="cursor:pointer;padding:4px 8px 4px 0;-webkit-tap-highlight-color:rgba(184,151,58,0.2)">
+      <svg viewBox="0 0 120 36" style="pointer-events:none" xmlns="http://www.w3.org/2000/svg" style="height:32px;width:auto">
+        <defs>
+          <linearGradient id="hL" x1="100%" y1="0%" x2="0%" y2="0%">
+            <stop offset="0%" stop-color="#3D5A3E"/><stop offset="100%" stop-color="#5C7F5D"/>
+          </linearGradient>
+          <linearGradient id="hR" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#5C7F5D"/><stop offset="100%" stop-color="#8FAE90"/>
+          </linearGradient>
+        </defs>
+        <!-- Thymianzweig mini -->
+        <line x1="22" y1="30" x2="22" y2="8" stroke="#3D5A3E" stroke-width="1.8" stroke-linecap="round"/>
+        <circle cx="22" cy="5" r="3.5" fill="#B8973A"/>
+        <circle cx="22" cy="5" r="2" fill="#C9A84C"/>
+        <path d="M21.5 12 Q16 9 12 10.5 Q16 14 21.5 12Z" fill="url(#hL)"/>
+        <path d="M22.5 12 Q28 9 32 10.5 Q28 14 22.5 12Z" fill="url(#hR)"/>
+        <path d="M21.5 18 Q15 15 11 16.5 Q15 20.5 21.5 18Z" fill="url(#hL)"/>
+        <path d="M22.5 18 Q29 15 33 16.5 Q29 20.5 22.5 18Z" fill="url(#hR)"/>
+        <path d="M21.5 24 Q16 21 12 22.5 Q16 26.5 21.5 24Z" fill="url(#hL)"/>
+        <path d="M22.5 24 Q28 21 32 22.5 Q28 26.5 22.5 24Z" fill="url(#hR)"/>
+        <!-- thyme Text -->
+        <text x="42" y="25" font-family="Cormorant Garamond, Georgia, serif" font-size="22" font-weight="300" fill="#5C7F5D" letter-spacing="3">thyme</text>
+      </svg>
+    </div>
+    <div class="header-right">
+      <button onclick="showScreen('navigation')" style="background:none;border:none;cursor:pointer;padding:4px 8px;display:flex;align-items:center;gap:5px;color:var(--bark)" title="Navigation">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" fill="currentColor" opacity="0.8"/>
+        </svg>
+        
+      </button>
+      <div class="shop-indicator">
+        <button onclick="openShopList()" style="background:none;border:none;cursor:pointer;padding:4px 8px;display:flex;align-items:center;gap:4px;font-family:'DM Sans',sans-serif;font-size:14.3px;font-weight:600;color:var(--bark)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg></button>
+        <div class="shop-indicator-dot" id="shop-indicator-dot"></div>
+      </div><button class="fav-tab" id="fav-tab" onclick="toggleFavView()" style="background:none;border:none;cursor:pointer;padding:4px 8px;font-size:20px;color:var(--bark)">
+        <span id="fav-tab-label">★</span>
+      </button>
+      <div id="mode-badge" class="mode-badge online" style="display:none">
+        <span class="mode-dot"></span>
+        <span id="mode-label">ONLINE</span>
+      </div>
+      <button class="header-icon-btn" onclick="showScreen('settings')" title="Einstellungen">&#9881;</button>
+    </div>
+  </div>
+<div id="screen-home" class="screen active">
+  
+  <div class="search-wrap" id="search-wrap">
+    <span class="search-icon">&#128269;</span>
+    <input class="search-input" id="search-input" oninput="onSearchInput()" placeholder="Rezept suchen">
+    <button class="search-clear" id="search-clear" onclick="clearSearch()">&#10005;</button>
+  </div>
+  <div id="cat-active-bar" style="display:none;align-items:center;justify-content:space-between;padding:10px 20px;border-bottom:1px solid #2E2416">
+    <button onclick="setActiveCat('all')" style="background:none;border:none;cursor:pointer;font-size:19.8px;color:#5C7F5D">&#8592;</button>
+    <span id="cat-active-name" style="font-family:'Cormorant Garamond',serif;font-size:19.8px;font-weight:300;color:var(--bark);letter-spacing:2px"></span>
+    <div onclick="setActiveCat('all');showScreen('home')" style="cursor:pointer;display:flex;align-items:center;gap:5px">
+      <span style="font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:300;color:#B8973A;letter-spacing:3px">thyme</span><span style="font-size:14px;color:#B8973A;opacity:0.9">&#8962;</span>
+    </div>
+  </div>
+  <div class="cat-scroll" id="cat-scroll"></div>
+  <div id="book-cover" onclick="try{showScreen('navigation');}catch(e){console.warn(e);}" style="display:none"><div id="book-cover-inner" style="pointer-events:none;width:100%">
+  <!-- DARK MODE SVG -->
+  <svg id="bc-dark" viewBox="0 0 340 520" style="pointer-events:none" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="bcL_d" x1="100%" y1="0%" x2="0%" y2="0%"><stop offset="0%" stop-color="#3D5A3E"/><stop offset="100%" stop-color="#5C7F5D"/></linearGradient>
+      <linearGradient id="bcR_d" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#6B9E6E"/><stop offset="100%" stop-color="#9DC49D"/></linearGradient>
+      <linearGradient id="bcS_d" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#6B9E6E"/><stop offset="100%" stop-color="#9DC49D"/></linearGradient>
+      <linearGradient id="bcGoldT_d" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#8A6E20" stop-opacity="0.5"/><stop offset="25%" stop-color="#DDB85A"/><stop offset="50%" stop-color="#F0CC6A"/><stop offset="75%" stop-color="#DDB85A"/><stop offset="100%" stop-color="#8A6E20" stop-opacity="0.5"/></linearGradient>
+      <linearGradient id="bcGoldB_d" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#5A4510" stop-opacity="0.3"/><stop offset="50%" stop-color="#B8973A" stop-opacity="0.6"/><stop offset="100%" stop-color="#5A4510" stop-opacity="0.3"/></linearGradient>
+      <linearGradient id="bcGoldL_d" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#DDB85A"/><stop offset="50%" stop-color="#9A7B28"/><stop offset="100%" stop-color="#5A4510" stop-opacity="0.4"/></linearGradient>
+      <linearGradient id="bcGoldR_d" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#C9A84C"/><stop offset="50%" stop-color="#8A6E20"/><stop offset="100%" stop-color="#4A3510" stop-opacity="0.4"/></linearGradient>
+      <linearGradient id="bcBg_d" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#1A1206"/><stop offset="50%" stop-color="#0C0902"/><stop offset="100%" stop-color="#050301"/></linearGradient>
+      <clipPath id="bcClip_d"><rect x="40" y="16" width="260" height="460" rx="28"/></clipPath>
+    </defs>
+    <rect x="47" y="24" width="260" height="460" rx="27" fill="#000" opacity="0.8"/>
+    <rect x="44" y="21" width="260" height="460" rx="27" fill="#000" opacity="0.5"/>
+    <rect x="40" y="16" width="260" height="460" rx="28" fill="url(#bcBg_d)"/>
+    <rect x="40" y="16" width="260" height="460" rx="28" fill="none" stroke="#000" stroke-width="5" opacity="0.6"/>
+    <line x1="68" y1="17" x2="272" y2="17" stroke="url(#bcGoldT_d)" stroke-width="2.5"/>
+    <line x1="41" y1="44" x2="41" y2="448" stroke="url(#bcGoldL_d)" stroke-width="2"/>
+    <line x1="299" y1="44" x2="299" y2="448" stroke="url(#bcGoldR_d)" stroke-width="1.5"/>
+    <line x1="68" y1="475" x2="272" y2="475" stroke="url(#bcGoldB_d)" stroke-width="1.5"/>
+    <path d="M41 44 Q41 17 68 17" fill="none" stroke="#DDB85A" stroke-width="2"/>
+    <path d="M272 17 Q299 17 299 44" fill="none" stroke="#C9A84C" stroke-width="2"/>
+    <path d="M41 448 Q41 475 68 475" fill="none" stroke="#7A5E18" stroke-width="1.5"/>
+    <path d="M272 475 Q299 475 299 448" fill="none" stroke="#6A5015" stroke-width="1.5"/>
+    <line x1="68" y1="20" x2="272" y2="20" stroke="#F0CC6A" stroke-width="0.8" opacity="0.4"/>
+    <rect x="40" y="16" width="260" height="55" rx="28" fill="rgba(255,240,180,0.035)" clip-path="url(#bcClip_d)"/>
+    <line x1="170" y1="200" x2="170" y2="100" stroke="#3D5A3E" stroke-width="3" stroke-linecap="round"/>
+    <circle cx="170" cy="91" r="11" fill="#7A5E18" opacity="0.5"/>
+    <circle cx="170" cy="90" r="10" fill="#B8973A"/>
+    <circle cx="170" cy="90" r="6.5" fill="#C9A84C"/>
+    <circle cx="170" cy="90" r="3" fill="#DDB85A"/>
+    <circle cx="155" cy="96" r="5" fill="#C9A84C"/>
+    <circle cx="185" cy="101" r="4.5" fill="#DDB85A" opacity="0.85"/>
+    <path d="M168 116 Q138 101 114 108 Q138 123 168 116Z" fill="url(#bcL_d)"/>
+    <path d="M172 116 Q202 100 226 107 Q202 123 172 116Z" fill="url(#bcR_d)"/>
+    <path d="M168 142 Q136 127 112 134 Q136 149 168 142Z" fill="url(#bcL_d)"/>
+    <path d="M172 142 Q204 126 228 133 Q204 149 172 142Z" fill="url(#bcR_d)"/>
+    <path d="M168 168 Q138 153 114 160 Q138 175 168 168Z" fill="url(#bcL_d)"/>
+    <path d="M172 168 Q202 152 226 159 Q202 175 172 168Z" fill="url(#bcR_d)"/>
+    <path d="M170 190 Q200 177 230 186" stroke="#5C7F5D" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+    <path d="M196 177 Q213 158 226 163 Q215 179 196 177Z" fill="url(#bcS_d)"/>
+    <path d="M213 183 Q230 165 241 170 Q230 186 213 183Z" fill="url(#bcS_d)"/>
+    <circle cx="243" cy="176" r="8" fill="#7A5E18" opacity="0.5"/>
+    <circle cx="242" cy="175" r="7.5" fill="#B8973A"/>
+    <circle cx="242" cy="175" r="4.8" fill="#C9A84C"/>
+    <circle cx="242" cy="175" r="2.2" fill="#DDB85A"/>
+    <line x1="100" y1="258" x2="240" y2="258" stroke="#B8973A" stroke-width="0.6" opacity="0.55"/>
+    <text x="170" y="316" text-anchor="middle" font-family="'Cormorant Garamond','Palatino Linotype',Georgia,serif" font-size="56" font-weight="300" fill="#F0E8D8" letter-spacing="10">thyme</text>
+    <text x="170" y="344" text-anchor="middle" font-family="'DM Sans',system-ui,sans-serif" font-size="10" fill="#B8973A" letter-spacing="6" opacity="0.85">RECIPE ARCHIVE</text>
+    <line x1="120" y1="368" x2="220" y2="368" stroke="#B8973A" stroke-width="0.4" opacity="0.3"/>
+  </svg>
+
+  <!-- LIGHT MODE SVG -->
+  <svg id="bc-light" viewBox="0 0 340 520" style="pointer-events:none" xmlns="http://www.w3.org/2000/svg" style="display:none">
+    <defs>
+      <linearGradient id="bcL_l" x1="100%" y1="0%" x2="0%" y2="0%"><stop offset="0%" stop-color="#3D5A3E"/><stop offset="100%" stop-color="#5C7F5D"/></linearGradient>
+      <linearGradient id="bcR_l" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#6B9E6E"/><stop offset="100%" stop-color="#9DC49D"/></linearGradient>
+      <linearGradient id="bcS_l" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#6B9E6E"/><stop offset="100%" stop-color="#9DC49D"/></linearGradient>
+      <linearGradient id="bcGoldT_l" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#8A6E20" stop-opacity="0.4"/><stop offset="25%" stop-color="#DDB85A"/><stop offset="50%" stop-color="#F0CC6A"/><stop offset="75%" stop-color="#DDB85A"/><stop offset="100%" stop-color="#8A6E20" stop-opacity="0.4"/></linearGradient>
+      <linearGradient id="bcGoldB_l" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#5A4510" stop-opacity="0.2"/><stop offset="50%" stop-color="#B8973A" stop-opacity="0.5"/><stop offset="100%" stop-color="#5A4510" stop-opacity="0.2"/></linearGradient>
+      <linearGradient id="bcGoldL_l" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#DDB85A"/><stop offset="50%" stop-color="#9A7B28"/><stop offset="100%" stop-color="#C8B060" stop-opacity="0.3"/></linearGradient>
+      <linearGradient id="bcGoldR_l" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#C9A84C"/><stop offset="50%" stop-color="#A8892A"/><stop offset="100%" stop-color="#8A6E20" stop-opacity="0.3"/></linearGradient>
+      <clipPath id="bcClip_l"><rect x="40" y="16" width="260" height="460" rx="28"/></clipPath>
+    </defs>
+    <!-- Hintergrund hell -->
+    <rect x="40" y="16" width="260" height="460" rx="28" fill="#F0E8D8"/>
+    <!-- Goldrahmen -->
+    <line x1="68" y1="17" x2="272" y2="17" stroke="url(#bcGoldT_l)" stroke-width="2"/>
+    <line x1="41" y1="44" x2="41" y2="448" stroke="url(#bcGoldL_l)" stroke-width="1.5"/>
+    <line x1="299" y1="44" x2="299" y2="448" stroke="url(#bcGoldR_l)" stroke-width="1.5"/>
+    <line x1="68" y1="475" x2="272" y2="475" stroke="url(#bcGoldB_l)" stroke-width="1.5"/>
+    <path d="M41 44 Q41 17 68 17" fill="none" stroke="#DDB85A" stroke-width="1.5"/>
+    <path d="M272 17 Q299 17 299 44" fill="none" stroke="#C9A84C" stroke-width="1.5"/>
+    <path d="M41 448 Q41 475 68 475" fill="none" stroke="#B8973A" stroke-width="1.5"/>
+    <path d="M272 475 Q299 475 299 448" fill="none" stroke="#B8973A" stroke-width="1.5"/>
+    <!-- Logo -->
+    <line x1="170" y1="200" x2="170" y2="100" stroke="#3D5A3E" stroke-width="3" stroke-linecap="round"/>
+    <circle cx="170" cy="91" r="11" fill="#9A7B28" opacity="0.4"/>
+    <circle cx="170" cy="90" r="10" fill="#B8973A"/>
+    <circle cx="170" cy="90" r="6.5" fill="#C9A84C"/>
+    <circle cx="170" cy="90" r="3" fill="#DDB85A"/>
+    <circle cx="155" cy="96" r="5" fill="#C9A84C"/>
+    <circle cx="185" cy="101" r="4.5" fill="#DDB85A" opacity="0.85"/>
+    <path d="M168 116 Q138 101 114 108 Q138 123 168 116Z" fill="url(#bcL_l)"/>
+    <path d="M172 116 Q202 100 226 107 Q202 123 172 116Z" fill="url(#bcR_l)"/>
+    <path d="M168 142 Q136 127 112 134 Q136 149 168 142Z" fill="url(#bcL_l)"/>
+    <path d="M172 142 Q204 126 228 133 Q204 149 172 142Z" fill="url(#bcR_l)"/>
+    <path d="M168 168 Q138 153 114 160 Q138 175 168 168Z" fill="url(#bcL_l)"/>
+    <path d="M172 168 Q202 152 226 159 Q202 175 172 168Z" fill="url(#bcR_l)"/>
+    <path d="M170 190 Q200 177 230 186" stroke="#5C7F5D" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+    <path d="M196 177 Q213 158 226 163 Q215 179 196 177Z" fill="url(#bcS_l)"/>
+    <path d="M213 183 Q230 165 241 170 Q230 186 213 183Z" fill="url(#bcS_l)"/>
+    <circle cx="243" cy="176" r="8" fill="#9A7B28" opacity="0.4"/>
+    <circle cx="242" cy="175" r="7.5" fill="#B8973A"/>
+    <circle cx="242" cy="175" r="4.8" fill="#C9A84C"/>
+    <circle cx="242" cy="175" r="2.2" fill="#DDB85A"/>
+    <line x1="100" y1="258" x2="240" y2="258" stroke="#B8973A" stroke-width="0.6" opacity="0.6"/>
+    <text x="170" y="316" text-anchor="middle" font-family="'Cormorant Garamond','Palatino Linotype',Georgia,serif" font-size="56" font-weight="300" fill="#2C1F14" letter-spacing="10">thyme</text>
+    <text x="170" y="344" text-anchor="middle" font-family="'DM Sans',system-ui,sans-serif" font-size="10" fill="#3D5A3E" letter-spacing="6" opacity="0.9">RECIPE ARCHIVE</text>
+    <line x1="120" y1="368" x2="220" y2="368" stroke="#B8973A" stroke-width="0.4" opacity="0.3"/>
+  </svg>
+</div><button id="book-cover-hint" onclick="try{showScreen('navigation');}catch(e){console.warn(e);}" style="display:none;background:none;border:none;cursor:pointer;padding:12px 40px 20px;text-align:center;-webkit-tap-highlight-color:rgba(61,90,62,0.2);width:100%">
+    <span style="font-size:12.1px;letter-spacing:4px;color:#5C7F5D;text-transform:uppercase;display:block;margin-bottom:6px">KATEGORIE WÄHLEN</span>
+    <span style="font-size:15.4px;color:#5C7F5D;display:block;line-height:1">&#8964;</span>
+  </button>
+  </div>
+  <!-- ZULETZT VERWENDET -->
+  <div id="recent-section" style="display:none;padding:24px 20px 0">
+    <span style="font-size:9.9px;color:var(--smoke);letter-spacing:3px;text-transform:uppercase;margin-bottom:14px;display:block;opacity:0.7">Zuletzt verwendet</span>
+    <div id="recent-scroll" style="display:flex;gap:12px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none"></div>
+    <div style="height:1px;background:var(--border);margin:20px 0 0"></div>
+  </div>
+  <div id="recipe-grid" class="grid"></div>
+  <!-- FAB Bereich -->
+
+  <div class="fab-center-wrap">
+    <div class="fab-menu" id="fab-menu"><div class="fab-menu-panel">
+      <button class="fab-option" onclick="closeFabMenu();openAdd()">
+        <span class="fab-option-icon" style="width:20px;height:20px;display:inline-flex"><svg viewBox="0 0 40 40" fill="none" stroke="#B8973A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M24 10 L28 14 L16 26 L10 26 L10 20 Z"/><line x1="22" y1="12" x2="26" y2="16"/><line x1="8" y1="32" x2="32" y2="32"/></svg></span>
+        <span class="fab-option-label">Manuell</span>
+      </button>
+      <button class="fab-option" onclick="closeFabMenu();showScreen('scan')">
+        <span class="fab-option-icon" style="width:20px;height:20px;display:inline-flex"><svg viewBox="0 0 40 40" fill="none" stroke="#B8973A" stroke-width="1.5" stroke-linecap="round"><path d="M10 16 L10 10 L16 10"/><path d="M24 10 L30 10 L30 16"/><path d="M30 24 L30 30 L24 30"/><path d="M16 30 L10 30 L10 24"/><line x1="8" y1="20" x2="32" y2="20"/></svg></span>
+        <span class="fab-option-label">Kamera</span>
+      </button>
+    </div></div>
+    <button class="fab-plus" id="fab-plus" onclick="toggleFabMenu()" title="Hinzufuegen">
+      <span class="fab-plus-icon" id="fab-plus-icon">+</span>
+      <span id="fab-plus-label">Rezept hinzufügen</span>
+    </button>
+  </div>
+  <div class="fab-overlay" id="fab-overlay" onclick="closeFabMenu()"></div>
+</div>
+
+<!-- DETAIL -->
+<div id="screen-detail" class="screen">
+  <div class="sub-header">
+    <button class="back-btn" onclick="goBack()" style="font-size:19.8px;color:#5C7F5D">&#8592;</button>
+    <span class="sub-title" id="detail-header-title"></span>
+    <div class="app-name-small" onclick="showScreen('home')" style="cursor:pointer;display:flex;align-items:center;gap:6px;justify-content:flex-end;margin-left:auto"><span style="font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:300;color:#B8973A;letter-spacing:3px">thyme</span><span style="font-size:14px;color:#B8973A;opacity:0.9">&#8962;</span></div>
+  </div>
+  <div class="detail-body" id="detail-body"></div>
+</div>
+
+<!-- ADD/EDIT -->
+<div id="screen-add" class="screen">
+  <div class="sub-header">
+    <button class="back-btn" id="form-back-btn" style="font-size:19.8px;color:#5C7F5D">&#8592;</button>
+    <span class="sub-title" id="form-screen-title">Neues Rezept</span>
+    <div onclick="showScreen('home')" style="cursor:pointer;display:flex;align-items:center;gap:6px;justify-content:flex-end;width:80px"><span style="font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:300;color:#B8973A;letter-spacing:3px">thyme</span><span style="font-size:14px;color:#B8973A;opacity:0.9">&#8962;</span></div>
+  </div>
+  <div class="form-body">
+    <div class="form-group">
+      <label class="form-label">Titel</label>
+      <input class="form-input" id="f-title" placeholder="Rezeptname...">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Kategorie</label>
+      <div class="cat-picker" id="cat-picker"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Portionen</label>
+        <input class="form-input" id="f-portions" placeholder="4 Personen">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Zeit</label>
+        <input class="form-input" id="f-time" placeholder="45 Min">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Zutaten</label>
+      <div id="f-ingredients-list"></div>
+      <button class="add-ing-btn" onclick="addIngredientRow()">+ Zutat hinzufuegen</button>
+      <input type="hidden" id="f-ingredients">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Zubereitung</label>
+      <textarea class="form-input" id="f-instructions" rows="7" placeholder="Schritt fuer Schritt..."></textarea>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Notizen</label>
+      <textarea class="form-input" id="f-notes" rows="3" placeholder="Tipps, Variationen..."></textarea>
+    </div>
+    <div class="form-actions">
+      <button class="btn-cancel" id="form-cancel-btn">Abbrechen</button>
+      <button class="btn-save" onclick="saveRecipe()">&#128190; Speichern</button>
+    </div>
+  </div>
+</div>
+
+<!-- SCAN -->
+<div id="screen-scan" class="screen">
+  <div class="sub-header">
+    <button class="back-btn" onclick="showScreen('home')" style="font-size:19.8px;color:#5C7F5D">&#8592;</button>
+    <span class="sub-title">Rezept scannen</span>
+    <div onclick="showScreen('home')" style="cursor:pointer;display:flex;align-items:center;gap:6px;justify-content:flex-end;width:80px"><span style="font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:300;color:#B8973A;letter-spacing:3px">thyme</span><span style="font-size:14px;color:#B8973A;opacity:0.9">&#8962;</span></div>
+  </div>
+  <div class="form-body">
+    <div id="scan-offline-notice" class="notice" style="display:none">
+      &#9888;&#65039; Scan benoetigt Internetverbindung und Claude API Key.
+    </div>
+    <div class="upload-box" id="scan-upload-box">
+      <div style="font-size:52.8px">&#128444;&#65039;</div>
+      <p>Foto eines handgeschriebenen oder gedruckten Rezepts auswaehlen</p>
+      <label class="file-btn">
+        &#128247; Foto auswaehlen
+        <input type="file" accept="image/*" capture="environment" style="display:none" onchange="handleScan(this)">
+      </label>
+    </div>
+    <img id="scan-preview" class="scan-preview" style="display:none">
+    <div id="scan-status" class="scanning-box" style="display:none">
+      <span class="spinner">&#8987;</span>
+      Claude liest dein Rezept...
+    </div>
+    <div id="scan-form" style="display:none">
+      <div class="form-group">
+        <label class="form-label">Kategorie</label>
+        <div class="cat-picker" id="scan-cat-picker"></div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Titel</label>
+        <input class="form-input" id="sf-title">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Portionen</label>
+          <input class="form-input" id="sf-portions">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Zeit</label>
+          <input class="form-input" id="sf-time">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Zutaten</label>
+        <textarea class="form-input" id="sf-ingredients" rows="7"></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Zubereitung</label>
+        <textarea class="form-input" id="sf-instructions" rows="6"></textarea>
+      </div>
+      <div class="form-actions">
+        <button class="btn-cancel" onclick="showScreen('home')">Abbrechen</button>
+        <button class="btn-save" onclick="saveScan()">&#128190; Speichern</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- IMPORT -->
+<div id="screen-import" class="screen">
+  <div class="sub-header">
+    <button class="back-btn" onclick="showScreen('home')" style="font-size:19.8px;color:#5C7F5D">&#8592;</button>
+    <span class="sub-title">Importieren</span>
+    <div onclick="showScreen('home')" style="cursor:pointer;display:flex;align-items:center;gap:6px;justify-content:flex-end;width:80px"><span style="font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:300;color:#B8973A;letter-spacing:3px">thyme</span><span style="font-size:14px;color:#B8973A;opacity:0.9">&#8962;</span></div>
+  </div>
+  <div class="form-body">
+    <div id="import-offline-notice" class="notice" style="display:none">
+      &#9888;&#65039; Import benoetigt Internetverbindung.
+    </div>
+    <div class="import-section">
+      <span class="form-label">&#127760; Von URL importieren</span>
+      <p class="import-desc">Rezept-URL eingeben -- App extrahiert alles automatisch</p>
+      <input class="form-input" id="import-url" type="url" placeholder="https://...">
+      <button class="btn-import" id="import-url-btn" onclick="importFromUrl()">&#127760; URL importieren</button>
+    </div>
+    <div class="import-section">
+      <span class="form-label">&#128206; Textdatei importieren</span>
+      <p class="import-desc">Textdatei (.txt) importieren</p>
+      <div class="upload-box">
+        <div style="font-size:44px;margin-bottom:10px">&#128206;</div>
+        <label class="file-btn btn-import-secondary">
+          Datei auswaehlen
+          <input type="file" accept=".txt" style="display:none" onchange="handleFileImport(this)">
+        </label>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- KATEGORIEN -->
+<div id="screen-cats" class="screen">
+  <div class="sub-header">
+    <button class="back-btn" onclick="showScreen('home')" style="font-size:19.8px;color:#5C7F5D">&#8592;</button>
+    <span class="sub-title">Kategorien</span>
+    <div onclick="showScreen('home')" style="cursor:pointer;display:flex;align-items:center;gap:6px;justify-content:flex-end;width:80px"><span style="font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:300;color:#B8973A;letter-spacing:3px">thyme</span><span style="font-size:14px;color:#B8973A;opacity:0.9">&#8962;</span></div>
+  </div>
+  <div class="form-body">
+    <div id="cat-list"></div>
+    <div class="form-group" style="margin-top:24px">
+      <label class="form-label">Neue Kategorie</label>
+      <div class="new-cat-row">
+        <input class="form-input" id="new-cat-emoji" placeholder="&#127869;" maxlength="4" style="width:64px;text-align:center">
+        <input class="form-input" id="new-cat-name" placeholder="Kategoriename" style="flex:1">
+      </div>
+    </div>
+    <button class="btn-save" onclick="addCategory()" style="width:100%;margin-top:8px">+ Kategorie hinzufuegen</button>
+  </div>
+</div>
+
+<!-- EINSTELLUNGEN -->
+<div id="screen-settings" class="screen">
+  <div class="sub-header">
+    <button class="back-btn" onclick="showScreen('home')" style="font-size:19.8px;color:#5C7F5D">&#8592;</button>
+    <span class="sub-title">Einstellungen</span>
+    <div onclick="showScreen('home')" style="cursor:pointer;display:flex;align-items:center;gap:6px;justify-content:flex-end;width:80px"><span style="font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:300;color:#B8973A;letter-spacing:3px">thyme</span><span style="font-size:14px;color:#B8973A;opacity:0.9">&#8962;</span></div>
+  </div>
+  <div class="form-body">
+    <div class="settings-section">
+          <h3>&#128247; Debug Foto-Speicher</h3>
+          <button onclick="debugPhotoStorage()" style="width:100%;padding:12px;background:transparent;border:1px solid #B8973A;border-radius:10px;color:#B8973A;font-family:'DM Sans',sans-serif;font-size:14.3px;cursor:pointer;margin-top:8px">
+            Foto-Speicher anzeigen
+          </button>
+        </div>
+        <div class="settings-section">
+      <h3>&#128273; Claude API Key</h3>
+      <p style="font-size:14.3px;color:#888;margin-bottom:10px">Benoetigt fuer Scan und URL-Import. Wird sicher lokal gespeichert.</p>
+      <input class="form-input" id="claude-key-input" type="password" placeholder="sk-ant-...">
+      <div id="claude-key-status" class="key-status missing">&#9888; Kein Key hinterlegt</div>
+      <div style="display:flex;gap:10px;margin-top:12px">
+        <button class="btn-save" onclick="saveClaudeKey()">Speichern</button>
+        <button class="btn-cancel" onclick="clearClaudeKey()">Loeschen</button>
+      </div>
+    </div>
+    <div class="settings-section">
+      <h3>&#128260; Synchronisation</h3>
+      <p style="font-size:14.3px;color:#888;margin-bottom:10px">Daten werden lokal gespeichert und bei Internetverbindung mit der Cloud synchronisiert.</p>
+      <button class="btn-import" onclick="syncNow()">&#8635; Jetzt synchronisieren</button>
+    </div>
+    <div class="settings-section">
+      <h3>&#127763; Darstellung</h3>
+      <button id="theme-toggle-btn" onclick="toggleTheme()" style="width:100%;background:transparent;border:1px solid var(--border);border-radius:8px;padding:12px;font-size:14.3px;color:var(--bark);cursor:pointer;font-family:'DM Sans',sans-serif;letter-spacing:1px;text-align:left">☀️ &nbsp;Hellmodus aktivieren</button>
+    </div>
+    
+        <div class="settings-section" style="margin-top:16px">
+          <h3>&#127807; Saisonkalender verwalten</h3>
+          <p style="font-size:14.3px;color:var(--smoke);margin:6px 0 12px">Produkte hinzufügen, bearbeiten und Saisonzeiten anpassen.</p>
+          <button onclick="showScreen('season-editor');seRebuildSeasonData();seFilter='all';seRenderList();" style="width:100%;padding:12px;background:transparent;border:1px solid #3D5A3E;border-radius:10px;color:#5C7F5D;font-family:'DM Sans',sans-serif;font-size:14.3px;letter-spacing:1px;cursor:pointer">
+            Saisonkalender öffnen &#8250;
+          </button>
+        </div>
+<div class="settings-section">
+      <h3>&#128241; Als App installieren (iPhone/iPad)</h3>
+      <p style="font-size:14.3px;color:#888">In Safari: Teilen-Button &#128085; antippen dann "Zum Home-Bildschirm" auswaehlen.</p>
+    </div>
+  </div>
+</div>
+
+</div>
+
 <script>
-// ─── CLAUDE API DIREKT ────────────────────────────────────────────────────
-async function callClaude(payload) {
-  var key = getClaudeKey();
-  if (!key) { showToast('Bitte API Key in Einstellungen hinterlegen', 'error'); showScreen('settings'); throw new Error('Kein API Key'); }
-  var res = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': key,
-      'anthropic-version': '2023-06-01',
-      'anthropic-dangerous-direct-browser-access': 'true'
-    },
-    body: JSON.stringify(payload)
-  });
-  if (!res.ok) { var err = await res.json().catch(function(){return {};}); throw new Error(err.error && err.error.message ? err.error.message : 'API Fehler ' + res.status); }
-  return res.json();
-}
-
-
-
-
 
 // ─── EINKAUFSLISTE ─────────────────────────────────────────────────────────
 var shopItems = [];
@@ -901,14 +1776,6 @@ async function init() {
   applyTheme();
   setTimeout(updateBookCoverTheme, 50);
   isOnline = navigator.onLine;
-  
-  // Supabase Client initialisieren
-  try {
-    if (typeof supabase !== 'undefined') {
-      window._supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
-    }
-  } catch(e) { console.warn('Supabase init:', e); }
-  
   showSplash();
   obShow();
   localLoad();
@@ -932,12 +1799,7 @@ async function init() {
 function showScreen(name) {
   // Header nur auf Home-Screen anzeigen
   var mainHeader = document.querySelector('.header');
-  if(mainHeader) mainHeader.style.display = (name === 'home') ? 'flex' : 'none';
-  // Auth Screen: screen-auth class hinzufügen
-  if(name === 'auth') {
-    document.getElementById('screen-auth').classList.add('active');
-    return;
-  }
+  if(mainHeader) mainHeader.style.display = name === 'home' ? 'flex' : 'none';
   
   if (name === 'home') {
     activeCat = 'all';
@@ -3310,142 +4172,125 @@ function addSeasonDetailToShop() {
 
 function seasonDetailAddPhoto() { doSelectPhoto('season-detail-photo-wrap'); }
 
-// ══════════════════════════════════════════════════════════════════════════════
-// SUPABASE AUTH
-// ══════════════════════════════════════════════════════════════════════════════
+// ── AUTH ───────────────────────────────────────────────────────────────────
 var currentUser = null;
-var authMode = 'login';
+var _authMode = 'login';
 
-function authSwitchTab(mode) {
-  authMode = mode;
-  document.getElementById('auth-tab-login').classList.toggle('active', mode==='login');
-  document.getElementById('auth-tab-register').classList.toggle('active', mode==='register');
-  document.getElementById('auth-name-field').style.display = mode==='register' ? 'block' : 'none';
-  document.getElementById('auth-submit-btn').textContent = mode==='login' ? 'Anmelden' : 'Registrieren';
-  document.getElementById('auth-error').style.display = 'none';
-  document.getElementById('auth-success').style.display = 'none';
+function authGetClient() {
+  if (!window._sc) {
+    try { window._sc = supabase.createClient(SUPABASE_URL, SUPABASE_ANON); } catch(e) {}
+  }
+  return window._sc;
 }
 
-function authShowError(msg) {
-  var el = document.getElementById('auth-error');
-  el.textContent = msg;
-  el.style.display = 'block';
-  document.getElementById('auth-success').style.display = 'none';
+function authTab(mode) {
+  _authMode = mode;
+  document.getElementById('at-login').classList.toggle('active', mode==='login');
+  document.getElementById('at-reg').classList.toggle('active', mode==='register');
+  document.getElementById('auth-name-wrap').style.display = mode==='register'?'block':'none';
+  document.getElementById('auth-btn').textContent = mode==='login'?'Anmelden':'Registrieren';
+  authMsg('','');
 }
 
-function authShowSuccess(msg) {
-  var el = document.getElementById('auth-success');
-  el.textContent = msg;
-  el.style.display = 'block';
-  document.getElementById('auth-error').style.display = 'none';
+function authMsg(txt, type) {
+  var el = document.getElementById('auth-msg');
+  el.textContent = txt;
+  el.className = 'auth-msg' + (type?' '+type:'');
+  el.style.display = txt ? 'block' : 'none';
 }
 
 async function authSubmit() {
   var email = document.getElementById('auth-email').value.trim();
-  var password = document.getElementById('auth-password').value;
-  var btn = document.getElementById('auth-submit-btn');
-
-  if (!email || !password) { authShowError('Bitte E-Mail und Passwort eingeben'); return; }
-  if (password.length < 6) { authShowError('Passwort muss mindestens 6 Zeichen haben'); return; }
-
+  var pw = document.getElementById('auth-pw').value;
+  var btn = document.getElementById('auth-btn');
+  if (!email || !pw) { authMsg('Bitte E-Mail und Passwort eingeben','error'); return; }
+  if (pw.length < 6) { authMsg('Passwort mind. 6 Zeichen','error'); return; }
   btn.disabled = true;
-  btn.textContent = authMode === 'login' ? 'Anmelden...' : 'Registrieren...';
-
+  btn.textContent = '...';
   try {
-    var supabaseClient = window._supabaseClient;
-    if (!supabaseClient) throw new Error('Supabase nicht verbunden');
-
-    if (authMode === 'register') {
+    var client = authGetClient();
+    if (!client) throw new Error('Verbindungsfehler');
+    if (_authMode === 'register') {
       var name = document.getElementById('auth-name').value.trim();
-      var res = await supabaseClient.auth.signUp({
-        email: email,
-        password: password,
-        options: { data: { name: name || email.split('@')[0] } }
-      });
+      var res = await client.auth.signUp({email:email,password:pw,options:{data:{name:name||email.split('@')[0]}}});
       if (res.error) throw res.error;
-      authShowSuccess('Bitte bestätige deine E-Mail-Adresse. Dann kannst du dich anmelden.');
-      authSwitchTab('login');
+      authMsg('Registrierung erfolgreich! Bitte anmelden.','ok');
+      authTab('login');
     } else {
-      var res = await supabaseClient.auth.signInWithPassword({ email: email, password: password });
+      var res = await client.auth.signInWithPassword({email:email,password:pw});
       if (res.error) throw res.error;
       currentUser = res.data.user;
-      authAfterLogin();
+      authDone();
     }
   } catch(e) {
-    var msg = e.message || 'Fehler beim Anmelden';
-    if (msg.includes('Invalid login')) msg = 'E-Mail oder Passwort falsch';
-    if (msg.includes('Email not confirmed')) msg = 'Bitte zuerst E-Mail bestätigen';
-    if (msg.includes('already registered')) msg = 'Diese E-Mail ist bereits registriert';
-    authShowError(msg);
+    var msg = e.message||'Fehler';
+    if(msg.includes('Invalid login')) msg = 'E-Mail oder Passwort falsch';
+    if(msg.includes('already registered')) msg = 'E-Mail bereits registriert';
+    if(msg.includes('Email not confirmed')) msg = 'Bitte E-Mail bestätigen';
+    authMsg(msg,'error');
   }
   btn.disabled = false;
-  btn.textContent = authMode === 'login' ? 'Anmelden' : 'Registrieren';
+  btn.textContent = _authMode==='login'?'Anmelden':'Registrieren';
 }
 
 function authSkip() {
-  currentUser = null;
-  localStorage.setItem('thyme_auth_skipped', '1');
-  authAfterLogin();
+  localStorage.setItem('thyme_no_auth','1');
+  authDone();
 }
 
-function authAfterLogin() {
-  // Zur App navigieren
-  document.querySelectorAll('.screen').forEach(function(s){ s.classList.remove('active'); });
-  showScreen('home');
-  // Supabase sync starten wenn eingeloggt
-  if (currentUser) {
-    setTimeout(syncToCloud, 500);
-  }
-  // User-Info in Einstellungen aktualisieren
-  setTimeout(updateAuthUI, 100);
+function authDone() {
+  document.getElementById('screen-auth').classList.remove('active');
+  updateAuthSettings();
 }
 
-function updateAuthUI() {
+function authShowScreen() {
+  document.getElementById('screen-auth').classList.add('active');
+}
+
+async function authInit() {
+  if (localStorage.getItem('thyme_no_auth')) return;
+  var client = authGetClient();
+  if (!client) return;
+  try {
+    var res = await client.auth.getSession();
+    if (res.data && res.data.session) {
+      currentUser = res.data.session.user;
+      updateAuthSettings();
+      return;
+    }
+  } catch(e) {}
+  // Kein Login — Auth Screen zeigen
+  setTimeout(authShowScreen, 1000);
+}
+
+function updateAuthSettings() {
   var badge = document.getElementById('auth-user-badge');
+  var loginBtn = document.getElementById('auth-login-btn');
+  var logoutBtn = document.getElementById('auth-logout-btn');
   if (!badge) return;
   if (currentUser) {
-    var name = (currentUser.user_metadata && currentUser.user_metadata.name) || currentUser.email || '';
+    var name = (currentUser.user_metadata&&currentUser.user_metadata.name)||currentUser.email||'';
     badge.textContent = name;
     badge.style.display = 'block';
-    document.getElementById('auth-login-btn').style.display = 'none';
-    document.getElementById('auth-logout-btn').style.display = 'block';
+    if(loginBtn) loginBtn.style.display = 'none';
+    if(logoutBtn) logoutBtn.style.display = 'block';
   } else {
     badge.style.display = 'none';
-    document.getElementById('auth-login-btn').style.display = 'block';
-    document.getElementById('auth-logout-btn').style.display = 'none';
+    if(loginBtn) loginBtn.style.display = 'block';
+    if(logoutBtn) logoutBtn.style.display = 'none';
   }
 }
 
 async function authLogout() {
-  if (window._supabaseClient) await window._supabaseClient.auth.signOut();
+  var client = authGetClient();
+  if (client) await client.auth.signOut();
   currentUser = null;
-  updateAuthUI();
-  showToast('Abgemeldet', 'success');
+  localStorage.removeItem('thyme_no_auth');
+  updateAuthSettings();
+  showToast('Abgemeldet','success');
 }
 
-// Beim Start: Session prüfen
-async function authCheckSession() {
-  // Warte bis Supabase Client bereit
-  if (!window._supabaseClient) {
-    try {
-      if (typeof supabase !== 'undefined' && supabase.createClient) {
-        window._supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
-      }
-    } catch(e) { console.warn('Supabase late init:', e); }
-  }
-  if (!window._supabaseClient) return false;
-  try {
-    var res = await window._supabaseClient.auth.getSession();
-    if (res.data && res.data.session) {
-      currentUser = res.data.session.user;
-      updateAuthUI();
-      return true;
-    }
-  } catch(e) { console.warn('Session check:', e); }
-  return false;
-}
 </script>
-
 
 <!-- SCREEN: EINKAUFSLISTE -->
 <div id="screen-shopping" class="screen">
