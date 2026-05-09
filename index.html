@@ -1354,6 +1354,16 @@ html,body{overflow-y:auto;-webkit-overflow-scrolling:touch;height:auto}
       </div>
     </div>
     <div class="settings-section">
+      <h3>&#128100; Account</h3>
+      <div id="auth-badge" style="font-size:14px;color:#5C7F5D;padding:6px 0 10px;display:none;line-height:1.5"></div>
+      <button id="auth-lbtn" onclick="aOpen()" style="width:100%;padding:12px;background:transparent;border:1px solid #3D5A3E;border-radius:10px;color:#5C7F5D;font-family:'DM Sans',sans-serif;font-size:14px;cursor:pointer;margin-bottom:8px">
+        &#128100; Anmelden / Registrieren
+      </button>
+      <button id="auth-obtn" onclick="aLogout()" style="width:100%;padding:12px;background:transparent;border:1px solid var(--border);border-radius:10px;color:var(--smoke);font-family:'DM Sans',sans-serif;font-size:14px;cursor:pointer;display:none">
+        Abmelden
+      </button>
+    </div>
+    <div class="settings-section">
       <h3>&#128260; Synchronisation</h3>
       <p style="font-size:14.3px;color:#888;margin-bottom:10px">Daten werden lokal gespeichert und bei Internetverbindung mit der Cloud synchronisiert.</p>
       <button class="btn-import" onclick="syncNow()">&#8635; Jetzt synchronisieren</button>
