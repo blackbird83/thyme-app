@@ -717,6 +717,23 @@ html,body{overflow-y:auto;-webkit-overflow-scrolling:touch;height:auto}
 .do-save{width:100%;padding:13px;background:#3D5A3E;border:none;border-radius:12px;color:#F0E8D8;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:500;cursor:pointer;margin-bottom:10px}
 .do-shop{width:100%;padding:13px;background:transparent;border:1px solid #3D5A3E;border-radius:12px;color:#5C7F5D;font-family:'DM Sans',sans-serif;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:20px}
 
+
+/* ── AUTH / LOGIN ────────────────────────────────────────────────────────── */
+#screen-auth{background:var(--cream);display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:40px 32px}
+.auth-logo{font-family:'Cormorant Garamond',serif;font-size:42px;font-weight:300;color:#3D5A3E;letter-spacing:6px;margin-bottom:8px;text-align:center}
+.auth-tagline{font-size:11px;letter-spacing:3px;color:#B8973A;text-transform:uppercase;margin-bottom:48px;text-align:center}
+.auth-tab-wrap{display:flex;border-radius:12px;overflow:hidden;border:1px solid var(--border);margin-bottom:28px;width:100%}
+.auth-tab{flex:1;padding:12px;background:transparent;border:none;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--smoke);cursor:pointer;transition:all .2s}
+.auth-tab.active{background:#3D5A3E;color:#F0E8D8}
+.auth-field{margin-bottom:14px;width:100%}
+.auth-label{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#B8973A;display:block;margin-bottom:6px}
+.auth-input{width:100%;background:var(--parchment);border:1px solid var(--border);border-radius:10px;padding:13px 16px;font-size:15px;color:var(--bark);font-family:'DM Sans',sans-serif}
+.auth-btn{width:100%;padding:14px;background:#3D5A3E;border:none;border-radius:12px;color:#F0E8D8;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:500;cursor:pointer;margin-top:8px;margin-bottom:16px}
+.auth-btn:disabled{opacity:0.6;cursor:not-allowed}
+.auth-skip{text-align:center;font-size:13px;color:var(--smoke);cursor:pointer;text-decoration:underline;opacity:0.7}
+.auth-error{background:#FBEAE8;border:1px solid #E8A09A;border-radius:8px;padding:10px 14px;font-size:13px;color:#8B2018;margin-bottom:14px;display:none}
+.auth-success{background:#EAF3DE;border:1px solid #9FC76A;border-radius:8px;padding:10px 14px;font-size:13px;color:#2D5A0E;margin-bottom:14px;display:none}
+
 </style>
 </head>
 <body>
@@ -924,6 +941,42 @@ html,body{overflow-y:auto;-webkit-overflow-scrolling:touch;height:auto}
 <div class="app">
 
 <!-- HOME -->
+
+<!-- SCREEN: AUTH (Login / Register) -->
+<div id="screen-auth" class="screen">
+  <div class="auth-logo">thyme</div>
+  <div class="auth-tagline">Recipe Archive</div>
+
+  <div style="width:100%;max-width:380px">
+    <div class="auth-tab-wrap">
+      <button class="auth-tab active" id="auth-tab-login" onclick="authSwitchTab('login')">Anmelden</button>
+      <button class="auth-tab" id="auth-tab-register" onclick="authSwitchTab('register')">Registrieren</button>
+    </div>
+
+    <div id="auth-error" class="auth-error"></div>
+    <div id="auth-success" class="auth-success"></div>
+
+    <div id="auth-name-field" class="auth-field" style="display:none">
+      <label class="auth-label">Name</label>
+      <input type="text" id="auth-name" class="auth-input" placeholder="Dein Name oder Küche">
+    </div>
+
+    <div class="auth-field">
+      <label class="auth-label">E-Mail</label>
+      <input type="email" id="auth-email" class="auth-input" placeholder="email@example.com" autocomplete="email">
+    </div>
+
+    <div class="auth-field">
+      <label class="auth-label">Passwort</label>
+      <input type="password" id="auth-password" class="auth-input" placeholder="Mindestens 6 Zeichen" autocomplete="current-password">
+    </div>
+
+    <button class="auth-btn" id="auth-submit-btn" onclick="authSubmit()">Anmelden</button>
+
+    <div class="auth-skip" onclick="authSkip()">Ohne Account fortfahren</div>
+  </div>
+</div>
+
 <div class="header">
     <div class="app-name" onclick="logoTap()" style="cursor:pointer;padding:4px 8px 4px 0;-webkit-tap-highlight-color:rgba(184,151,58,0.2)">
       <svg viewBox="0 0 120 36" style="pointer-events:none" xmlns="http://www.w3.org/2000/svg" style="height:32px;width:auto">
@@ -1734,6 +1787,14 @@ async function init() {
   applyTheme();
   setTimeout(updateBookCoverTheme, 50);
   isOnline = navigator.onLine;
+  
+  // Supabase Client initialisieren
+  try {
+    if (typeof supabase !== 'undefined') {
+      window._supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+    }
+  } catch(e) { console.warn('Supabase init:', e); }
+  
   showSplash();
   obShow();
   localLoad();
@@ -1757,7 +1818,12 @@ async function init() {
 function showScreen(name) {
   // Header nur auf Home-Screen anzeigen
   var mainHeader = document.querySelector('.header');
-  if(mainHeader) mainHeader.style.display = name === 'home' ? 'flex' : 'none';
+  if(mainHeader) mainHeader.style.display = (name === 'home') ? 'flex' : 'none';
+  // Auth Screen: screen-auth class hinzufügen
+  if(name === 'auth') {
+    document.getElementById('screen-auth').classList.add('active');
+    return;
+  }
   
   if (name === 'home') {
     activeCat = 'all';
@@ -4129,6 +4195,132 @@ function addSeasonDetailToShop() {
 }
 
 function seasonDetailAddPhoto() { doSelectPhoto('season-detail-photo-wrap'); }
+
+// ══════════════════════════════════════════════════════════════════════════════
+// SUPABASE AUTH
+// ══════════════════════════════════════════════════════════════════════════════
+var currentUser = null;
+var authMode = 'login';
+
+function authSwitchTab(mode) {
+  authMode = mode;
+  document.getElementById('auth-tab-login').classList.toggle('active', mode==='login');
+  document.getElementById('auth-tab-register').classList.toggle('active', mode==='register');
+  document.getElementById('auth-name-field').style.display = mode==='register' ? 'block' : 'none';
+  document.getElementById('auth-submit-btn').textContent = mode==='login' ? 'Anmelden' : 'Registrieren';
+  document.getElementById('auth-error').style.display = 'none';
+  document.getElementById('auth-success').style.display = 'none';
+}
+
+function authShowError(msg) {
+  var el = document.getElementById('auth-error');
+  el.textContent = msg;
+  el.style.display = 'block';
+  document.getElementById('auth-success').style.display = 'none';
+}
+
+function authShowSuccess(msg) {
+  var el = document.getElementById('auth-success');
+  el.textContent = msg;
+  el.style.display = 'block';
+  document.getElementById('auth-error').style.display = 'none';
+}
+
+async function authSubmit() {
+  var email = document.getElementById('auth-email').value.trim();
+  var password = document.getElementById('auth-password').value;
+  var btn = document.getElementById('auth-submit-btn');
+
+  if (!email || !password) { authShowError('Bitte E-Mail und Passwort eingeben'); return; }
+  if (password.length < 6) { authShowError('Passwort muss mindestens 6 Zeichen haben'); return; }
+
+  btn.disabled = true;
+  btn.textContent = authMode === 'login' ? 'Anmelden...' : 'Registrieren...';
+
+  try {
+    var supabaseClient = window._supabaseClient;
+    if (!supabaseClient) throw new Error('Supabase nicht verbunden');
+
+    if (authMode === 'register') {
+      var name = document.getElementById('auth-name').value.trim();
+      var res = await supabaseClient.auth.signUp({
+        email: email,
+        password: password,
+        options: { data: { name: name || email.split('@')[0] } }
+      });
+      if (res.error) throw res.error;
+      authShowSuccess('Bitte bestätige deine E-Mail-Adresse. Dann kannst du dich anmelden.');
+      authSwitchTab('login');
+    } else {
+      var res = await supabaseClient.auth.signInWithPassword({ email: email, password: password });
+      if (res.error) throw res.error;
+      currentUser = res.data.user;
+      authAfterLogin();
+    }
+  } catch(e) {
+    var msg = e.message || 'Fehler beim Anmelden';
+    if (msg.includes('Invalid login')) msg = 'E-Mail oder Passwort falsch';
+    if (msg.includes('Email not confirmed')) msg = 'Bitte zuerst E-Mail bestätigen';
+    if (msg.includes('already registered')) msg = 'Diese E-Mail ist bereits registriert';
+    authShowError(msg);
+  }
+  btn.disabled = false;
+  btn.textContent = authMode === 'login' ? 'Anmelden' : 'Registrieren';
+}
+
+function authSkip() {
+  currentUser = null;
+  localStorage.setItem('thyme_auth_skipped', '1');
+  authAfterLogin();
+}
+
+function authAfterLogin() {
+  // Zur App navigieren
+  document.querySelectorAll('.screen').forEach(function(s){ s.classList.remove('active'); });
+  showScreen('home');
+  // Supabase sync starten wenn eingeloggt
+  if (currentUser) {
+    setTimeout(syncToCloud, 500);
+  }
+  // User-Info in Einstellungen aktualisieren
+  setTimeout(updateAuthUI, 100);
+}
+
+function updateAuthUI() {
+  var badge = document.getElementById('auth-user-badge');
+  if (!badge) return;
+  if (currentUser) {
+    var name = (currentUser.user_metadata && currentUser.user_metadata.name) || currentUser.email || '';
+    badge.textContent = name;
+    badge.style.display = 'block';
+    document.getElementById('auth-login-btn').style.display = 'none';
+    document.getElementById('auth-logout-btn').style.display = 'block';
+  } else {
+    badge.style.display = 'none';
+    document.getElementById('auth-login-btn').style.display = 'block';
+    document.getElementById('auth-logout-btn').style.display = 'none';
+  }
+}
+
+async function authLogout() {
+  if (window._supabaseClient) await window._supabaseClient.auth.signOut();
+  currentUser = null;
+  updateAuthUI();
+  showToast('Abgemeldet', 'success');
+}
+
+// Beim Start: Session prüfen
+async function authCheckSession() {
+  if (!window._supabaseClient) return false;
+  try {
+    var res = await window._supabaseClient.auth.getSession();
+    if (res.data && res.data.session) {
+      currentUser = res.data.session.user;
+      return true;
+    }
+  } catch(e) { console.warn('Session check:', e); }
+  return false;
+}
 </script>
 
 <!-- SCREEN: EINKAUFSLISTE -->
