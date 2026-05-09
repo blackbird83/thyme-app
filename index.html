@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<meta name="build" content="20260509161759">
+<meta name="build" content="20260505102348">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -10,6 +10,7 @@
 <meta name="theme-color" content="#3D5A3E">
 <title>thyme</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{
@@ -480,26 +481,10 @@ html,body{overflow-y:auto;-webkit-overflow-scrolling:touch;height:auto}
 .screen.active{display:block;opacity:1;transform:translateY(0);min-height:100vh}
 
 </style>
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 </head>
 <body>
 
-<script>// Supabase Client sofort initialisieren
-window._supabaseReady = false;
-document.addEventListener('DOMContentLoaded', function() {
-  try {
-    if (typeof supabase !== 'undefined') {
-      window._supabaseClient = supabase.createClient(
-        'https://gzfthrcubvafdkgacrkn.supabase.co',
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd6ZnRocmN1YnZhZmRrZ2FjcmtuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU4NjA3MDQsImV4cCI6MjA2MTQzNjcwNH0.FuyfGMlSRmKlGECCDmXZVNcR39P5AJXrBD_q_LOBTiE'
-      );
-      window._supabaseReady = true;
-    }
-  } catch(e) { console.warn('Supabase init:', e); }
-});
-
-
+<script>
 // ─── CLAUDE API DIREKT ────────────────────────────────────────────────────
 async function callClaude(payload) {
   var key = getClaudeKey();
@@ -3368,15 +3353,7 @@ async function authSubmit() {
 
   try {
     var supabaseClient = window._supabaseClient;
-    if (!supabaseClient) {
-      try {
-        if (typeof supabase !== 'undefined') {
-          window._supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
-          supabaseClient = window._supabaseClient;
-        }
-      } catch(e) {}
-    }
-    if (!supabaseClient) throw new Error('Supabase nicht verfügbar. Bitte Seite neu laden.');
+    if (!supabaseClient) throw new Error('Supabase nicht verbunden');
 
     if (authMode === 'register') {
       var name = document.getElementById('auth-name').value.trim();
@@ -3448,13 +3425,13 @@ async function authLogout() {
 
 // Beim Start: Session prüfen
 async function authCheckSession() {
-  // Sicherstellen dass Client initialisiert ist
+  // Warte bis Supabase Client bereit
   if (!window._supabaseClient) {
     try {
-      if (typeof supabase !== 'undefined') {
+      if (typeof supabase !== 'undefined' && supabase.createClient) {
         window._supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
       }
-    } catch(e) {}
+    } catch(e) { console.warn('Supabase late init:', e); }
   }
   if (!window._supabaseClient) return false;
   try {
