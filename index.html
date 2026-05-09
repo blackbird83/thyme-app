@@ -1185,6 +1185,9 @@ html,body{overflow-y:auto;-webkit-overflow-scrolling:touch;height:auto}
     <text x="170" y="316" text-anchor="middle" font-family="'Cormorant Garamond','Palatino Linotype',Georgia,serif" font-size="56" font-weight="300" fill="#2C1F14" letter-spacing="10">thyme</text>
     <text x="170" y="344" text-anchor="middle" font-family="'DM Sans',system-ui,sans-serif" font-size="10" fill="#3D5A3E" letter-spacing="6" opacity="0.9">RECIPE ARCHIVE</text>
     <line x1="120" y1="368" x2="220" y2="368" stroke="#B8973A" stroke-width="0.4" opacity="0.3"/>
+    <text id="bc-mode-text-light" x="170" y="390" text-anchor="middle"
+      font-family="'DM Sans',system-ui,sans-serif"
+      font-size="9" fill="#B8973A" letter-spacing="3" opacity="0.8">PRIVAT</text>
   </svg>
 </div><button id="book-cover-hint" onclick="try{showScreen('navigation');}catch(e){console.warn(e);}" style="display:none;background:none;border:none;cursor:pointer;padding:12px 40px 20px;text-align:center;-webkit-tap-highlight-color:rgba(61,90,62,0.2);width:100%">
     <span style="font-size:12.1px;letter-spacing:4px;color:#5C7F5D;text-transform:uppercase;display:block;margin-bottom:6px">KATEGORIE WÄHLEN</span>
@@ -4468,6 +4471,12 @@ function outletUpdateBar() {
   } else {
     bar.classList.remove('visible');
   }
+  // Modus-Text im Cover aktualisieren
+  var modeText = _outlet ? _outlet.name.toUpperCase().substring(0,14) : 'PRIVAT';
+  var dark = document.getElementById('bc-mode-text');
+  var light = document.getElementById('bc-mode-text-light');
+  if (dark) dark.textContent = modeText;
+  if (light) light.textContent = modeText;
 }
 
 function outletInit() {
