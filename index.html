@@ -733,9 +733,66 @@ html,body{overflow-y:auto;-webkit-overflow-scrolling:touch;height:auto}
 .a-skip{text-align:center;font-size:13px;color:var(--smoke);cursor:pointer;text-decoration:underline}
 .a-err{width:100%;max-width:360px;border-radius:8px;padding:10px 14px;font-size:13px;margin-bottom:10px;display:none;background:#FBEAE8;border:1px solid #E8A09A;color:#8B2018}
 .a-ok{width:100%;max-width:360px;border-radius:8px;padding:10px 14px;font-size:13px;margin-bottom:10px;display:none;background:#EAF3DE;border:1px solid #9FC76A;color:#2D5A0E}
+
+/* OUTLET MODUS */
+.outlet-mode-bar{background:#3D5A3E;color:#F0E8D8;padding:6px 16px;font-size:11px;letter-spacing:2px;text-align:center;display:none}
+.outlet-mode-bar.visible{display:block}
+.outlet-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:800;align-items:center;justify-content:center;padding:20px}
+.outlet-modal.open{display:flex}
+.outlet-box{background:var(--cream);border-radius:16px;padding:24px;width:100%;max-width:360px}
+.outlet-box h3{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:300;color:var(--bark);margin-bottom:16px}
+.outlet-tab-wrap{display:flex;border-radius:10px;overflow:hidden;border:1px solid var(--border);margin-bottom:20px}
+.outlet-tab{flex:1;padding:10px;background:transparent;border:none;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--smoke);cursor:pointer}
+.outlet-tab.on{background:#3D5A3E;color:#F0E8D8}
+.outlet-inp{width:100%;background:var(--parchment);border:1px solid var(--border);border-radius:10px;padding:11px 14px;font-size:14px;color:var(--bark);font-family:'DM Sans',sans-serif;margin-bottom:12px;box-sizing:border-box}
+.outlet-btn{width:100%;padding:12px;background:#3D5A3E;border:none;border-radius:10px;color:#F0E8D8;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;cursor:pointer;margin-bottom:10px}
+.outlet-cancel{width:100%;padding:10px;background:transparent;border:1px solid var(--border);border-radius:10px;color:var(--smoke);font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer}
+.outlet-msg{font-size:13px;padding:8px 12px;border-radius:8px;margin-bottom:12px;display:none}
+.outlet-msg.err{background:#FBEAE8;color:#8B2018;border:1px solid #E8A09A}
+.outlet-msg.ok{background:#EAF3DE;color:#2D5A0E;border:1px solid #9FC76A}
+.outlet-code{font-family:monospace;font-size:28px;font-weight:700;color:#3D5A3E;letter-spacing:8px;text-align:center;padding:16px 0;border:2px dashed #3D5A3E;border-radius:10px;margin-bottom:12px}
+.outlet-info{font-size:12px;color:var(--smoke);text-align:center;margin-bottom:16px}
 </style>
 </head>
 <body>
+
+<!-- OUTLET MODAL -->
+<div id="outlet-modal" class="outlet-modal">
+  <div class="outlet-box">
+    <h3 id="outlet-modal-title">Outlet</h3>
+    <div class="outlet-tab-wrap">
+      <button class="outlet-tab on" id="ot-create" onclick="outletTab('create')">Erstellen</button>
+      <button class="outlet-tab" id="ot-join" onclick="outletTab('join')">Beitreten</button>
+    </div>
+    <div class="outlet-msg" id="outlet-msg"></div>
+
+    <!-- Erstellen -->
+    <div id="outlet-create-form">
+      <input type="text" id="outlet-name" class="outlet-inp" placeholder="Name des Outlets (z.B. Restaurant Rosé)">
+      <button class="outlet-btn" onclick="outletCreate()">Outlet erstellen</button>
+    </div>
+
+    <!-- Beitreten -->
+    <div id="outlet-join-form" style="display:none">
+      <input type="text" id="outlet-code-inp" class="outlet-inp" placeholder="Einladungscode eingeben" style="text-transform:uppercase;letter-spacing:4px;font-size:18px;text-align:center">
+      <button class="outlet-btn" onclick="outletJoin()">Beitreten</button>
+    </div>
+
+    <!-- Ergebnis nach Erstellen -->
+    <div id="outlet-result" style="display:none">
+      <div class="outlet-code" id="outlet-result-code"></div>
+      <div class="outlet-info">Teile diesen Code mit deinen Mitarbeitern</div>
+      <button class="outlet-btn" onclick="outletClose()">Fertig</button>
+    </div>
+
+    <button class="outlet-cancel" onclick="outletClose()">Abbrechen</button>
+  </div>
+</div>
+
+<!-- OUTLET MODUS BAR -->
+<div class="outlet-mode-bar" id="outlet-bar">
+  &#127869; <span id="outlet-bar-name"></span> &nbsp;·&nbsp; <span id="outlet-bar-role"></span>
+</div>
 <div id="screen-auth">
   <div class="a-logo">thyme</div>
   <div class="a-tag">Recipe Archive</div>
@@ -1364,6 +1421,17 @@ html,body{overflow-y:auto;-webkit-overflow-scrolling:touch;height:auto}
       </button>
     </div>
     <div class="settings-section">
+      <h3>&#127869; Outlet</h3>
+      <p style="font-size:13px;color:var(--smoke);margin-bottom:10px">Teile dein Rezeptarchiv mit deinem Team oder tritt einem Outlet bei.</p>
+      <div id="outlet-settings-info" style="display:none;font-size:13px;color:#3D5A3E;padding:8px 12px;background:var(--parchment);border-radius:8px;margin-bottom:10px"></div>
+      <button onclick="outletOpen()" style="width:100%;padding:11px;background:transparent;border:1px solid #3D5A3E;border-radius:10px;color:#5C7F5D;font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;margin-bottom:8px">
+        &#127869; Outlet erstellen / beitreten
+      </button>
+      <button id="outlet-leave-btn" onclick="outletLeave()" style="width:100%;padding:11px;background:transparent;border:1px solid var(--border);border-radius:10px;color:var(--smoke);font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;display:none">
+        Outlet verlassen
+      </button>
+    </div>
+    <div class="settings-section">
       <h3>&#128260; Synchronisation</h3>
       <p style="font-size:14.3px;color:#888;margin-bottom:10px">Daten werden lokal gespeichert und bei Internetverbindung mit der Cloud synchronisiert.</p>
       <button class="btn-import" onclick="syncNow()">&#8635; Jetzt synchronisieren</button>
@@ -1816,6 +1884,7 @@ async function init() {
   }
 
   aInit();
+  outletInit();
 }
 
 // ─── NAVIGATION ────────────────────────────────────────────────────────────
@@ -4278,6 +4347,133 @@ async function aLogout() {
   var c=_aSC(); if(c) await c.auth.signOut();
   _aUser=null; localStorage.removeItem('thyme_skip_auth'); aUpdateUI();
   showToast('Abgemeldet','success');
+}
+
+// ── OUTLET MODUS ──────────────────────────────────────────────────────────────
+var _outlet = null; // {id, name, role, invite_code}
+var _outletTab = 'create';
+
+function outletTab(tab) {
+  _outletTab = tab;
+  document.getElementById('ot-create').classList.toggle('on', tab==='create');
+  document.getElementById('ot-join').classList.toggle('on', tab==='join');
+  document.getElementById('outlet-create-form').style.display = tab==='create'?'block':'none';
+  document.getElementById('outlet-join-form').style.display = tab==='join'?'block':'none';
+  document.getElementById('outlet-result').style.display = 'none';
+  outletMsg('','');
+}
+
+function outletMsg(txt, type) {
+  var el = document.getElementById('outlet-msg');
+  el.textContent = txt;
+  el.className = 'outlet-msg' + (type?' '+type:'');
+  el.style.display = txt?'block':'none';
+}
+
+function outletOpen() {
+  if (!_aUser) { showToast('Bitte zuerst anmelden','error'); aOpen(); return; }
+  document.getElementById('outlet-modal').classList.add('open');
+  outletTab('create');
+}
+
+function outletClose() {
+  document.getElementById('outlet-modal').classList.remove('open');
+}
+
+async function outletCreate() {
+  var name = document.getElementById('outlet-name').value.trim();
+  if (!name) { outletMsg('Bitte Name eingeben','err'); return; }
+  var c = _aSC(); if (!c) { outletMsg('Verbindungsfehler','err'); return; }
+  try {
+    var res = await c.from('outlets').insert({
+      name: name,
+      host_id: _aUser.id
+    }).select().single();
+    if (res.error) throw res.error;
+    // Host auch als Mitglied eintragen
+    await c.from('outlet_members').insert({
+      outlet_id: res.data.id,
+      user_id: _aUser.id,
+      role: 'host'
+    });
+    _outlet = {id: res.data.id, name: res.data.name, role: 'host', invite_code: res.data.invite_code};
+    // Ergebnis anzeigen
+    document.getElementById('outlet-create-form').style.display = 'none';
+    document.getElementById('outlet-join-form').style.display = 'none';
+    document.getElementById('outlet-result').style.display = 'block';
+    document.getElementById('outlet-result-code').textContent = res.data.invite_code;
+    outletMsg('Outlet erstellt!','ok');
+    localStorage.setItem('thyme_outlet', JSON.stringify(_outlet));
+    outletUpdateBar();
+  } catch(e) {
+    outletMsg(e.message||'Fehler beim Erstellen','err');
+  }
+}
+
+async function outletJoin() {
+  var code = document.getElementById('outlet-code-inp').value.trim().toUpperCase();
+  if (!code) { outletMsg('Bitte Code eingeben','err'); return; }
+  var c = _aSC(); if (!c) { outletMsg('Verbindungsfehler','err'); return; }
+  try {
+    // Outlet via Code suchen
+    var res = await c.from('outlets').select('*').eq('invite_code', code).single();
+    if (res.error || !res.data) throw new Error('Ungültiger Code');
+    // Mitglied werden
+    var mem = await c.from('outlet_members').upsert({
+      outlet_id: res.data.id,
+      user_id: _aUser.id,
+      role: 'guest'
+    });
+    if (mem.error) throw mem.error;
+    _outlet = {id: res.data.id, name: res.data.name, role: 'guest', invite_code: res.data.invite_code};
+    localStorage.setItem('thyme_outlet', JSON.stringify(_outlet));
+    outletMsg('Willkommen bei ' + res.data.name + '!','ok');
+    outletUpdateBar();
+    setTimeout(outletClose, 1500);
+  } catch(e) {
+    outletMsg(e.message||'Fehler beim Beitreten','err');
+  }
+}
+
+function outletLeave() {
+  _outlet = null;
+  localStorage.removeItem('thyme_outlet');
+  outletUpdateBar();
+  outletUpdateSettings();
+  showToast('Outlet verlassen','success');
+}
+
+function outletUpdateSettings() {
+  var info = document.getElementById('outlet-settings-info');
+  var leaveBtn = document.getElementById('outlet-leave-btn');
+  if (!info) return;
+  if (_outlet) {
+    info.textContent = (_outlet.role==='host'?'Host: ':'Mitglied: ') + _outlet.name + ' · Code: ' + _outlet.invite_code;
+    info.style.display = 'block';
+    if(leaveBtn) leaveBtn.style.display = 'block';
+  } else {
+    info.style.display = 'none';
+    if(leaveBtn) leaveBtn.style.display = 'none';
+  }
+}
+function outletUpdateBar() {
+  var bar = document.getElementById('outlet-bar');
+  var barName = document.getElementById('outlet-bar-name');
+  var barRole = document.getElementById('outlet-bar-role');
+  if (!bar) return;
+  if (_outlet) {
+    barName.textContent = _outlet.name;
+    barRole.textContent = _outlet.role === 'host' ? 'Host &#128081;' : 'Gast';
+    bar.classList.add('visible');
+  } else {
+    bar.classList.remove('visible');
+  }
+}
+
+function outletInit() {
+  // Gespeichertes Outlet laden
+  var saved = localStorage.getItem('thyme_outlet');
+  if (saved) { try { _outlet = JSON.parse(saved); outletUpdateBar(); } catch(e) {} }
 }
 </script>
 
