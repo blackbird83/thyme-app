@@ -1727,7 +1727,19 @@ async function syncToCloud() {
       db.from('recipes').select('*').order('created_at', {ascending: false}),
       db.from('categories').select('*').order('sort_order')
     ]);
-    if (rRes.data) recipes = rRes.data;
+    if (rRes.data && rRes.data.length > 0) {
+      // Supabase hat Rezepte — zusammenführen mit lokalen
+      var localIds = recipes.map(function(r){ return r.id; });
+      var newFromCloud = rRes.data.filter(function(r){ return localIds.indexOf(r.id) < 0; });
+      recipes = recipes.concat(newFromCloud);
+    } else if (recipes.length > 0) {
+      // Supabase leer aber lokal vorhanden — hochladen
+      try {
+        await db.from('recipes').upsert(recipes.map(function(r){
+          return Object.assign({}, r, {photo: r.photo && r.photo.startsWith('http') ? r.photo : null});
+        }));
+      } catch(e) { console.warn('Upload lokaler Rezepte:', e); }
+    }
     if (cRes.data && cRes.data.length > 0) categories = cRes.data;
     // Fotos aus thyme_photo_ Keys wiederherstellen (Supabase hat kein photo Feld)
     var photoMap = {};
@@ -4226,12 +4238,22 @@ function aSkip() { localStorage.setItem('thyme_skip_auth','1'); aClose(); }
 function aClose() { document.getElementById('screen-auth').classList.remove('visible'); }
 function aOpen() { document.getElementById('screen-auth').classList.add('visible'); }
 function aUpdateUI() {
-  var badge=document.getElementById('auth-badge');
-  var lbtn=document.getElementById('auth-lbtn');
-  var obtn=document.getElementById('auth-obtn');
-  if(!badge) return;
-  if(_aUser){ badge.textContent=(_aUser.user_metadata&&_aUser.user_metadata.name)||_aUser.email||''; badge.style.display='block'; if(lbtn)lbtn.style.display='none'; if(obtn)obtn.style.display='block'; }
-  else { badge.style.display='none'; if(lbtn)lbtn.style.display='block'; if(obtn)obtn.style.display='none'; }
+  var badge = document.getElementById('auth-badge');
+  var lbtn = document.getElementById('auth-lbtn');
+  var obtn = document.getElementById('auth-obtn');
+  if (!badge) return;
+  if (_aUser) {
+    var name = (_aUser.user_metadata && _aUser.user_metadata.name) || _aUser.email || '';
+    badge.innerHTML = '&#128100; <strong>' + name + '</strong><br>'
+      + '<span style="font-size:11px;color:var(--smoke)">' + _aUser.email + '</span>';
+    badge.style.display = 'block';
+    if (lbtn) lbtn.style.display = 'none';
+    if (obtn) obtn.style.display = 'block';
+  } else {
+    badge.style.display = 'none';
+    if (lbtn) lbtn.style.display = 'block';
+    if (obtn) obtn.style.display = 'none';
+  }
 }
 async function aInit() {
   if (localStorage.getItem('thyme_skip_auth')) return;
