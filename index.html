@@ -2074,8 +2074,7 @@ function openDetail(r) {
     photoHtml = '<div class="recipe-hero-placeholder" id="recipe-photo-placeholder" onclick="addPhotoToRecipe()"><span>+ Foto hinzufügen</span></div>';
   }
   document.getElementById('detail-body').innerHTML =
-    photoHtml + '<span class="detail-emoji">' + (r.emoji || '&#127869;') + '</span>'
-    + '<div class="detail-title">' + r.title + '</div>'
+    photoHtml + '<div class="detail-title">' + r.title + '</div>'
     + '<div class="detail-meta" style="display:flex;align-items:center;gap:10px">'
     + '<span>' + (r.category || '') + ' &middot; ' + (r.source || '') + '</span>'
     + '<button class="fav-btn ' + (r.favorite ? 'active' : 'inactive') + '" id="detail-fav-btn" onclick="toggleFavorite(this,&quot;' + r.id + '&quot;)" style="font-size:20px;padding:0">' + (r.favorite ? '&#9733;' : '&#9734;') + '</button>'
