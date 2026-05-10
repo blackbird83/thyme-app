@@ -12,18 +12,18 @@
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script>
-// ─── CLAUDE API DIREKT ────────────────────────────────────────────────────
+// ─── CLAUDE API VIA PROXY ─────────────────────────────────────────────────
+// Trage hier deine Cloudflare Worker URL ein (nach dem Deployment):
+var CLAUDE_PROXY_URL = 'https://thyme-proxy.basti-der-rabe.workers.dev';
+
 async function callClaude(payload) {
-  var key = getClaudeKey();
-  if (!key) { showToast('Bitte API Key in Einstellungen hinterlegen', 'error'); showScreen('settings'); throw new Error('Kein API Key'); }
-  var res = await fetch('https://api.anthropic.com/v1/messages', {
+  if (!CLAUDE_PROXY_URL || CLAUDE_PROXY_URL.includes('DEIN-NAME')) {
+    showToast('Bitte Proxy-URL in index.html eintragen', 'error');
+    throw new Error('Kein Proxy konfiguriert');
+  }
+  var res = await fetch(CLAUDE_PROXY_URL, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': key,
-      'anthropic-version': '2023-06-01',
-      'anthropic-dangerous-direct-browser-access': 'true'
-    },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload)
   });
   if (!res.ok) { var err = await res.json().catch(function(){return {};}); throw new Error(err.error && err.error.message ? err.error.message : 'API Fehler ' + res.status); }
@@ -1411,15 +1411,10 @@ html,body{overflow-y:auto;-webkit-overflow-scrolling:touch;height:auto}
             Foto-Speicher anzeigen
           </button>
         </div>
-        <div class="settings-section">
-      <h3>&#128273; Claude API Key</h3>
-      <p style="font-size:14.3px;color:#888;margin-bottom:10px">Benoetigt fuer Scan und URL-Import. Wird sicher lokal gespeichert.</p>
-      <input class="form-input" id="claude-key-input" type="password" placeholder="sk-ant-...">
-      <div id="claude-key-status" class="key-status missing">&#9888; Kein Key hinterlegt</div>
-      <div style="display:flex;gap:10px;margin-top:12px">
-        <button class="btn-save" onclick="saveClaudeKey()">Speichern</button>
-        <button class="btn-cancel" onclick="clearClaudeKey()">Loeschen</button>
-      </div>
+    <div class="settings-section">
+      <h3>&#128272; Claude API (Proxy)</h3>
+      <p style="font-size:14.3px;color:#888;margin-bottom:10px">Scan und Import laufen über einen sicheren Proxy-Server. Kein API Key nötig.</p>
+      <div id="claude-key-status" class="key-status ok" style="margin-top:4px">&#10003; Proxy aktiv</div>
     </div>
     <div class="settings-section">
       <h3>&#128100; Account</h3>
@@ -1704,31 +1699,13 @@ document.addEventListener('DOMContentLoaded', function() {
 const SUPABASE_URL  = 'https://gzfthrcubvafdkgacrkn.supabase.co';
 const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd6ZnRocmN1YnZhZmRrZ2FjcmtuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU1NzA5NzMsImV4cCI6MjA5MTE0Njk3M30.-4uUhFwlGz3xhXkKwGPWZukeQ1REhLKyP-QezwcPVqc';
 
-function getClaudeKey() { return localStorage.getItem('thyme_claude_key') || ''; }
-
-function saveClaudeKey() {
-  const k = document.getElementById('claude-key-input').value.trim();
-  if (!k) return;
-  localStorage.setItem('thyme_claude_key', k);
-  document.getElementById('claude-key-input').value = '';
-  updateKeyStatus();
-  showToast('API Key gespeichert', 'success');
-}
-
-function clearClaudeKey() {
-  showConfirm('API Key wirklich löschen?', 'Löschen', function() { localStorage.removeItem('thyme_claude_key'); updateKeyStatus(); });
-}
-
+// ─── CLAUDE KEY (Legacy-Stubs — nicht mehr verwendet mit Proxy) ───────────
+function getClaudeKey() { return 'proxy'; } // immer "verfügbar"
+function saveClaudeKey() {}
+function clearClaudeKey() {}
 function updateKeyStatus() {
-  const el = document.getElementById('claude-key-status');
-  if (!el) return;
-  if (getClaudeKey()) {
-    el.textContent = 'Key gespeichert (sk-ant-***)';
-    el.className = 'key-status ok';
-  } else {
-    el.textContent = 'Kein Key hinterlegt';
-    el.className = 'key-status missing';
-  }
+  var el = document.getElementById('claude-key-status');
+  if (el) { el.textContent = '✓ Proxy aktiv'; el.className = 'key-status ok'; }
 }
 
 // ─── STANDARD-KATEGORIEN ───────────────────────────────────────────────────
@@ -2194,7 +2171,7 @@ async function handleScan(input) {
   const file = input.files[0];
   if (!file) return;
   if (!isOnline) { showToast('Scan benötigt Internetverbindung', 'error'); return; }
-  if (!getClaudeKey()) { showToast('Bitte API Key in Einstellungen hinterlegen', 'error'); showScreen('settings'); return; }
+  if (CLAUDE_PROXY_URL.includes('DEIN-NAME')) { showToast('Proxy-URL noch nicht konfiguriert', 'error'); return; }
 
   document.getElementById('scan-upload-box').style.display = 'none';
   const preview = document.getElementById('scan-preview');
@@ -2264,7 +2241,7 @@ async function saveScan() {
 // ─── IMPORT ────────────────────────────────────────────────────────────────
 async function importFromUrl() {
   if (!isOnline) { showToast('Keine Internetverbindung', 'error'); return; }
-  if (!getClaudeKey()) { showToast('Bitte API Key in Einstellungen hinterlegen', 'error'); showScreen('settings'); return; }
+  if (CLAUDE_PROXY_URL.includes('DEIN-NAME')) { showToast('Proxy-URL noch nicht konfiguriert', 'error'); return; }
   const url = document.getElementById('import-url').value.trim();
   if (!url) return;
   const btn = document.getElementById('import-url-btn');
@@ -2281,7 +2258,7 @@ function handleFileImport(input) {
   const file = input.files[0];
   if (!file) return;
   if (!isOnline) { showToast('Keine Internetverbindung', 'error'); return; }
-  if (!getClaudeKey()) { showToast('Bitte API Key in Einstellungen hinterlegen', 'error'); showScreen('settings'); return; }
+  if (CLAUDE_PROXY_URL.includes('DEIN-NAME')) { showToast('Proxy-URL noch nicht konfiguriert', 'error'); return; }
   const reader = new FileReader();
   reader.onload = async function(e) {
     await extractWithClaude(e.target.result.substring(0, 4000), file.name);
