@@ -10,7 +10,8 @@
 <meta name="theme-color" content="#3D5A3E">
 <title>thyme</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script>
 // ─── CLAUDE API DIREKT ────────────────────────────────────────────────────
 async function callClaude(payload) {
   var key = getClaudeKey();
@@ -28,7 +29,6 @@ async function callClaude(payload) {
   if (!res.ok) { var err = await res.json().catch(function(){return {};}); throw new Error(err.error && err.error.message ? err.error.message : 'API Fehler ' + res.status); }
   return res.json();
 }
-
 </script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
@@ -1028,7 +1028,7 @@ html,body{overflow-y:auto;-webkit-overflow-scrolling:touch;height:auto}
 <!-- HOME -->
 <div class="header">
     <div class="app-name" onclick="logoTap()" style="cursor:pointer;padding:4px 8px 4px 0;-webkit-tap-highlight-color:rgba(184,151,58,0.2)">
-      <svg viewBox="0 0 120 36" style="pointer-events:none" xmlns="http://www.w3.org/2000/svg" style="height:32px;width:auto">
+      <svg viewBox="0 0 120 36" xmlns="http://www.w3.org/2000/svg" style="height:32px;width:auto;pointer-events:none">
         <defs>
           <linearGradient id="hL" x1="100%" y1="0%" x2="0%" y2="0%">
             <stop offset="0%" stop-color="#3D5A3E"/><stop offset="100%" stop-color="#5C7F5D"/>
@@ -2074,7 +2074,7 @@ function openDetail(r) {
     photoHtml = '<div class="recipe-hero-placeholder" id="recipe-photo-placeholder" onclick="addPhotoToRecipe()"><span>+ Foto hinzufügen</span></div>';
   }
   document.getElementById('detail-body').innerHTML =
-    photoHtml + '<span class="detail-emoji"' + (r.emoji || '&#127869;') + '</span>'
+    photoHtml + '<span class="detail-emoji">' + (r.emoji || '&#127869;') + '</span>'
     + '<div class="detail-title">' + r.title + '</div>'
     + '<div class="detail-meta" style="display:flex;align-items:center;gap:10px">'
     + '<span>' + (r.category || '') + ' &middot; ' + (r.source || '') + '</span>'
@@ -2301,7 +2301,9 @@ async function extractWithClaude(text, source) {
     const r = JSON.parse(d.content[0].text.replace(/```json|```/g, '').trim());
     editId = null;
     document.getElementById('f-title').value = r.title || '';
-    document.getElementById('f-ingredients').value = r.ingredients || '';
+    // Zutaten in strukturierte Zeilen laden
+    var ingLines = (r.ingredients || '').split('\n').filter(function(l){ return l.trim(); });
+    loadIngredientsIntoForm(ingLines.map(function(l){ return JSON.stringify({a:'',u:'',n:l.trim()}); }));
     document.getElementById('f-instructions').value = r.instructions || '';
     document.getElementById('f-portions').value = r.portions || '';
     document.getElementById('f-time').value = r.time || '';
