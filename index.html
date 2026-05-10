@@ -752,6 +752,10 @@ html,body{overflow-y:auto;-webkit-overflow-scrolling:touch;height:auto}
 .outlet-msg.ok{background:#EAF3DE;color:#2D5A0E;border:1px solid #9FC76A}
 .outlet-code{font-family:monospace;font-size:28px;font-weight:700;color:#3D5A3E;letter-spacing:8px;text-align:center;padding:16px 0;border:2px dashed #3D5A3E;border-radius:10px;margin-bottom:12px}
 .outlet-info{font-size:12px;color:var(--smoke);text-align:center;margin-bottom:16px}
+
+/* GAST INFO BAR */
+#guest-info-bar{display:none;background:var(--parchment);border-bottom:1px solid var(--border);padding:6px 16px;font-size:11px;color:var(--smoke);text-align:center;letter-spacing:1px}
+
 </style>
 </head>
 <body>
@@ -1068,6 +1072,7 @@ html,body{overflow-y:auto;-webkit-overflow-scrolling:touch;height:auto}
       <button class="header-icon-btn" onclick="showScreen('settings')" title="Einstellungen">&#9881;</button>
     </div>
   </div>
+<div id="guest-info-bar">&#128100; Gast-Modus — nur Lesen</div>
 <div id="screen-home" class="screen active">
   
   <div class="search-wrap" id="search-wrap">
@@ -2130,6 +2135,7 @@ function selectPill(btn, pickerId) {
 }
 
 async function saveRecipe() {
+  if (!checkCanEdit()) return;
   const title = document.getElementById('f-title').value.trim();
   if (!title) { showToast('Bitte Rezeptname eingeben', 'error'); return; }
   const activePill = document.querySelector('#cat-picker .pill.active');
@@ -2172,6 +2178,7 @@ async function saveRecipe() {
 }
 
 async function deleteRecipe(id) {
+  if (!checkCanEdit()) return;
   showConfirm('Rezept wirklich löschen?', 'Löschen', function() { recipes = recipes.filter(r => r.id !== id); localSave(); if (db && isOnline) db.from('recipes').delete().eq('id', id); renderGrid(); showScreen('home'); });
 }
 
@@ -4411,6 +4418,7 @@ async function outletCreate() {
     outletMsg('Outlet erstellt!','ok');
     localStorage.setItem('thyme_outlet', JSON.stringify(_outlet));
     outletUpdateBar();
+    applyRoleUI();
   } catch(e) {
     outletMsg(e.message||'Fehler beim Erstellen','err');
   }
@@ -4433,6 +4441,7 @@ async function outletJoin() {
     if (mem.error) throw mem.error;
     _outlet = {id: res.data.id, name: res.data.name, role: 'guest', invite_code: res.data.invite_code};
     localStorage.setItem('thyme_outlet', JSON.stringify(_outlet));
+    applyRoleUI();
     outletMsg('Willkommen bei ' + res.data.name + '!','ok');
     outletUpdateBar();
     setTimeout(outletClose, 1500);
@@ -4446,6 +4455,7 @@ function outletLeave() {
   localStorage.removeItem('thyme_outlet');
   outletUpdateBar();
   outletUpdateSettings();
+  applyRoleUI();
   showToast('Outlet verlassen','success');
 }
 
@@ -4486,7 +4496,46 @@ function outletInit() {
   // Gespeichertes Outlet laden
   var saved = localStorage.getItem('thyme_outlet');
   if (saved) { try { _outlet = JSON.parse(saved); outletUpdateBar(); } catch(e) {} }
+  applyRoleUI();
 }
+
+// ── RECHTE-SYSTEM ──────────────────────────────────────────────────────────
+function isHost() {
+  return _outlet && _outlet.role === 'host';
+}
+function isGuest() {
+  return _outlet && _outlet.role === 'guest';
+}
+function checkCanEdit() {
+  if (isGuest()) {
+    showToast('Nur der Host kann Rezepte bearbeiten', 'error');
+    return false;
+  }
+  return true;
+}
+
+// UI je nach Rolle anpassen
+function applyRoleUI() {
+  var role = isGuest() ? 'guest' : 'host';
+  // Neue Rezept Button
+  var addBtn = document.getElementById('add-recipe-btn');
+  if (addBtn) addBtn.style.display = role === 'guest' ? 'none' : '';
+  // Scan Button
+  var scanBtn = document.getElementById('scan-btn');
+  if (scanBtn) scanBtn.style.display = role === 'guest' ? 'none' : '';
+  // Detail: Edit/Delete Buttons
+  var editBtn = document.getElementById('detail-edit-btn');
+  if (editBtn) editBtn.style.display = role === 'guest' ? 'none' : '';
+  var deleteBtn = document.getElementById('detail-delete-btn');
+  if (deleteBtn) deleteBtn.style.display = role === 'guest' ? 'none' : '';
+  // Foto hinzufügen im Detail
+  var photoPlaceholder = document.getElementById('recipe-photo-placeholder');
+  if (photoPlaceholder) photoPlaceholder.style.pointerEvents = role === 'guest' ? 'none' : '';
+  // Hinweis wenn Gast
+  var guestBar = document.getElementById('guest-info-bar');
+  if (guestBar) guestBar.style.display = role === 'guest' ? 'block' : 'none';
+}
+
 </script>
 
 <!-- SCREEN: EINKAUFSLISTE -->
