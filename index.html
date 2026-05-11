@@ -246,11 +246,9 @@ body.light-mode .fav-btn.inactive{color:rgba(0,0,0,0.2)}
 .ing-del{background:none;border:none;color:#5C3A3A;font-size:21.8px;cursor:pointer;padding:4px;width:32px;text-align:center}
 .add-ing-btn{width:100%;background:transparent;border:1px dashed #3D3020;border-radius:8px;padding:12px;font-size:15.7px;color:var(--smoke);cursor:pointer;margin-top:4px;letter-spacing:1px;font-family:'DM Sans',sans-serif}
 .add-ing-btn:active{border-color:#B8973A;color:#B8973A}
-.allergen-badge{display:inline-flex;align-items:center;gap:5px;background:#5C1F1F;color:#FFAAAA;font-size:10.5px;font-weight:600;letter-spacing:.3px;border-radius:5px;padding:4px 9px 4px 6px;margin:2px 3px 2px 0;font-family:'DM Sans',sans-serif}
-.allergen-icon{display:inline-flex;align-items:center;width:16px;height:16px;flex-shrink:0}
-.allergen-icon svg{width:16px;height:16px;stroke:#FFAAAA}
-.allergen-icon-sm{display:inline-flex;align-items:center;width:15px;height:15px;flex-shrink:0;margin-right:2px}
-.allergen-icon-sm svg{width:15px;height:15px;stroke:currentColor}
+.allergen-badge{display:inline-flex;align-items:center;gap:5px;background:#5C1F1F;color:#FFAAAA;font-size:11px;font-weight:500;border-radius:5px;padding:4px 10px 4px 4px;margin:2px 3px 2px 0;font-family:'DM Sans',sans-serif}
+.allergen-code{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;background:#8B0000;color:#FFD0D0;font-size:10px;font-weight:800;border-radius:3px;flex-shrink:0;font-family:'DM Sans',sans-serif}
+.allergen-code-sm{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;background:#8B0000;color:#FFD0D0;font-size:9px;font-weight:800;border-radius:3px;flex-shrink:0;margin-right:2px}
 .allergen-section{margin:10px 0 4px 0}
 .allergen-section-label{font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:var(--smoke);margin-bottom:6px;display:block}
 .allergen-row{display:flex;flex-wrap:wrap;gap:4px}
@@ -2418,20 +2416,20 @@ function selectCatFromSheet(id) {
 var UNITS = ['g','kg','ml','l','EL','TL','Stk','Prise','Bund','Zehe','Scheibe','Dose','Pkg','nach Belieben',''];
 // ─── 14 EU-ALLERGENE ───────────────────────────────────────────────────────
 var ALLERGENS = [
-  {id:'A', name:'Gluten',        svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2c0 0-2 3-2 6s2 4 2 4-2 1-2 4 2 6 2 6M8 5c0 0 2 2 2 5M16 5c0 0-2 2-2 5M8 15c0 0 2 1 4 1M16 15c0 0-2 1-4 1"/></svg>'},
-  {id:'B', name:'Krebstiere',    svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 14c-3 0-6-2-6-5s3-5 6-5 6 2 6 5-3 5-6 5z"/><path d="M6 9L3 7M18 9l3-7M6 12l-3 3M18 12l3 3M9 14l-1 4M15 14l1 4"/></svg>'},
-  {id:'C', name:'Eier',          svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="13" rx="6" ry="8"/></svg>'},
-  {id:'D', name:'Fisch',         svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12c0 0 3-6 9-6s9 6 9 6-3 6-9 6S4 12 4 12z"/><path d="M20 12l3-4M20 12l3 4"/><circle cx="8" cy="11" r="1" fill="currentColor"/></svg>'},
-  {id:'E', name:'Erdnüsse',      svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 12c0-2 1.5-4 4-4s4 2 4 4-1.5 4-4 4-4-2-4-4z"/><path d="M12 8V5M12 19v-3M12 5c0-1.5-1-2.5-2-2.5"/><path d="M10 5c1 0 2-1 2-2.5"/></svg>'},
-  {id:'F', name:'Soja',          svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="12" rx="4" ry="6" transform="rotate(-30 12 12)"/><ellipse cx="12" cy="12" rx="4" ry="6" transform="rotate(30 12 12)"/><line x1="12" y1="6" x2="12" y2="18"/></svg>'},
-  {id:'G', name:'Milch',         svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="4" width="10" height="16" rx="2"/><path d="M7 8h10M9 4V2h6v2"/></svg>'},
-  {id:'H', name:'Schalenfrüchte',svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4c-4 0-7 3-7 7 0 2 1 4 3 5l1 4h8l1-4c2-1 3-3 3-5 0-4-3-7-7-7z"/><path d="M12 4v2M9 8l-2-2M15 8l2-2"/></svg>'},
-  {id:'I', name:'Sellerie',      svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20V8M12 8c0-3 2-5 4-5M12 8c0-3-2-5-4-5M12 12c-2-1-4-1-5 1M12 12c2-1 4-1 5 1"/></svg>'},
-  {id:'J', name:'Senf',          svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><path d="M12 4v2M12 18v2M4 12h2M18 12h2M6.3 6.3l1.4 1.4M16.3 16.3l1.4 1.4M6.3 17.7l1.4-1.4M16.3 7.7l1.4-1.4"/></svg>'},
-  {id:'K', name:'Sesam',         svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="8" cy="8" rx="2.5" ry="4" transform="rotate(-20 8 8)"/><ellipse cx="16" cy="8" rx="2.5" ry="4" transform="rotate(20 16 8)"/><ellipse cx="12" cy="16" rx="2.5" ry="4"/></svg>'},
-  {id:'L', name:'Sulphite',      svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 20h10M8 20V8l4-4 4 4v12"/><path d="M10 20v-5h4v5"/></svg>'},
-  {id:'M', name:'Lupinen',       svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20V8M8 12c0-2 2-4 4-4M16 12c0-2-2-4-4-4M10 16c0-1 1-2 2-2M14 16c0-1-1-2-2-2"/></svg>'},
-  {id:'N', name:'Weichtiere',    svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4C8 4 5 7 5 11c0 5 4 9 7 9s7-4 7-9c0-4-3-7-7-7z"/><path d="M5 11h14M8 7l-2-2M16 7l2-2"/></svg>'},
+  {id:'A', name:'Gluten'},
+  {id:'B', name:'Krebstiere'},
+  {id:'C', name:'Eier'},
+  {id:'D', name:'Fisch'},
+  {id:'E', name:'Erdnüsse'},
+  {id:'F', name:'Soja'},
+  {id:'G', name:'Milch'},
+  {id:'H', name:'Schalenfrüchte'},
+  {id:'I', name:'Sellerie'},
+  {id:'J', name:'Senf'},
+  {id:'K', name:'Sesam'},
+  {id:'L', name:'Sulphite'},
+  {id:'M', name:'Lupinen'},
+  {id:'N', name:'Weichtiere'},
 ];
 
 function allergenById(id) {
@@ -2456,7 +2454,7 @@ function openAllergenPopup(btn, rowEl) {
         var checked = current.indexOf(a.id) >= 0 ? ' checked' : '';
         return '<label class="allergen-cb-label">'
           + '<input type="checkbox" value="' + a.id + '"' + checked + '>'
-          + '<span class="allergen-icon-sm">' + (a.svg || '') + '</span>'
+          + '<span class="allergen-code-sm">' + a.id + '</span>'
           + a.name + '</label>';
       }).join('')
     + '</div>'
@@ -2497,7 +2495,7 @@ function updateAllergenBadgesInRow(rowEl) {
   }
   badgesDiv.innerHTML = allergens.map(function(id) {
     var a = allergenById(id);
-    return '<span class="allergen-badge"><span class="allergen-icon">' + (a.svg || '') + '</span>' + a.name + '</span>';
+    return '<span class="allergen-badge"><span class="allergen-code">' + a.id + '</span>' + a.name + '</span>';
   }).join('');
 }
 
@@ -2522,7 +2520,7 @@ function renderAllergenBadges(allergenIds) {
     + '<div class="allergen-row">'
     + allergenIds.map(function(id) {
         var a = allergenById(id);
-        return '<span class="allergen-badge"><span class="allergen-icon">' + (a.svg || '') + '</span>' + a.name + '</span>';
+        return '<span class="allergen-badge"><span class="allergen-code">' + a.id + '</span>' + a.name + '</span>';
       }).join('')
     + '</div></div>';
 }
