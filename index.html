@@ -246,13 +246,12 @@ body.light-mode .fav-btn.inactive{color:rgba(0,0,0,0.2)}
 .ing-del{background:none;border:none;color:#5C3A3A;font-size:21.8px;cursor:pointer;padding:4px;width:32px;text-align:center}
 .add-ing-btn{width:100%;background:transparent;border:1px dashed #3D3020;border-radius:8px;padding:12px;font-size:15.7px;color:var(--smoke);cursor:pointer;margin-top:4px;letter-spacing:1px;font-family:'DM Sans',sans-serif}
 .add-ing-btn:active{border-color:#B8973A;color:#B8973A}
-.allergen-section{margin:16px 0 8px}
-.allergen-section-label{font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:var(--smoke);margin-bottom:10px;display:block}
+.allergen-section{margin:28px 0 8px}
+.allergen-section-label{font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:var(--smoke);margin-bottom:12px;display:block}
 .allergen-row{display:flex;flex-wrap:wrap;gap:10px}
-.allergen-tile{display:flex;flex-direction:column;align-items:center;gap:5px;width:56px}
-.allergen-tile-icon{width:48px;height:48px;background:#7A1515;border-radius:10px;display:flex;align-items:center;justify-content:center}
-.allergen-tile-icon svg{width:26px;height:26px;stroke:#FFCCCC;fill:none;stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}
-.allergen-tile-name{font-size:9.5px;text-transform:uppercase;letter-spacing:.5px;color:#FFAAAA;text-align:center;line-height:1.2;font-family:'DM Sans',sans-serif}
+.allergen-tile{display:flex;flex-direction:column;align-items:center;gap:6px;width:56px}
+.allergen-tile-icon{width:48px;height:48px;background:#7A1515;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:700;color:#FFFFFF;font-family:'DM Sans',sans-serif}
+.allergen-tile-name{font-size:9.5px;text-transform:uppercase;letter-spacing:.5px;color:#B8973A;text-align:center;line-height:1.2;font-family:'DM Sans',sans-serif}
 .allergen-section{margin:10px 0 4px 0}
 .allergen-section-label{font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:var(--smoke);margin-bottom:6px;display:block}
 .allergen-row{display:flex;flex-wrap:wrap;gap:4px}
@@ -2608,9 +2607,8 @@ function renderAllergenBadges(allergenIds) {
     + '<div class="allergen-row">'
     + allergenIds.map(function(id) {
         var a = allergenById(id);
-        var svgPaths = ALLERGEN_SVGS[id] || '';
         return '<div class="allergen-tile">'
-          + '<div class="allergen-tile-icon"><svg viewBox="0 0 24 24">' + svgPaths + '</svg></div>'
+          + '<div class="allergen-tile-icon">' + a.id + '</div>'
           + '<div class="allergen-tile-name">' + a.name + '</div>'
           + '</div>';
       }).join('')
