@@ -2081,7 +2081,9 @@ function openDetail(r) {
     + (r.instructions ? '<span class="section-label">Zubereitung</span><div class="instructions-text">' + r.instructions + '</div>' : '')
     + (function(){
       var allergenIds = aggregateAllergens(r.ingredients, r.allergens);
-      return allergenIds.length ? renderAllergenBadges(allergenIds) : '';
+      if (allergenIds.length) return renderAllergenBadges(allergenIds);
+      // Platzhalter — wird nach Claude-Analyse ersetzt
+      return '<div class="allergen-section" id="allergen-pending" style="opacity:.4"><span class="allergen-section-label">Allergene werden erkannt...</span></div>';
     }())
     + (r.notes ? '<span class="section-label">Notizen</span><div class="notes-text">' + r.notes + '</div>' : '')
     + '<div class="detail-actions">'
@@ -2091,6 +2093,13 @@ function openDetail(r) {
 
   document.getElementById('detail-menu-btn').addEventListener('click', function() { openActionSheet(); });
   showScreen('detail');
+  // Allergene erkennen falls noch nicht vorhanden
+  if (!r.allergens || !r.allergens.length) {
+    var ingNames = (r.ingredients || []).map(function(s) {
+      try { var o = JSON.parse(s); return o.n || s; } catch(e) { return s; }
+    }).filter(Boolean);
+    if (ingNames.length) detectAllergensWithClaude(r.id, ingNames);
+  }
 }
 
 // ─── FORMULAR ──────────────────────────────────────────────────────────────
@@ -2155,26 +2164,33 @@ async function saveRecipe() {
     notes: document.getElementById('f-notes').value
   };
 
+  var savedId;
   if (editId) {
+    savedId = editId;
     recipes = recipes.map(r => r.id === editId ? Object.assign({}, r, payload) : r);
     localSave();
     if (db && isOnline) db.from('recipes').update(payload).eq('id', editId).select();
   } else {
-    const tempId = 'local-' + Date.now();
-    const newR = Object.assign({id: tempId, created_at: new Date().toISOString()}, payload);
+    savedId = 'local-' + Date.now();
+    const newR = Object.assign({id: savedId, created_at: new Date().toISOString()}, payload);
     recipes = [newR, ...recipes];
     localSave();
     if (db && isOnline) {
       db.from('recipes').insert([payload]).select().then(res => {
         if (res.data && res.data[0]) {
-          recipes = recipes.map(r => r.id === tempId ? res.data[0] : r);
+          var dbId = res.data[0].id;
+          recipes = recipes.map(r => r.id === savedId ? res.data[0] : r);
           localSave();
+          // Allergene auch auf DB-ID aktualisieren falls bereits erkannt
+          var r = recipes.find(function(x){ return x.id === dbId; });
+          if (r && r.allergens && r.allergens.length && db && isOnline) {
+            db.from('recipes').update({allergens: r.allergens}).eq('id', dbId);
+          }
         }
       });
     }
   }
   // Allergene asynchron von Claude erkennen lassen
-  var savedId = editId || (recipes[0] && recipes[0].id);
   detectAllergensWithClaude(savedId, ingData.map(function(i){ return i.name; }));
   renderGrid(); showScreen('home');
 }
@@ -2204,6 +2220,21 @@ async function detectAllergensWithClaude(recipeId, ingredientNames) {
     // UI aktualisieren falls Detailansicht offen
     if (currentRecipe && currentRecipe.id === targetId) {
       currentRecipe = Object.assign({}, currentRecipe, {allergens: ids});
+      // Detail-Ansicht Allergen-Bereich direkt aktualisieren
+      var allergenContainer = document.querySelector('.allergen-section');
+      if (allergenContainer) {
+        allergenContainer.outerHTML = renderAllergenBadges(ids);
+      } else {
+        // Kein Container vorhanden — nach Zubereitung einfügen
+        var notesEl = document.querySelector('.notes-text');
+        var instrEl = document.querySelector('.instructions-text');
+        var insertAfter = notesEl ? notesEl.parentNode : (instrEl ? instrEl.parentNode : null);
+        if (insertAfter && insertAfter.parentNode) {
+          var div = document.createElement('div');
+          div.innerHTML = renderAllergenBadges(ids);
+          insertAfter.parentNode.insertBefore(div.firstChild, insertAfter.nextSibling);
+        }
+      }
     }
     renderGrid();
   } catch(e) { console.log('Allergen-Erkennung:', e); }
