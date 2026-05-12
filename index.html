@@ -4450,27 +4450,32 @@ function renderArchive(filter) {
   if (catLabel) catLabel.textContent = filter === 'all' ? 'Alle Kategorien' : filter;
 
   var list = filter === 'all' ? RECIPE_ARCHIVE : RECIPE_ARCHIVE.filter(function(r){ return r.subcategory === filter; });
-  var html = '';
+  var el = document.getElementById('archive-list');
+  el.innerHTML = '';
+
   list.forEach(function(r) {
-    html += '<div style="border:1px solid #3D3020;border-radius:12px;overflow:hidden;cursor:pointer;margin-bottom:12px;background:#1C1408;position:relative" onclick="openArchiveDetail(\'' + r.id + '\')">';
-    html += '<div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,#B8973A,#5C4A30)"></div>';
-    html += '<div style="padding:14px 16px">';
-    html += '<div style="font-size:9px;text-transform:uppercase;letter-spacing:1.5px;color:#5C4A30;margin-bottom:4px">' + r.subcategory + '</div>';
-    html += '<div style="font-size:20px;color:#C4A882;margin-bottom:6px">' + r.title + '</div>';
-    html += '<div style="display:flex;gap:12px;font-size:11px;color:#888070">';
-    if (r.portions) html += '<span>&#9862; ' + r.portions + '</span>';
-    if (r.time) html += '<span>&#9201; ' + r.time + '</span>';
-    html += '</div></div></div>';
+    var card = document.createElement('div');
+    card.className = 'card';
+    card.innerHTML = '<div class="card-thumb-placeholder" style="border-left-color:#B8973A"></div>'
+      + '<div class="card-body">'
+      + '<div class="card-title">' + r.title + '</div>'
+      + '<span class="badge">' + (r.subcategory || '') + '</span>'
+      + '</div>'
+      + '<span class="card-arrow">&#8250;</span>';
+    card.addEventListener('click', function() {
+      openArchiveDetail(r.id);
+    });
+    el.appendChild(card);
   });
-  document.getElementById('archive-list').innerHTML = html || '<div style="color:#888070;padding:20px;text-align:center">Keine Rezepte</div>';
+
+  if (!list.length) el.innerHTML = '<div style="color:#888070;padding:20px;text-align:center">Keine Rezepte</div>';
 }
 
 
 function openArchiveDetail(id) {
   var r = RECIPE_ARCHIVE.find(function(x){ return x.id === id; });
   if (!r) return;
-  // Als readonly-Rezept in openDetail übergeben
-  currentRecipe = Object.assign({}, r, {readonly: true});
+  currentRecipe = Object.assign({}, r, {readonly: true, color: '#2A1F0E', source: 'Archiv'});
   openDetail(currentRecipe);
 }
 
