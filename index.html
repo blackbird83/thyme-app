@@ -148,6 +148,8 @@ textarea{resize:vertical}
 .pill{padding:8px 18px;border-radius:99px;border:1px solid var(--border);background:transparent;font-size:15.7px;color:var(--bark);cursor:pointer;white-space:nowrap;font-family:'DM Sans',sans-serif;transition:all .2s ease;letter-spacing:0.5px;text-transform:uppercase;font-weight:500}
 .pill:hover{border-color:var(--thyme);color:var(--thyme)}
 .pill.active{background:var(--thyme);border-color:var(--thyme);color:white;font-weight:500;letter-spacing:1px}
+.allergen-pill{padding:7px 14px;border-radius:99px;border:1px solid var(--border);background:transparent;font-size:13px;color:var(--bark);cursor:pointer;white-space:nowrap;font-family:'DM Sans',sans-serif;transition:all .15s ease;letter-spacing:0.5px;text-transform:uppercase;font-weight:500}
+.allergen-pill.active{background:#7A1515;border-color:#7A1515;color:#FFCCCC;font-weight:600}
 .grid{display:flex;flex-direction:column;gap:0;padding:0 0 120px;border-top:1px solid var(--border)}
 .card{background:#0A0805;border-radius:0;padding:14px 20px;border-left:none;border-bottom:1px solid var(--border);cursor:pointer;transition:background .18s ease;position:relative;display:flex;align-items:center;gap:16px;overflow:hidden}
 .card:active{background:var(--cream)}
@@ -1291,6 +1293,10 @@ html,body{overflow-y:auto;-webkit-overflow-scrolling:touch;height:auto}
       <input type="hidden" id="f-ingredients">
     </div>
     <div class="form-group">
+      <label class="form-label">Allergene</label>
+      <div class="cat-picker" id="allergen-picker" style="gap:8px"></div>
+    </div>
+    <div class="form-group">
       <label class="form-label">Zubereitung</label>
       <textarea class="form-input" id="f-instructions" rows="7" placeholder="Schritt fuer Schritt..."></textarea>
     </div>
@@ -2108,6 +2114,7 @@ function openAdd() {
     document.getElementById(id).value = '';
   });
   loadIngredientsIntoForm([]);
+  renderAllergenPicker([]);
   renderCatPicker(categories.length ? categories[0].name : '');
   document.getElementById('form-back-btn').onclick = () => showScreen('home');
   document.getElementById('form-cancel-btn').onclick = () => showScreen('home');
@@ -2122,6 +2129,7 @@ function openEdit(r) {
   document.getElementById('f-time').value = r.time || '';
   document.getElementById('f-instructions').value = r.instructions || '';
   document.getElementById('f-notes').value = r.notes || '';
+  renderAllergenPicker(r.allergens || []);
   loadIngredientsIntoForm(r.ingredients || []);
   renderCatPicker(r.category || '');
   document.getElementById('form-back-btn').onclick = () => openDetail(r);
@@ -2159,7 +2167,8 @@ async function saveRecipe() {
     time: document.getElementById('f-time').value,
     ingredients: ingData.map(function(i) { return JSON.stringify({a: i.amount ? String(i.amount) : '', u: i.unit, n: i.name}); }),
     instructions: document.getElementById('f-instructions').value,
-    notes: document.getElementById('f-notes').value
+    notes: document.getElementById('f-notes').value,
+    allergens: getSelectedAllergens()
   };
 
   var savedId;
@@ -2215,6 +2224,8 @@ async function detectAllergensWithClaude(recipeId, ingredientNames) {
     });
     localSave();
     if (db && isOnline) db.from('recipes').update({allergens: ids}).eq('id', targetId);
+    // Picker im Formular aktualisieren falls offen
+    renderAllergenPicker(ids);
     // UI aktualisieren falls Detailansicht offen
     if (currentRecipe && currentRecipe.id === targetId) {
       currentRecipe = Object.assign({}, currentRecipe, {allergens: ids});
@@ -2512,6 +2523,30 @@ var ALLERGENS = [
   {id:'M', name:'Lupinen'},
   {id:'N', name:'Weichtiere'},
 ];
+
+
+// ─── ALLERGEN-PICKER IM FORMULAR ──────────────────────────────────────────
+function renderAllergenPicker(selectedIds) {
+  var picker = document.getElementById('allergen-picker');
+  if (!picker) return;
+  selectedIds = selectedIds || [];
+  picker.innerHTML = ALLERGENS.map(function(a) {
+    var active = selectedIds.indexOf(a.id) >= 0 ? ' active' : '';
+    return '<button type="button" class="allergen-pill' + active + '" data-id="' + a.id + '" onclick="toggleAllergenPill(this,\'' + a.id + '\')">'
+      + a.id + ' · ' + a.name + '</button>';
+  }).join('');
+}
+
+function toggleAllergenPill(btn, id) {
+  btn.classList.toggle('active');
+}
+
+function getSelectedAllergens() {
+  var active = document.querySelectorAll('#allergen-picker .allergen-pill.active');
+  return Array.from(active).map(function(b) {
+    return b.getAttribute('data-id') || b.textContent.split(' · ')[0].trim();
+  });
+}
 
 function allergenById(id) {
   return ALLERGENS.find(function(a){ return a.id === id; }) || {id:id,name:id,icon:'⚠️'};
