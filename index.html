@@ -4413,8 +4413,9 @@ var activeArchiveCat = 'all';
 var ARCHIVE_SUBS = ['all','Fonds & Saucen','Teige & Massen','Suppen','Grundzubereitungen','Patisserie Basics','Gels & Texturen','Fisch & Meeresfrüchte','Fleisch & Geflügel','Gemüse & Beilagen'];
 
 function openArchive() {
+  activeArchiveCat = 'all';
   showScreen('archive');
-  renderArchive(activeArchiveCat);
+  renderArchive('all');
   setTimeout(function(){ openArchiveSheet(); }, 120);
 }
 
@@ -4441,7 +4442,9 @@ function closeArchiveSheet() {
 function selectArchiveCat(s) {
   activeArchiveCat = s;
   closeArchiveSheet();
-  renderArchive(s);
+  // Sicherstellen dass screen-archive sichtbar ist
+  showScreen('archive');
+  setTimeout(function(){ renderArchive(s); }, 50);
 }
 
 function renderArchive(filter) {
@@ -4462,9 +4465,11 @@ function renderArchive(filter) {
       + '<span class="badge">' + (r.subcategory || '') + '</span>'
       + '</div>'
       + '<span class="card-arrow">&#8250;</span>';
-    card.addEventListener('click', function() {
-      openArchiveDetail(r.id);
-    });
+    (function(recipeId) {
+      card.addEventListener('click', function() {
+        openArchiveDetail(recipeId);
+      });
+    })(r.id);
     el.appendChild(card);
   });
 
