@@ -1182,18 +1182,26 @@ html,body{overflow-y:auto;-webkit-overflow-scrolling:touch;height:auto}
   </div>
 <div id="guest-info-bar">&#128100; Gast-Modus — nur Lesen</div>
 <div id="screen-home" class="screen active">
-  
-  <div class="search-wrap" id="search-wrap">
-    <span class="search-icon">&#128269;</span>
-    <input class="search-input" id="search-input" oninput="onSearchInput()" placeholder="Rezept suchen">
-    <button class="search-clear" id="search-clear" onclick="clearSearch()">&#10005;</button>
+
+  <!-- Zeile 2: REZEPTVERZEICHNIS Titel -->
+  <div id="rezeptverzeichnis-bar" style="padding:10px 20px 8px;border-bottom:1px solid #2E2416;text-align:center">
+    <span style="font-family:'Cormorant Garamond',serif;font-size:13px;font-weight:400;color:var(--smoke);letter-spacing:3px;text-transform:uppercase">Rezeptverzeichnis</span>
   </div>
+
+  <!-- Zeile 3: Pfeil | Kategorie | thyme (nur wenn Kategorie aktiv) -->
   <div id="cat-active-bar" style="display:none;align-items:center;justify-content:space-between;padding:10px 20px;border-bottom:1px solid #2E2416">
     <button onclick="openCatSheet()" style="background:none;border:none;cursor:pointer;font-size:19.8px;color:#5C7F5D">&#8592;</button>
     <span id="cat-active-name" style="font-family:'Cormorant Garamond',serif;font-size:19.8px;font-weight:300;color:var(--bark);letter-spacing:2px"></span>
     <div onclick="setActiveCat('all');showScreen('home')" style="cursor:pointer;display:flex;align-items:center;gap:5px">
       <span style="font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:300;color:#B8973A;letter-spacing:3px">thyme</span><span style="font-size:14px;color:#B8973A;opacity:0.9">&#8962;</span>
     </div>
+  </div>
+
+  <!-- Suchleiste -->
+  <div class="search-wrap" id="search-wrap">
+    <span class="search-icon">&#128269;</span>
+    <input class="search-input" id="search-input" oninput="onSearchInput()" placeholder="Rezept suchen">
+    <button class="search-clear" id="search-clear" onclick="clearSearch()">&#10005;</button>
   </div>
   <div class="cat-scroll" id="cat-scroll" style="display:none"></div>
   <div id="book-cover" onclick="try{showScreen('navigation');}catch(e){console.warn(e);}" style="display:none"><div id="book-cover-inner" style="pointer-events:none;width:100%">
@@ -2395,6 +2403,8 @@ function renderGrid() {
   // Buchcover: sichtbar wenn keine Kategorie + keine Suche + keine Favoriten-Ansicht
   const showCover = activeCat === 'all' && !search && !showingFavs;
   if (cover) cover.style.display = showCover ? 'flex' : 'none';
+  var rvBar = document.getElementById('rezeptverzeichnis-bar');
+  if (rvBar) rvBar.style.display = showCover ? 'none' : 'block';
   var hint = document.getElementById('book-cover-hint');
   if (hint) hint.style.display = showCover ? 'block' : 'none';
   var catBtn = document.getElementById('cat-open-btn');
