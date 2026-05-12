@@ -624,7 +624,7 @@ body.light-mode .protein-season-badge{background:#FFF3DC;color:#8A6E20}
 .nav-card-texts{flex:1}
 .nav-card-name{font-family:'Cormorant Garamond',serif;font-size:21.8px;font-weight:300;color:var(--bark);letter-spacing:0.5px;margin-bottom:2px}
 .nav-card-sub{font-size:12.1px;color:var(--smoke);letter-spacing:1px}
-.nav-card-arrow{font-size:21.8px;color:var(--border)}
+.nav-card-arrow{display:none}
 
 
 body.light-mode .recent-card-cat{color:#5C7F5D}
@@ -5393,9 +5393,9 @@ function applyRoleUI() {
       <span style="font-size:12px;color:#B8973A">&#8962;</span>
     </div>
   </div>
-  <div class="nav-body">
+  <div class="nav-body" style="padding-top:24px">
 
-    <!-- Rezeptverzeichnis -->
+    <!-- 1. Rezeptverzeichnis -->
     <div class="nav-card" onclick="closeCatSheet();openCatSheet()">
       <div class="nav-card-icon" style="background:#1A2E1A">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#5C7F5D" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
@@ -5403,13 +5403,26 @@ function applyRoleUI() {
         </svg>
       </div>
       <div class="nav-card-texts">
-        <div class="nav-card-name">Rezeptverzeichnis</div>
+        <div class="nav-card-name">REZEPTVERZEICHNIS</div>
         <div class="nav-card-sub">Kategorien &middot; Suche &middot; Favoriten</div>
       </div>
-      <div class="nav-card-arrow">›</div>
     </div>
 
-    <!-- Saisonkalender -->
+    <!-- 2. Rezept-Archiv (gold border) -->
+    <div class="nav-card" onclick="openArchive()" style="border:2px solid #B8973A">
+      <div class="nav-card-icon" style="background:#1F1A08">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#B8973A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+          <line x1="9" y1="7" x2="15" y2="7"/><line x1="9" y1="11" x2="15" y2="11"/>
+        </svg>
+      </div>
+      <div class="nav-card-texts">
+        <div class="nav-card-name" style="color:#B8973A">REZEPTARCHIV</div>
+        <div class="nav-card-sub">100 Basisrezepte &middot; Klassiker &middot; Referenz</div>
+      </div>
+    </div>
+
+    <!-- 3. Saisonkalender -->
     <div class="nav-card" onclick="openSaisonStandalone()">
       <div class="nav-card-icon" style="background:#2A1E08">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#B8973A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
@@ -5418,13 +5431,12 @@ function applyRoleUI() {
         </svg>
       </div>
       <div class="nav-card-texts">
-        <div class="nav-card-name">Saisonkalender</div>
+        <div class="nav-card-name">SAISONKALENDER</div>
         <div class="nav-card-sub">113 Produkte &middot; Gemüse &middot; Obst &middot; Kräuter</div>
       </div>
-      <div class="nav-card-arrow">›</div>
     </div>
 
-    <!-- Produktkatalog -->
+    <!-- 4. Produktkatalog -->
     <div class="nav-card" onclick="openKatalog()">
       <div class="nav-card-icon" style="background:#0D1F2E">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#5B9BD5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
@@ -5433,28 +5445,12 @@ function applyRoleUI() {
         </svg>
       </div>
       <div class="nav-card-texts">
-        <div class="nav-card-name">Produktkatalog</div>
+        <div class="nav-card-name">PRODUKTKATALOG</div>
         <div class="nav-card-sub">Fleisch &middot; Fisch &middot; Geflügel &middot; Wild &middot; Charcuterie</div>
       </div>
-      <div class="nav-card-arrow">›</div>
     </div>
 
-    <!-- Rezept-Archiv -->
-    <div class="nav-card" onclick="openArchive()">
-      <div class="nav-card-icon" style="background:#1F1A08">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#B8973A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
-          <line x1="9" y1="7" x2="15" y2="7"/><line x1="9" y1="11" x2="15" y2="11"/>
-        </svg>
-      </div>
-      <div class="nav-card-texts">
-        <div class="nav-card-name">Rezept-Archiv</div>
-        <div class="nav-card-sub">100 Basisrezepte &middot; Klassiker &middot; Referenz</div>
-      </div>
-      <div class="nav-card-arrow" style="color:#B8973A">›</div>
-    </div>
-
-    <!-- Einkaufsliste -->
+    <!-- 5. Einkaufsliste -->
     <div class="nav-card" onclick="openShopList()">
       <div class="nav-card-icon" style="background:#1A1A2E">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#7B7BD5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
@@ -5462,10 +5458,9 @@ function applyRoleUI() {
         </svg>
       </div>
       <div class="nav-card-texts">
-        <div class="nav-card-name">Einkaufsliste</div>
+        <div class="nav-card-name">EINKAUFSLISTE</div>
         <div class="nav-card-sub">Lieferanten &middot; Kategorien &middot; Export</div>
       </div>
-      <div class="nav-card-arrow">›</div>
     </div>
 
   </div>
