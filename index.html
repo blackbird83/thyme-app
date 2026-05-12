@@ -2515,7 +2515,8 @@ function openDetail(r) {
     + '<button class="pairing-inline-btn" onclick="openPairingScreen(currentRecipe)">&#10022;&nbsp; Flavour Pairing</button>'
     + '</div>';
 
-  document.getElementById('detail-menu-btn').addEventListener('click', function() { openActionSheet(); });
+  var menuBtn = document.getElementById('detail-menu-btn');
+  if (menuBtn) menuBtn.addEventListener('click', function() { openActionSheet(); });
   showScreen('detail');
   // Allergene erkennen falls noch nicht vorhanden
   if (!r.allergens || !r.allergens.length) {
