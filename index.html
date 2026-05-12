@@ -1824,32 +1824,7 @@ async function runPairing() {
   var results = document.getElementById('pairing-results');
   results.innerHTML = '<div class="pairing-loading">Analysiere Aromen...<div class="pairing-spin"></div></div>';
 
-  var prompt = 'Du bist ein Experte für Flavour Pairing und Aromenchemie auf Profi-Koch-Niveau.
-'
-    + 'Analysiere folgende Zutat(en): ' + query + '
-
-'
-    + 'Antworte NUR mit diesem JSON-Format:
-'
-    + '{
-'
-    + '  "klassisch": ["Zutat1","Zutat2","Zutat3","Zutat4","Zutat5"],
-'
-    + '  "modern": ["Zutat1","Zutat2","Zutat3"],
-'
-    + '  "überraschend": ["Zutat1","Zutat2"],
-'
-    + '  "erklaerung": "2-3 Sätze warum diese Kombinationen funktionieren (Aromaverbindungen, Kontraste, Texturen)",
-'
-    + '  "rezept_titel": "Kreativer Rezepttitel der die Hauptzutat verwendet",
-'
-    + '  "rezept_meta": "z.B. 4 Portionen · 45 Min · Hauptgang",
-'
-    + '  "rezept_idee": "3-4 Sätze: kurze Rezeptidee die Flavour Pairing nutzt"
-'
-    + '}
-'
-    + 'Keine Markdown-Backticks, nur reines JSON.';
+  var prompt = 'Du bist Experte fuer Flavour Pairing. Analysiere: ' + query + '. Antworte NUR mit JSON: {"klassisch":["Z1","Z2","Z3","Z4","Z5"],"modern":["Z1","Z2","Z3"],"ueberraschend":["Z1","Z2"],"erklaerung":"Warum diese Kombinationen funktionieren (2-3 Saetze)","rezept_titel":"Kreativer Titel","rezept_meta":"4 Portionen, 45 Min, Hauptgang","rezept_idee":"Kurze Rezeptidee (3-4 Saetze)"}. Keine Backticks, nur JSON.';
 
   try {
     var d = await callClaude({
@@ -1881,11 +1856,12 @@ async function runPairing() {
     }
 
     // Überraschende Pairings
-    if (r.überraschend && r.überraschend.length) {
+    var ue = r.ueberraschend || r['überraschend'] || [];
+    if (ue.length) {
       html += '<div class="pairing-section">'
         + '<span class="pairing-section-title">Überraschend &amp; Mutig</span>'
         + '<div class="pairing-chips">'
-        + r.überraschend.map(function(c){ return '<span class="pairing-chip"><span class="pairing-dot surprise"></span>' + c + '</span>'; }).join('')
+        + ue.map(function(c){ return '<span class="pairing-chip"><span class="pairing-dot surprise"></span>' + c + '</span>'; }).join('')
         + '</div></div>';
     }
 
