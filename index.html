@@ -1723,6 +1723,171 @@ document.addEventListener('DOMContentLoaded', function() {
 const SUPABASE_URL  = 'https://gzfthrcubvafdkgacrkn.supabase.co';
 const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd6ZnRocmN1YnZhZmRrZ2FjcmtuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU1NzA5NzMsImV4cCI6MjA5MTE0Njk3M30.-4uUhFwlGz3xhXkKwGPWZukeQ1REhLKyP-QezwcPVqc';
 
+// ── COOK MODE ──────────────────────────────────────────────────────────────
+var cookSteps = [];
+var cookStep = 0;
+var cookTimerInterval = null;
+var cookTimerSec = 0;
+var cookTimerRunning = false;
+var cookWakeLock = null;
+
+function parseSteps(instructions) {
+  if (!instructions) return [];
+  return instructions.split(/\n+/).map(function(s){ return s.trim(); }).filter(Boolean);
+}
+
+function parseTimer(text) {
+  var m = text.match(/(\d+)\s*[-–]?\s*(\d*)\s*min/i);
+  if (m) return parseInt(m[1]) * 60;
+  m = text.match(/(\d+)\s*stunde/i);
+  if (m) return parseInt(m[1]) * 3600;
+  m = text.match(/(\d+)\s*sek/i);
+  if (m) return parseInt(m[1]);
+  return 0;
+}
+
+function openCookMode() {
+  if (!currentRecipe || !currentRecipe.instructions) {
+    showToast('Keine Zubereitung vorhanden', 'error'); return;
+  }
+  cookSteps = parseSteps(currentRecipe.instructions);
+  if (!cookSteps.length) { showToast('Keine Schritte gefunden', 'error'); return; }
+  cookStep = 0;
+  document.getElementById('screen-cook').classList.add('open');
+  // Wake Lock — Screen bleibt an
+  if (navigator.wakeLock) {
+    navigator.wakeLock.request('screen').then(function(wl){ cookWakeLock = wl; }).catch(function(){});
+  }
+  cookShowTab('step');
+  cookRenderStep();
+}
+
+function closeCookMode() {
+  document.getElementById('screen-cook').classList.remove('open');
+  clearInterval(cookTimerInterval);
+  cookTimerRunning = false;
+  if (cookWakeLock) { cookWakeLock.release(); cookWakeLock = null; }
+}
+
+function cookShowTab(tab) {
+  document.getElementById('cook-tab-step').classList.toggle('active', tab === 'step');
+  document.getElementById('cook-tab-overview').classList.toggle('active', tab === 'overview');
+  document.getElementById('cook-step-view').style.display = tab === 'step' ? 'flex' : 'none';
+  document.getElementById('cook-overview-view').style.display = tab === 'overview' ? 'block' : 'none';
+  if (tab === 'overview') cookRenderOverview();
+}
+
+function cookRenderStep() {
+  clearInterval(cookTimerInterval); cookTimerRunning = false;
+  var text = cookSteps[cookStep];
+  var total = cookSteps.length;
+  document.getElementById('cook-counter').textContent = (cookStep+1) + ' / ' + total;
+  document.getElementById('cook-progress-fill').style.width = ((cookStep+1)/total*100) + '%';
+
+  // Prev/Next Buttons
+  var prevBtn = document.getElementById('cook-btn-prev');
+  var nextBtn = document.getElementById('cook-btn-next');
+  prevBtn.style.visibility = cookStep === 0 ? 'hidden' : 'visible';
+  if (cookStep === total - 1) {
+    nextBtn.textContent = '✓ Fertig';
+    nextBtn.className = 'cook-btn cook-btn-finish';
+  } else {
+    nextBtn.textContent = 'Weiter →';
+    nextBtn.className = 'cook-btn cook-btn-next';
+  }
+
+  // Timer erkennen
+  cookTimerSec = parseTimer(text);
+
+  // Relevante Zutaten (erste Erwähnung im Schritt)
+  var stepIngs = [];
+  if (currentRecipe && currentRecipe.ingredients) {
+    currentRecipe.ingredients.forEach(function(ing) {
+      try {
+        var obj = JSON.parse(ing);
+        if (obj.n && text.toLowerCase().indexOf(obj.n.toLowerCase().split(' ')[0]) >= 0) {
+          stepIngs.push(obj);
+        }
+      } catch(e) {}
+    });
+  }
+
+  var html = '<div class="cook-step-num">Schritt ' + (cookStep+1) + '</div>'
+    + '<div class="cook-step-text">' + text + '</div>';
+
+  if (cookTimerSec > 0) {
+    html += '<div class="cook-timer">'
+      + '<div><div class="cook-timer-label">Timer</div>'
+      + '<div class="cook-timer-digits" id="cook-timer-digits">' + cookFormatTime(cookTimerSec) + '</div></div>'
+      + '<button class="cook-timer-btn" id="cook-timer-btn" onclick="cookToggleTimer()">▶ Start</button>'
+      + '</div>';
+  }
+
+  if (stepIngs.length) {
+    html += '<div class="cook-ings"><div class="cook-ings-label">Zutaten</div>'
+      + stepIngs.map(function(o){
+          return '<div class="cook-ing-row">'
+            + '<span class="cook-ing-a">' + (o.a || '') + '</span>'
+            + '<span class="cook-ing-u">' + (o.u || '') + '</span>'
+            + '<span class="cook-ing-n">' + o.n + '</span></div>';
+        }).join('') + '</div>';
+  }
+
+  document.getElementById('cook-body').innerHTML = html;
+}
+
+function cookFormatTime(sec) {
+  var m = Math.floor(sec/60), s = sec%60;
+  return m + ':' + (s<10?'0':'') + s;
+}
+
+function cookToggleTimer() {
+  var btn = document.getElementById('cook-timer-btn');
+  if (cookTimerRunning) {
+    clearInterval(cookTimerInterval); cookTimerRunning = false;
+    btn.textContent = '▶ Weiter'; btn.className = 'cook-timer-btn';
+  } else {
+    cookTimerRunning = true;
+    btn.textContent = '⏸ Pause'; btn.className = 'cook-timer-btn running';
+    cookTimerInterval = setInterval(function() {
+      if (cookTimerSec > 0) {
+        cookTimerSec--;
+        var el = document.getElementById('cook-timer-digits');
+        if (el) el.textContent = cookFormatTime(cookTimerSec);
+      } else {
+        clearInterval(cookTimerInterval); cookTimerRunning = false;
+        var btn2 = document.getElementById('cook-timer-btn');
+        if (btn2) { btn2.textContent = '✓ Fertig'; btn2.className = 'cook-timer-btn done'; }
+        showToast('Timer abgelaufen!', 'success');
+      }
+    }, 1000);
+  }
+}
+
+function cookNext() {
+  if (cookStep < cookSteps.length - 1) { cookStep++; cookRenderStep(); }
+  else { closeCookMode(); showToast('Guten Appetit! 🍽', 'success'); }
+}
+
+function cookPrev() {
+  if (cookStep > 0) { cookStep--; cookRenderStep(); }
+}
+
+function cookRenderOverview() {
+  var html = cookSteps.map(function(text, i) {
+    var done = i < cookStep;
+    var current = i === cookStep;
+    var bg = current ? '#4a7c59' : (done ? '#2A3D2A' : '#3D3020');
+    var timer = parseTimer(text);
+    return '<div class="cook-ov-item" onclick="cookStep='+i+';cookShowTab(\'step\');cookRenderStep()">'
+      + '<div class="cook-ov-num" style="background:'+bg+'">' + (i+1) + '</div>'
+      + '<div class="cook-ov-text">' + text.substring(0,90) + (text.length>90?'…':'') + '</div>'
+      + (timer ? '<div class="cook-ov-timer">⏱ '+Math.floor(timer/60)+' min</div>' : '')
+      + '</div>';
+  }).join('');
+  document.getElementById('cook-overview-list').innerHTML = html;
+}
+
 // ─── CLAUDE KEY (Legacy-Stubs — nicht mehr verwendet mit Proxy) ───────────
 function getClaudeKey() { return 'proxy'; } // immer "verfügbar"
 function saveClaudeKey() {}
@@ -2091,6 +2256,7 @@ function openDetail(r) {
     + (r.instructions ? '<span class="section-label">Zubereitung</span><div class="instructions-text">' + r.instructions + '</div>' : '')
     + (r.notes ? '<span class="section-label">Notizen</span><div class="notes-text">' + r.notes + '</div>' : '')
     + '<div class="detail-actions">'
+    + (r.instructions ? '<button class="cook-start-btn" onclick="openCookMode()">&#9654; &nbsp; Jetzt kochen</button>' : '')
     + '<button class="detail-actions-btn" onclick="addCurrentRecipeToShop()" style="background:#1A2E1A;border-color:#3D5A3E;color:#7FA882">&#43; &nbsp; Einkaufsliste</button>'
     + '<button class="detail-actions-btn" id="detail-menu-btn">&#8943; &nbsp; Aktionen</button>'
     + '</div>';
@@ -5076,6 +5242,30 @@ function applyRoleUI() {
       <button id="confirm-ok">Löschen</button>
       <button id="confirm-cancel" onclick="closeConfirm()">Abbrechen</button>
     </div>
+  </div>
+</div>
+
+<!-- ── COOK MODE ─────────────────────────────────────────────────────── -->
+<div id="screen-cook">
+  <div class="cook-topbar">
+    <button class="cook-close" onclick="closeCookMode()">&#215;</button>
+    <span class="cook-title">Koch-Modus</span>
+    <span class="cook-counter" id="cook-counter"></span>
+  </div>
+  <div class="cook-progress"><div class="cook-progress-fill" id="cook-progress-fill"></div></div>
+  <div class="cook-tabs">
+    <div class="cook-tab active" id="cook-tab-step" onclick="cookShowTab('step')">Schritt</div>
+    <div class="cook-tab" id="cook-tab-overview" onclick="cookShowTab('overview')">Übersicht</div>
+  </div>
+  <div id="cook-step-view" style="display:flex;flex-direction:column;flex:1;overflow:hidden">
+    <div class="cook-body" id="cook-body"></div>
+    <div class="cook-nav">
+      <button class="cook-btn cook-btn-prev" id="cook-btn-prev" onclick="cookPrev()">&#8592; Zurück</button>
+      <button class="cook-btn cook-btn-next" id="cook-btn-next" onclick="cookNext()">Weiter &#8594;</button>
+    </div>
+  </div>
+  <div id="cook-overview-view" style="display:none;flex:1;overflow-y:auto">
+    <div class="cook-overview" id="cook-overview-list"></div>
   </div>
 </div>
 </body>
