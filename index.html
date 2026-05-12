@@ -4415,6 +4415,7 @@ var ARCHIVE_SUBS = ['all','Fonds & Saucen','Teige & Massen','Suppen','Grundzuber
 function openArchive() {
   showScreen('archive');
   renderArchive(activeArchiveCat);
+  setTimeout(function(){ openArchiveSheet(); }, 120);
 }
 
 function openArchiveSheet() {
