@@ -802,6 +802,8 @@ html,body{overflow-y:auto;-webkit-overflow-scrolling:touch;height:auto}
 .pairing-recipe-text{font-size:14px;color:#888070;line-height:1.6}
 .pairing-recipe-save{width:100%;margin-top:12px;background:transparent;border:1px solid #3D5A3E;border-radius:8px;color:#5C7F5D;font-size:13px;font-weight:600;padding:10px;cursor:pointer;font-family:'DM Sans',sans-serif;letter-spacing:.5px}
 .pairing-inline-btn{width:100%;background:transparent;border:1px solid #B8973A;border-radius:10px;color:#B8973A;font-size:12px;font-weight:600;padding:12px;cursor:pointer;font-family:'DM Sans',sans-serif;letter-spacing:1.5px;text-transform:uppercase;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:16px}
+.pairing-link-btn{background:none;border:none;color:#B8973A;font-size:12px;font-family:'DM Sans',sans-serif;letter-spacing:1px;cursor:pointer;padding:10px 0 4px;display:flex;align-items:center;gap:6px;text-transform:uppercase;opacity:.85}
+.pairing-link-btn:active{opacity:1}
 
 /* ── COOK MODE ──────────────────────────────────────────────────────────── */
 #screen-cook{background:#1C1408;display:none;flex-direction:column;min-height:100vh}
@@ -1811,6 +1813,21 @@ function openPairingScreen(recipe) {
     input.value = '';
     input.focus();
   }
+}
+
+function openPairingFromOverlay(nameElementId) {
+  var nameEl = document.getElementById(nameElementId);
+  var name = nameEl ? nameEl.textContent.trim() : '';
+  if (!name) return;
+  // Overlay schliessen
+  document.querySelectorAll('.do-overlay.open').forEach(function(o){ o.classList.remove('open'); });
+  // Pairing mit Produktnamen öffnen
+  pairingSourceRecipe = null;
+  document.getElementById('screen-pairing').classList.add('active');
+  showScreen('pairing');
+  document.getElementById('pairing-input').value = name;
+  document.getElementById('pairing-results').innerHTML = '';
+  runPairing();
 }
 
 function closePairingScreen() {
@@ -5185,6 +5202,7 @@ function applyRoleUI() {
     </button>
     <span class="do-label">Passende Rezepte</span>
     <div id="season-detail-recipes"></div>
+    <button class="pairing-link-btn" id="season-pairing-btn" onclick="openPairingFromOverlay('season-detail-name')">&#10022; Flavour Pairing</button>
   </div>
 </div>
 
@@ -5392,6 +5410,7 @@ function applyRoleUI() {
     </button>
     <span class="do-label">Passende Rezepte</span>
     <div id="kd-recipes"></div>
+    <button class="pairing-link-btn" id="katalog-pairing-btn" onclick="openPairingFromOverlay('kd-name')">&#10022; Flavour Pairing</button>
   </div>
 </div>
 
