@@ -775,6 +775,34 @@ html,body{overflow-y:auto;-webkit-overflow-scrolling:touch;height:auto}
 
 /* GAST INFO BAR */
 #guest-info-bar{display:none;background:var(--parchment);border-bottom:1px solid var(--border);padding:6px 16px;font-size:11px;color:var(--smoke);text-align:center;letter-spacing:1px}
+/* ── FLAVOUR PAIRING ────────────────────────────────────────────────────── */
+#screen-pairing{background:#1C1408;flex-direction:column;min-height:100vh}
+.pairing-header{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-bottom:1px solid #3D3020;flex-shrink:0}
+.pairing-back{font-size:22px;color:#888070;background:none;border:none;cursor:pointer;font-family:'DM Sans',sans-serif}
+.pairing-title{font-family:'Cormorant Garamond',serif;font-size:20px;color:#B8973A;letter-spacing:2px}
+.pairing-body{flex:1;overflow-y:auto;padding:22px 20px 40px}
+.pairing-search{display:flex;gap:10px;margin-bottom:24px}
+.pairing-input{flex:1;background:#221A0E;border:1px solid #3D3020;border-radius:10px;padding:13px 16px;font-size:16px;color:#C4A882;font-family:'DM Sans',sans-serif;outline:none}
+.pairing-input::placeholder{color:#5C4A30}
+.pairing-search-btn{background:#4a7c59;border:none;border-radius:10px;color:white;font-size:13px;font-weight:600;padding:0 18px;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap}
+.pairing-loading{text-align:center;padding:40px 0;color:#888070;font-size:14px;letter-spacing:1px}
+.pairing-spin{width:32px;height:32px;border:2px solid #3D3020;border-top-color:#B8973A;border-radius:50%;margin:16px auto 0;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.pairing-section{margin-bottom:28px}
+.pairing-section-title{font-size:11px;text-transform:uppercase;letter-spacing:2px;color:#888070;margin-bottom:14px;display:block}
+.pairing-chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px}
+.pairing-chip{display:inline-flex;align-items:center;gap:6px;background:#221A0E;border:1px solid #3D3020;border-radius:99px;padding:7px 14px;font-size:13px;color:#C4A882;font-family:'DM Sans',sans-serif}
+.pairing-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;background:#B8973A}
+.pairing-dot.modern{background:#4a7c59}
+.pairing-dot.surprise{background:#7A1515}
+.pairing-explain{font-size:14px;color:#888070;line-height:1.7;background:#221A0E;border-left:2px solid #B8973A;padding:12px 16px;border-radius:0 8px 8px 0;margin-top:4px}
+.pairing-recipe{background:#221A0E;border:1px solid #3D3020;border-radius:12px;padding:16px;margin-top:8px}
+.pairing-recipe-title{font-family:'Cormorant Garamond',serif;font-size:20px;color:#C4A882;margin-bottom:6px}
+.pairing-recipe-meta{font-size:11px;color:#888070;margin-bottom:10px;text-transform:uppercase;letter-spacing:1px}
+.pairing-recipe-text{font-size:14px;color:#888070;line-height:1.6}
+.pairing-recipe-save{width:100%;margin-top:12px;background:transparent;border:1px solid #3D5A3E;border-radius:8px;color:#5C7F5D;font-size:13px;font-weight:600;padding:10px;cursor:pointer;font-family:'DM Sans',sans-serif;letter-spacing:.5px}
+.pairing-inline-btn{width:100%;background:transparent;border:1px solid #B8973A;border-radius:10px;color:#B8973A;font-size:12px;font-weight:600;padding:12px;cursor:pointer;font-family:'DM Sans',sans-serif;letter-spacing:1.5px;text-transform:uppercase;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:16px}
+
 /* ── COOK MODE ──────────────────────────────────────────────────────────── */
 #screen-cook{background:#1C1408;display:none;flex-direction:column;min-height:100vh}
 #screen-cook.open{display:flex}
@@ -1764,6 +1792,136 @@ document.addEventListener('DOMContentLoaded', function() {
 const SUPABASE_URL  = 'https://gzfthrcubvafdkgacrkn.supabase.co';
 const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd6ZnRocmN1YnZhZmRrZ2FjcmtuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU1NzA5NzMsImV4cCI6MjA5MTE0Njk3M30.-4uUhFwlGz3xhXkKwGPWZukeQ1REhLKyP-QezwcPVqc';
 
+// ── FLAVOUR / FOODPAIRING ──────────────────────────────────────────────────
+var pairingSourceRecipe = null;
+
+function openPairingScreen(recipe) {
+  pairingSourceRecipe = recipe || null;
+  showScreen('pairing');
+  var input = document.getElementById('pairing-input');
+  document.getElementById('pairing-results').innerHTML = '';
+  if (recipe && recipe.ingredients && recipe.ingredients.length) {
+    // Hauptzutaten aus Rezept vorausfüllen
+    var mainIngs = recipe.ingredients.slice(0,3).map(function(s){
+      try{ var o=JSON.parse(s); return o.n||s; }catch(e){ return s; }
+    }).join(', ');
+    input.value = mainIngs;
+    runPairing();
+  } else {
+    input.value = '';
+    input.focus();
+  }
+}
+
+function closePairingScreen() {
+  if (pairingSourceRecipe) showScreen('detail');
+  else showScreen('home');
+}
+
+async function runPairing() {
+  var query = document.getElementById('pairing-input').value.trim();
+  if (!query) return;
+  var results = document.getElementById('pairing-results');
+  results.innerHTML = '<div class="pairing-loading">Analysiere Aromen...<div class="pairing-spin"></div></div>';
+
+  var prompt = 'Du bist ein Experte für Flavour Pairing und Aromenchemie auf Profi-Koch-Niveau.
+'
+    + 'Analysiere folgende Zutat(en): ' + query + '
+
+'
+    + 'Antworte NUR mit diesem JSON-Format:
+'
+    + '{
+'
+    + '  "klassisch": ["Zutat1","Zutat2","Zutat3","Zutat4","Zutat5"],
+'
+    + '  "modern": ["Zutat1","Zutat2","Zutat3"],
+'
+    + '  "überraschend": ["Zutat1","Zutat2"],
+'
+    + '  "erklaerung": "2-3 Sätze warum diese Kombinationen funktionieren (Aromaverbindungen, Kontraste, Texturen)",
+'
+    + '  "rezept_titel": "Kreativer Rezepttitel der die Hauptzutat verwendet",
+'
+    + '  "rezept_meta": "z.B. 4 Portionen · 45 Min · Hauptgang",
+'
+    + '  "rezept_idee": "3-4 Sätze: kurze Rezeptidee die Flavour Pairing nutzt"
+'
+    + '}
+'
+    + 'Keine Markdown-Backticks, nur reines JSON.';
+
+  try {
+    var d = await callClaude({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 800,
+      messages: [{role:'user', content: prompt}]
+    });
+    if (!d.content || !d.content[0]) throw new Error('Keine Antwort');
+    var r = JSON.parse(d.content[0].text.replace(/```json|```/g,'').trim());
+
+    var html = '';
+
+    // Klassische Pairings
+    if (r.klassisch && r.klassisch.length) {
+      html += '<div class="pairing-section">'
+        + '<span class="pairing-section-title">Klassische Kombinationen</span>'
+        + '<div class="pairing-chips">'
+        + r.klassisch.map(function(c){ return '<span class="pairing-chip"><span class="pairing-dot"></span>' + c + '</span>'; }).join('')
+        + '</div></div>';
+    }
+
+    // Moderne Pairings
+    if (r.modern && r.modern.length) {
+      html += '<div class="pairing-section">'
+        + '<span class="pairing-section-title">Modern &amp; Kreativ</span>'
+        + '<div class="pairing-chips">'
+        + r.modern.map(function(c){ return '<span class="pairing-chip"><span class="pairing-dot modern"></span>' + c + '</span>'; }).join('')
+        + '</div></div>';
+    }
+
+    // Überraschende Pairings
+    if (r.überraschend && r.überraschend.length) {
+      html += '<div class="pairing-section">'
+        + '<span class="pairing-section-title">Überraschend &amp; Mutig</span>'
+        + '<div class="pairing-chips">'
+        + r.überraschend.map(function(c){ return '<span class="pairing-chip"><span class="pairing-dot surprise"></span>' + c + '</span>'; }).join('')
+        + '</div></div>';
+    }
+
+    // Erklärung
+    if (r.erklaerung) {
+      html += '<div class="pairing-section">'
+        + '<span class="pairing-section-title">Warum es funktioniert</span>'
+        + '<div class="pairing-explain">' + r.erklaerung + '</div>'
+        + '</div>';
+    }
+
+    // Rezeptidee
+    if (r.rezept_titel) {
+      html += '<div class="pairing-section">'
+        + '<span class="pairing-section-title">Rezeptidee</span>'
+        + '<div class="pairing-recipe">'
+        + '<div class="pairing-recipe-title">' + r.rezept_titel + '</div>'
+        + '<div class="pairing-recipe-meta">' + (r.rezept_meta||'') + '</div>'
+        + '<div class="pairing-recipe-text">' + (r.rezept_idee||'') + '</div>'
+        + '<button class="pairing-recipe-save" onclick="importPairingRecipe(' + JSON.stringify(r).replace(/'/g,"\'") + ')">+ Als Rezept speichern</button>'
+        + '</div></div>';
+    }
+
+    results.innerHTML = html;
+  } catch(e) {
+    results.innerHTML = '<div style="color:#FFAAAA;padding:20px;font-size:14px">Fehler: ' + e.message + '</div>';
+  }
+}
+
+function importPairingRecipe(r) {
+  openAdd();
+  document.getElementById('f-title').value = r.rezept_titel || '';
+  document.getElementById('f-notes').value = 'Flavour Pairing Idee: ' + (r.rezept_idee || '');
+  showToast('Rezeptidee in Formular übertragen', 'success');
+}
+
 // ── COOK MODE ──────────────────────────────────────────────────────────────
 var cookSteps = [];
 var cookStep = 0;
@@ -2314,6 +2472,7 @@ function openDetail(r) {
     + '<button class="detail-actions-btn" onclick="addCurrentRecipeToShop()" style="background:#1A2E1A;border-color:#3D5A3E;color:#FFFFFF;letter-spacing:1.5px;font-size:13px">&#43; &nbsp; EINKAUFSLISTE</button>'
     + '<button class="detail-actions-btn" id="detail-menu-btn" style="color:#FFFFFF;letter-spacing:1.5px;font-size:13px">&#8943; &nbsp; AKTIONEN</button>'
     + (r.instructions ? '<button class="cook-start-btn" onclick="openCookMode()"><div class="cook-start-icon"><svg viewBox="0 0 16 16"><polygon points="4,2 14,8 4,14"/></svg></div><span>Koch Modus</span></button>' : '')
+    + '<button class="pairing-inline-btn" onclick="openPairingScreen(currentRecipe)">&#10022;&nbsp; Flavour Pairing</button>'
     + '</div>';
 
   document.getElementById('detail-menu-btn').addEventListener('click', function() { openActionSheet(); });
@@ -5297,6 +5456,22 @@ function applyRoleUI() {
       <button id="confirm-ok">Löschen</button>
       <button id="confirm-cancel" onclick="closeConfirm()">Abbrechen</button>
     </div>
+  </div>
+</div>
+
+<!-- ── FLAVOUR PAIRING SCREEN ─────────────────────────────────────────── -->
+<div id="screen-pairing" class="screen">
+  <div class="pairing-header">
+    <button class="pairing-back" onclick="closePairingScreen()">&#8592;</button>
+    <span class="pairing-title">Flavour Pairing</span>
+    <div style="width:40px"></div>
+  </div>
+  <div class="pairing-body">
+    <div class="pairing-search">
+      <input class="pairing-input" id="pairing-input" placeholder="Zutat eingeben... z.B. Reh" onkeydown="if(event.key==='Enter')runPairing()">
+      <button class="pairing-search-btn" onclick="runPairing()">Analysieren</button>
+    </div>
+    <div id="pairing-results"></div>
   </div>
 </div>
 
