@@ -776,6 +776,13 @@ html,body{overflow-y:auto;-webkit-overflow-scrolling:touch;height:auto}
 /* GAST INFO BAR */
 #guest-info-bar{display:none;background:var(--parchment);border-bottom:1px solid var(--border);padding:6px 16px;font-size:11px;color:var(--smoke);text-align:center;letter-spacing:1px}
 
+
+/* ── ARCHIV-SHEET ────────────────────────────────────────────────────────── */
+.archive-sheet-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.3);z-index:40;backdrop-filter:blur(3px)}
+.archive-sheet-overlay.open{display:block}
+.archive-sheet{position:fixed;bottom:0;left:0;right:0;max-width:900px;margin:0 auto;background:#1E1610;border-radius:24px 24px 0 0;z-index:41;transform:translateY(100%);transition:transform .35s cubic-bezier(.4,0,.2,1);max-height:80vh;overflow:hidden;display:flex;flex-direction:column}
+.archive-sheet.open{transform:translateY(0)}
+
 /* ── REZEPT-ARCHIV ──────────────────────────────────────────────────────── */
 .archive-badge{display:inline-block;font-size:9px;text-transform:uppercase;letter-spacing:1.5px;color:#B8973A;border:1px solid #B8973A;border-radius:4px;padding:2px 6px;margin-bottom:6px;font-family:'DM Sans',sans-serif}
 .archive-card{position:relative;border:1px solid #3D3020;border-radius:12px;overflow:hidden;cursor:pointer;background:#1C1408}
@@ -4402,21 +4409,44 @@ function renderSeasonPage2() {
 // Saisonkalender Screen öffnen
 var _origInitProfiPages = typeof initProfiPages === 'function' ? initProfiPages : null;
 
+var activeArchiveCat = 'all';
+var ARCHIVE_SUBS = ['all','Fonds & Saucen','Teige & Massen','Suppen','Grundzubereitungen','Patisserie Basics','Gels & Texturen','Fisch & Meeresfrüchte','Fleisch & Geflügel','Gemüse & Beilagen'];
+
 function openArchive() {
   showScreen('archive');
-  renderArchive('all');
+  renderArchive(activeArchiveCat);
+}
+
+function openArchiveSheet() {
+  var list = document.getElementById('archive-sheet-list');
+  var out = '';
+  ARCHIVE_SUBS.forEach(function(s) {
+    var label = s === 'all' ? 'Alle Rezepte' : s;
+    var active = activeArchiveCat === s ? 'active' : '';
+    out += '<div class="cat-sheet-item ' + active + '" data-s="' + s + '" onclick="selectArchiveCat(this.dataset.s)">';
+    out += '<span class="cat-sheet-dot"></span>';
+    out += '<span class="cat-sheet-name">' + label + '</span></div>';
+  });
+  list.innerHTML = out;
+  document.getElementById('archive-sheet').classList.add('open');
+  document.getElementById('archive-sheet-overlay').classList.add('open');
+}
+
+function closeArchiveSheet() {
+  document.getElementById('archive-sheet').classList.remove('open');
+  document.getElementById('archive-sheet-overlay').classList.remove('open');
+}
+
+function selectArchiveCat(s) {
+  activeArchiveCat = s;
+  closeArchiveSheet();
+  renderArchive(s);
 }
 
 function renderArchive(filter) {
-  var subs = ['all','Fonds & Saucen','Teige & Massen','Suppen','Grundzubereitungen','Patisserie Basics','Gels & Texturen','Fisch & Meeresfrüchte','Fleisch & Geflügel','Gemüse & Beilagen'];
-  var filterBar = document.getElementById('archive-filter');
-  var fh = '';
-  subs.forEach(function(s){
-    var label = s === 'all' ? 'Alle' : s;
-    var cls = 'archive-filter-btn' + (filter === s ? ' active' : '');
-    fh += '<button class="' + cls + '" data-f="' + s + '" onclick="renderArchive(this.dataset.f)">' + label + '</button>';
-  });
-  filterBar.innerHTML = fh;
+  activeArchiveCat = filter || 'all';
+  var catLabel = document.getElementById('archive-active-cat');
+  if (catLabel) catLabel.textContent = filter === 'all' ? 'Alle Kategorien' : filter;
 
   var list = filter === 'all' ? RECIPE_ARCHIVE : RECIPE_ARCHIVE.filter(function(r){ return r.subcategory === filter; });
   var html = '';
@@ -5566,15 +5596,23 @@ function applyRoleUI() {
   </div>
 </div>
 
+<!-- ── ARCHIV KATEGORIE-SHEET ────────────────────────────────────────── -->
+<div class="archive-sheet-overlay" id="archive-sheet-overlay" onclick="closeArchiveSheet()"></div>
+<div class="archive-sheet" id="archive-sheet">
+  <div class="cat-sheet-handle"></div>
+  <div class="cat-sheet-title">Archiv</div>
+  <div class="cat-sheet-list" id="archive-sheet-list" style="overflow-y:auto;padding:8px 0 60px"></div>
+</div>
+
 <!-- ── REZEPT-ARCHIV SCREEN ─────────────────────────────────────────── -->
 <div id="screen-archive" class="screen">
   <div class="sub-header">
     <button class="back-btn" onclick="showScreen('home')" style="font-size:19px;color:#5C7F5D">&#8592;</button>
     <span class="sub-title" style="font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:300;letter-spacing:2px">Rezept-Archiv</span>
-    <div style="width:44px"></div>
+    <button onclick="openArchiveSheet()" style="background:none;border:none;color:#B8973A;font-size:22px;cursor:pointer;padding:0 4px">&#9776;</button>
   </div>
-  <div class="archive-filter" id="archive-filter"></div>
-  <div id="archive-list" style="padding:0 16px 40px"></div>
+  <div id="archive-active-cat" style="padding:10px 18px 0;font-size:11px;text-transform:uppercase;letter-spacing:2px;color:#B8973A"></div>
+  <div id="archive-list" style="padding:8px 16px 40px"></div>
 </div>
 
 <!-- ── COOK MODE ─────────────────────────────────────────────────────── -->
