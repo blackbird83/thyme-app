@@ -1860,12 +1860,12 @@ async function runPairing() {
   var results = document.getElementById('pairing-results');
   results.innerHTML = '<div class="pairing-loading">Analysiere Aromen...<div class="pairing-spin"></div></div>';
 
-  var prompt = 'Du bist Experte fuer Flavour Pairing auf Profi-Koch-Niveau. Analysiere: ' + query + '. Antworte NUR mit JSON (keine Backticks): {"klassisch":[{"name":"Z1","desc":"1 Satz warum"},{"name":"Z2","desc":"1 Satz warum"},{"name":"Z3","desc":"1 Satz warum"},{"name":"Z4","desc":"1 Satz warum"},{"name":"Z5","desc":"1 Satz warum"}],"modern":[{"name":"Z1","desc":"1 Satz"},{"name":"Z2","desc":"1 Satz"},{"name":"Z3","desc":"1 Satz"}],"ueberraschend":[{"name":"Z1","desc":"1 Satz"},{"name":"Z2","desc":"1 Satz"}],"erklaerung":"2-3 Saetze Aromachemie","rezept_titel":"Kreativer Titel","rezept_meta":"4 Portionen, 45 Min, Hauptgang","rezept_idee":"3-4 Saetze Rezeptidee"}';
+  var prompt = 'Flavour Pairing Experte. Analysiere: ' + query + '. NUR JSON, keine Backticks: {"klassisch":[{"name":"Zutat","desc":"max 8 Worte"},{"name":"Zutat","desc":"max 8 Worte"},{"name":"Zutat","desc":"max 8 Worte"},{"name":"Zutat","desc":"max 8 Worte"},{"name":"Zutat","desc":"max 8 Worte"}],"modern":[{"name":"Zutat","desc":"max 8 Worte"},{"name":"Zutat","desc":"max 8 Worte"},{"name":"Zutat","desc":"max 8 Worte"}],"ueberraschend":[{"name":"Zutat","desc":"max 8 Worte"},{"name":"Zutat","desc":"max 8 Worte"}],"erklaerung":"2 Saetze","rezept_titel":"Titel","rezept_meta":"4 Portionen 45 Min Hauptgang","rezept_idee":"2-3 Saetze"}';
 
   try {
     var d = await callClaude({
       model: 'claude-sonnet-4-20250514',
-      max_tokens: 800,
+      max_tokens: 1500,
       messages: [{role:'user', content: prompt}]
     });
     if (!d.content || !d.content[0]) throw new Error('Keine Antwort');
