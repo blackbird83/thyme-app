@@ -1976,11 +1976,18 @@ function pmBuildMindmap(query, r) {
   var ue = r.ueberraschend || r['überraschend'] || [];
   ue.forEach(function(n){ all.push({name: typeof n === 'string' ? n : n.name, desc: typeof n === 'object' ? n.desc : '', cat: 'Mutig'}); });
 
-  // Knoten im Kreis anordnen
+  // Organische Anordnung — variierende Abstände und Winkel
   var total = all.length;
+  // Pseudo-Zufallsversatz (deterministisch basierend auf Index)
+  function seededRand(seed) { return (Math.sin(seed * 9301 + 49297) * 233280) % 1; }
   all.forEach(function(item, i) {
-    var angle = (i / total) * Math.PI * 2 - Math.PI / 2;
-    var dist = Math.min(w, h) * 0.36;
+    var baseAngle = (i / total) * Math.PI * 2 - Math.PI / 2;
+    // Leichter Winkelversatz für organisches Aussehen
+    var angleJitter = (seededRand(i * 3 + 1) - 0.5) * 0.45;
+    var angle = baseAngle + angleJitter;
+    // Unterschiedliche Abstände: 0.28–0.42
+    var distFactor = 0.30 + seededRand(i * 7 + 3) * 0.14;
+    var dist = Math.min(w, h) * distFactor;
     var x = cx + Math.cos(angle) * dist;
     var y = cy + Math.sin(angle) * dist;
     var color = item.cat === 'Klassisch' ? '#2E6B3E' : item.cat === 'Modern' ? '#8B5A00' : '#8B1A1A';
@@ -2015,33 +2022,28 @@ function pmBuildMindmap(query, r) {
 function pmAnimate() {
   _pmAnim += 0.02;
   pmDraw(_pmAnim);
-  // Kontinuierlich weiterlaufen für lebendige Animation
-  _pmAnimFrame = requestAnimationFrame(pmAnimate);
+  if (_pmAnim < 1.5) {
+    _pmAnimFrame = requestAnimationFrame(pmAnimate);
+  }
 }
-
-var _pmTime = 0;
-var _pmBreath = 0;
 
 function pmDraw(progress) {
   if (!_pmCtx || !_pmCanvas) return;
   var w = _pmCanvas.width, h = _pmCanvas.height;
   _pmCtx.clearRect(0, 0, w, h);
-  _pmBreath += 0.025;
-  var breathScale = 1 + Math.sin(_pmBreath) * 0.018;
 
-  // Verbindungslinien — mit leichtem Puls
+  // Verbindungslinien
   _pmNodes.forEach(function(n, i) {
     if (i === 0) return;
     var p = Math.max(0, Math.min(1, (progress - n.delay) * 4));
     if (p <= 0) return;
     var center = _pmNodes[0];
-    var pulse = 1 + Math.sin(_pmBreath + i * 0.7) * 0.12;
     _pmCtx.beginPath();
     _pmCtx.moveTo(center.x, center.y);
     _pmCtx.lineTo(center.x + (n.x - center.x) * p, center.y + (n.y - center.y) * p);
     _pmCtx.strokeStyle = n.strokeColor || n.color;
-    _pmCtx.lineWidth = 1 + pulse * 0.4;
-    _pmCtx.globalAlpha = 0.5 + Math.sin(_pmBreath + i) * 0.15;
+    _pmCtx.lineWidth = 1.5;
+    _pmCtx.globalAlpha = 0.55;
     _pmCtx.stroke();
     _pmCtx.globalAlpha = 1;
   });
@@ -2050,32 +2052,17 @@ function pmDraw(progress) {
   _pmNodes.forEach(function(n, i) {
     var p = i === 0 ? Math.min(progress * 4, 1) : Math.max(0, Math.min(1, (progress - n.delay) * 4));
     if (p <= 0) return;
-
-    // Bounce-Easing beim Erscheinen
+    // Bounce-Easing beim Erscheinen — danach statisch
     var easedP = p < 1 ? 1 - Math.pow(1 - p, 3) : 1;
-    // Lebendige Bewegung — leichtes Schweben
-    var floatX = i === 0 ? 0 : Math.sin(_pmBreath * 0.8 + i * 1.2) * 2.5;
-    var floatY = i === 0 ? 0 : Math.cos(_pmBreath * 0.6 + i * 0.9) * 2.5;
-    var nodeScale = i === 0 ? breathScale : easedP * (1 + Math.sin(_pmBreath + i * 0.5) * 0.03);
 
     _pmCtx.save();
-    _pmCtx.translate(n.x + floatX, n.y + floatY);
-    _pmCtx.scale(nodeScale, nodeScale);
-
-    // Glow-Effekt
-    if (i === 0) {
-      _pmCtx.shadowColor = '#4a7c59';
-      _pmCtx.shadowBlur = 12 + Math.sin(_pmBreath) * 4;
-    } else {
-      _pmCtx.shadowColor = n.color;
-      _pmCtx.shadowBlur = 6;
-    }
+    _pmCtx.translate(n.x, n.y);
+    _pmCtx.scale(easedP, easedP);
 
     _pmCtx.beginPath();
     _pmCtx.arc(0, 0, n.r, 0, Math.PI * 2);
     _pmCtx.fillStyle = n.color;
     _pmCtx.fill();
-    _pmCtx.shadowBlur = 0;
 
     if (i === 0) {
       _pmCtx.strokeStyle = '#B8973A';
@@ -2083,7 +2070,7 @@ function pmDraw(progress) {
       _pmCtx.stroke();
     }
 
-    // Text immer weiss
+    // Text weiss, scharf
     _pmCtx.fillStyle = '#FFFFFF';
     var fontSize = i === 0 ? 13 : 10;
     _pmCtx.font = (i === 0 ? '600 ' : '500 ') + fontSize + 'px "DM Sans", sans-serif';
