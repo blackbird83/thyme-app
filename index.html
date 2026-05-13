@@ -106,7 +106,7 @@ textarea{resize:vertical}
 /* Anweisungen */
 .instructions-text{font-size:18.2px;color:var(--smoke);line-height:1.85;white-space:pre-wrap;letter-spacing:0.2px}
 .app{max-width:900px;margin:0 auto}
-.screen{display:none;background:transparent;overflow:hidden}.screen.active{display:block;opacity:1;transform:translateY(0);min-height:100vh}
+.screen{display:none;background:transparent;overflow:hidden;padding-top:56px}.screen.active{display:block;opacity:1;transform:translateY(0);min-height:100vh}
 .screen.animating{opacity:0;transform:translateY(12px)}.screen.visible{opacity:1;transform:translateY(0)}
 /* Karten-Hover */
 .card{transition:transform .2s ease,box-shadow .2s ease}
@@ -379,7 +379,7 @@ body.light-mode .fav-btn.inactive{color:rgba(0,0,0,0.2)}
 #book-cover-hint{font-family:'DM Sans',sans-serif;font-size:12.1px;color:#4A6741;letter-spacing:3px;text-transform:uppercase;margin-top:12px}
 
 /* ── HEADER mit anklickbarem Logo ──────────────── */
-.header{display:flex;justify-content:space-between;align-items:center;padding:12px 20px;border-bottom:1px solid var(--border);position:fixed;top:0;left:0;right:0;background:var(--cream);z-index:30;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+.header{display:flex;justify-content:space-between;align-items:center;padding:12px 20px;border-bottom:1px solid #B8973A;position:fixed;top:0;left:0;right:0;max-width:900px;margin:0 auto;background:#0A0805;z-index:30}
 .app-name{display:flex;align-items:center;gap:0;cursor:pointer;user-select:none;text-decoration:none;min-height:44px;-webkit-tap-highlight-color:rgba(184,151,58,0.15)}
 .app-name svg{height:32px;width:auto}
 .header-right{display:flex;gap:4px;align-items:center}
@@ -2441,7 +2441,7 @@ async function init() {
 function showScreen(name) {
   // Header nur auf Home-Screen anzeigen
   var mainHeader = document.querySelector('.header');
-  if(mainHeader) mainHeader.style.display = name === 'home' ? 'flex' : 'none';
+  if(mainHeader) mainHeader.style.display = 'flex';
   
   if (name === 'home') {
     activeCat = 'all';
