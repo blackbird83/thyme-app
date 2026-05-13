@@ -276,13 +276,13 @@ body.light-mode .fav-btn.inactive{color:rgba(0,0,0,0.2)}
 .action-sheet-overlay.open{display:block}
 .action-sheet{position:fixed;bottom:0;left:0;right:0;max-width:900px;margin:0 auto;z-index:51;transform:translateY(100%);transition:transform .3s cubic-bezier(.4,0,.2,1)}
 .action-sheet.open{transform:translateY(0)}
-.action-sheet-panel{background:#1E1610;border-radius:20px 20px 0 0;border:1px solid #2E2416;border-bottom:none;overflow:hidden}
+.action-sheet-panel{background:var(--cream);border-radius:20px 20px 0 0;border:1px solid #2E2416;border-bottom:none;overflow:hidden}
 .action-sheet-item{display:flex;align-items:center;gap:14px;padding:16px 24px;border-bottom:1px solid #2A2010;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:18.2px;font-weight:400;color:var(--bark);transition:background .15s;background:transparent;border-left:none;border-right:none;width:100%;text-align:left}
 .action-sheet-item:last-child{border-bottom:none}
 .action-sheet-item:active{background:#2A2010}
 .action-sheet-item.danger{color:#8B4040}
 .action-sheet-item-icon{font-size:19.4px;width:24px;text-align:center;opacity:0.8}
-.action-sheet-cancel{display:block;width:100%;margin:8px 0 0;background:#1E1610;border:1px solid #2E2416;border-radius:14px;padding:16px;font-size:18.2px;font-weight:500;color:var(--smoke);cursor:pointer;font-family:'DM Sans',sans-serif;transition:background .15s}
+.action-sheet-cancel{display:block;width:100%;margin:8px 0 0;background:var(--cream);border:1px solid #2E2416;border-radius:14px;padding:16px;font-size:18.2px;font-weight:500;color:var(--smoke);cursor:pointer;font-family:'DM Sans',sans-serif;transition:background .15s}
 .action-sheet-cancel:active{background:#2A2010}
 @page { size: A4; margin: 48px 56px; }
 @media print {
@@ -390,7 +390,7 @@ body.light-mode .fav-btn.inactive{color:rgba(0,0,0,0.2)}
 /* ── KATEGORIE SHEET ────────────────────────────── */
 .cat-sheet-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.3);z-index:40;backdrop-filter:blur(3px)}
 .cat-sheet-overlay.open{display:block}
-.cat-sheet{position:fixed;bottom:0;left:0;right:0;max-width:900px;margin:0 auto;background:#1E1610;border-radius:24px 24px 0 0;z-index:41;transform:translateY(100%);transition:transform .35s cubic-bezier(.4,0,.2,1);max-height:80vh;overflow:hidden;display:flex;flex-direction:column}
+.cat-sheet{position:fixed;bottom:0;left:0;right:0;max-width:900px;margin:0 auto;background:var(--cream, #F5F0E8);border-radius:24px 24px 0 0;z-index:41;transform:translateY(100%);transition:transform .35s cubic-bezier(.4,0,.2,1);max-height:80vh;overflow:hidden;display:flex;flex-direction:column}
 .cat-sheet.open{transform:translateY(0)}
 .cat-sheet-handle{width:36px;height:4px;background:var(--border);border-radius:99px;margin:14px auto 0}
 .cat-sheet-title{font-family:'Cormorant Garamond',serif;font-size:26.6px;font-weight:600;color:var(--bark);padding:16px 24px 8px;text-align:center}
@@ -792,9 +792,9 @@ html,body{overflow-y:auto;-webkit-overflow-scrolling:touch;height:auto}
 #screen-home,#screen-settings,#screen-pairing,#screen-archive,#screen-cook,.screen{padding-bottom:60px}
 
 /* ── ARCHIV-SHEET ────────────────────────────────────────────────────────── */
-.archive-sheet-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.3);z-index:40;backdrop-filter:blur(3px)}
+.archive-sheet-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:40;backdrop-filter:blur(3px)}
 .archive-sheet-overlay.open{display:block}
-.archive-sheet{position:fixed;bottom:0;left:0;right:0;max-width:900px;margin:0 auto;background:#1E1610;border-radius:24px 24px 0 0;z-index:41;transform:translateY(100%);transition:transform .35s cubic-bezier(.4,0,.2,1);max-height:80vh;overflow:hidden;display:flex;flex-direction:column}
+.archive-sheet{position:fixed;bottom:0;left:0;right:0;max-width:900px;margin:0 auto;background:var(--color-bg, #1C1408);border-radius:24px 24px 0 0;z-index:41;transform:translateY(100%);transition:transform .35s cubic-bezier(.4,0,.2,1);max-height:80vh;overflow:hidden;display:flex;flex-direction:column}
 .archive-sheet.open{transform:translateY(0)}
 
 /* ── REZEPT-ARCHIV ──────────────────────────────────────────────────────── */
