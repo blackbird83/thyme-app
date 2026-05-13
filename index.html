@@ -1976,20 +1976,53 @@ function pmBuildMindmap(query, r) {
   var ue = r.ueberraschend || r['überraschend'] || [];
   ue.forEach(function(n){ all.push({name: typeof n === 'string' ? n : n.name, desc: typeof n === 'object' ? n.desc : '', cat: 'Mutig'}); });
 
-  // Organische Anordnung — variierende Abstände und Winkel
+  // Organische kollisionsfreie Anordnung
   var total = all.length;
-  // Pseudo-Zufallsversatz (deterministisch basierend auf Index)
-  function seededRand(seed) { return (Math.sin(seed * 9301 + 49297) * 233280) % 1; }
+  function seededRand(seed) { return Math.abs((Math.sin(seed * 9301 + 49297) * 233280) % 1); }
+
+  // Schritt 1: Anfangspositionen mit Winkelversatz
+  var placed = [];
   all.forEach(function(item, i) {
     var baseAngle = (i / total) * Math.PI * 2 - Math.PI / 2;
-    // Leichter Winkelversatz für organisches Aussehen
-    var angleJitter = (seededRand(i * 3 + 1) - 0.5) * 0.45;
+    var angleJitter = (seededRand(i * 3 + 1) - 0.5) * 0.5;
     var angle = baseAngle + angleJitter;
-    // Unterschiedliche Abstände: 0.28–0.42
-    var distFactor = 0.30 + seededRand(i * 7 + 3) * 0.14;
+    var distFactor = 0.32 + seededRand(i * 7 + 3) * 0.12;
     var dist = Math.min(w, h) * distFactor;
-    var x = cx + Math.cos(angle) * dist;
-    var y = cy + Math.sin(angle) * dist;
+    placed.push({x: cx + Math.cos(angle) * dist, y: cy + Math.sin(angle) * dist, r: 28, angle: angle, dist: dist});
+  });
+
+  // Schritt 2: Kollisionsauflösung (force-based, 30 Iterationen)
+  var minDist = 62; // 2 * radius + Abstand
+  for (var iter = 0; iter < 30; iter++) {
+    for (var a = 0; a < placed.length; a++) {
+      for (var b = a + 1; b < placed.length; b++) {
+        var pa = placed[a], pb = placed[b];
+        var dx = pb.x - pa.x, dy = pb.y - pa.y;
+        var d = Math.sqrt(dx*dx + dy*dy);
+        if (d < minDist && d > 0) {
+          var push = (minDist - d) / 2 + 1;
+          var nx = dx / d, ny = dy / d;
+          pa.x -= nx * push; pa.y -= ny * push;
+          pb.x += nx * push; pb.y += ny * push;
+        }
+      }
+      // Nicht zu weit vom Zentrum weg
+      var pdx = placed[a].x - cx, pdy = placed[a].y - cy;
+      var pd = Math.sqrt(pdx*pdx + pdy*pdy);
+      var maxDist = Math.min(w, h) * 0.46;
+      var minDistFromCenter = 70;
+      if (pd > maxDist) { placed[a].x = cx + pdx/pd*maxDist; placed[a].y = cy + pdy/pd*maxDist; }
+      if (pd < minDistFromCenter) { placed[a].x = cx + pdx/pd*minDistFromCenter; placed[a].y = cy + pdy/pd*minDistFromCenter; }
+      // Padding vom Rand
+      var pad = 36;
+      placed[a].x = Math.max(pad, Math.min(w - pad, placed[a].x));
+      placed[a].y = Math.max(pad + 10, Math.min(h - pad, placed[a].y));
+    }
+  }
+
+  all.forEach(function(item, i) {
+    var x = placed[i].x;
+    var y = placed[i].y;
     var color = item.cat === 'Klassisch' ? '#2E6B3E' : item.cat === 'Modern' ? '#8B5A00' : '#8B1A1A';
     var strokeColor = item.cat === 'Klassisch' ? '#4a7c59' : item.cat === 'Modern' ? '#B8973A' : '#C0392B';
     _pmNodes.push({label: item.name, x: x, y: y, r: 28, color: color, strokeColor: strokeColor, cat: item.cat, desc: item.desc || '', delay: (i + 1) * 0.08});
