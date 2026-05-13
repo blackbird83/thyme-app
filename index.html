@@ -1956,6 +1956,56 @@ function importPairingRecipe(r) {
   showToast('Rezeptidee in Formular übertragen', 'success');
 }
 
+function renderNaehrwerte(n, portions) {
+  var portLabel = portions ? ' / ' + portions : ' / 100g';
+  return '<div class="nw-section">'
+    + '<span class="nw-section-label">Nährwerte' + portLabel + '</span>'
+    + '<div class="nw-grid">'
+    + '<div class="nw-tile"><div class="nw-tile-val">' + (n.kalorien||'—') + '</div><div class="nw-tile-unit">kcal</div><div class="nw-tile-label">Energie</div></div>'
+    + '<div class="nw-tile"><div class="nw-tile-val">' + (n.protein||'—') + '</div><div class="nw-tile-unit">g</div><div class="nw-tile-label">Protein</div></div>'
+    + '<div class="nw-tile"><div class="nw-tile-val">' + (n.kohlenhydrate||'—') + '</div><div class="nw-tile-unit">g</div><div class="nw-tile-label">Kohlenhydrate</div></div>'
+    + '<div class="nw-tile"><div class="nw-tile-val">' + (n.fett||'—') + '</div><div class="nw-tile-unit">g</div><div class="nw-tile-label">Fett</div></div>'
+    + '</div>'
+    + (n.notiz ? '<div class="nw-note">' + n.notiz + '</div>' : '')
+    + '</div>';
+}
+
+async function calcNaehrwerteWithClaude(recipeId, ingredients, portions) {
+  if (!ingredients || !ingredients.length) return;
+  try {
+    var ingNames = ingredients.map(function(s) {
+      try { var o = JSON.parse(s); return (o.a ? o.a + ' ' + (o.u||'') + ' ' : '') + (o.n||s); } catch(e) { return s; }
+    }).join(', ');
+    var portCount = 1;
+    if (portions) { var m = String(portions).match(/(\d+)/); if (m) portCount = parseInt(m[1]); }
+
+    var prompt = 'Berechne Naehrwerte fuer dieses Rezept (' + portCount + ' Portionen): ' + ingNames
+      + '. NUR JSON: {"kalorien":"X","protein":"X","kohlenhydrate":"X","fett":"X","notiz":"kurze Anmerkung falls noetig"}. Werte pro Portion, gerundet.';
+
+    var d = await callClaude({model:'claude-haiku-4-5-20251001', max_tokens:200, messages:[{role:'user',content:prompt}]});
+    if (!d.content || !d.content[0]) return;
+    var nw = JSON.parse(d.content[0].text.replace(/```json|```/g,'').trim());
+
+    // In Rezept speichern
+    recipes = recipes.map(function(r) {
+      if (r.id === recipeId) return Object.assign({}, r, {naehrwerte: nw});
+      return r;
+    });
+    localSave();
+    if (db && isOnline) db.from('recipes').update({naehrwerte: nw}).eq('id', recipeId);
+
+    // Detail-Ansicht live aktualisieren
+    if (currentRecipe && currentRecipe.id === recipeId) {
+      currentRecipe = Object.assign({}, currentRecipe, {naehrwerte: nw});
+      var nwSection = document.querySelector('.nw-section');
+      if (nwSection) {
+        var portions = currentRecipe.portions;
+        nwSection.outerHTML = renderNaehrwerte(nw, portions);
+      }
+    }
+  } catch(e) { console.log('Nährwerte:', e); }
+}
+
 // ── WARENKUNDE ─────────────────────────────────────────────────────────────
 function openWarenkunde() {
   document.getElementById('wk-input').value = '';
@@ -2974,6 +3024,10 @@ function openDetail(r) {
       if (allergenIds.length) return renderAllergenBadges(allergenIds);
       return '<div class="allergen-section" id="allergen-pending" style="opacity:.4"><span class="allergen-section-label">Allergene werden erkannt...</span></div>';
     }())
+    + (function(){
+      if (r.naehrwerte) return renderNaehrwerte(r.naehrwerte, r.portions);
+      return '<div class="nw-section"><span class="nw-section-label">Nährwerte</span><div class="nw-pending" id="nw-pending">Werden berechnet...</div></div>';
+    }())
     + (r.instructions ? '<span class="section-label">Zubereitung</span><div class="instructions-text">' + r.instructions + '</div>' : '')
     + (r.notes ? '<span class="section-label">Notizen</span><div class="notes-text">' + r.notes + '</div>' : '')
     + '<div class="detail-actions">'
@@ -2992,6 +3046,10 @@ function openDetail(r) {
       try { var o = JSON.parse(s); return o.n || s; } catch(e) { return s; }
     }).filter(Boolean);
     if (ingNames.length) detectAllergensWithClaude(r.id, ingNames);
+  }
+  // Nährwerte berechnen falls noch nicht vorhanden
+  if (!r.naehrwerte && !r.readonly) {
+    calcNaehrwerteWithClaude(r.id, r.ingredients || [], r.portions);
   }
 }
 
@@ -3086,8 +3144,9 @@ async function saveRecipe() {
       });
     }
   }
-  // Allergene asynchron von Claude erkennen lassen
+  // Allergene und Nährwerte asynchron von Claude berechnen
   detectAllergensWithClaude(savedId, ingData.map(function(i){ return i.name; }));
+  calcNaehrwerteWithClaude(savedId, payload.ingredients, payload.portions);
   renderGrid(); showScreen('home');
 }
 
