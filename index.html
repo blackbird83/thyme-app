@@ -1174,24 +1174,13 @@ html,body{overflow-y:auto;-webkit-overflow-scrolling:touch;height:auto}
       </svg>
     </div>
     <div class="header-right">
-      <button onclick="showScreen('navigation')" style="background:none;border:none;cursor:pointer;padding:4px 8px;display:flex;align-items:center;gap:5px;color:var(--bark)" title="Navigation">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="10"/>
-          <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" fill="currentColor" opacity="0.8"/>
-        </svg>
-        
-      </button>
       <div class="shop-indicator">
-        <button onclick="openShopList()" style="background:none;border:none;cursor:pointer;padding:4px 8px;display:flex;align-items:center;gap:4px;font-family:'DM Sans',sans-serif;font-size:14.3px;font-weight:600;color:var(--bark)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg></button>
+        <button onclick="openShopList()" style="background:none;border:none;cursor:pointer;padding:4px 8px;display:flex;align-items:center;gap:4px;color:var(--bark)">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        </button>
         <div class="shop-indicator-dot" id="shop-indicator-dot"></div>
-      </div><button class="fav-tab" id="fav-tab" onclick="toggleFavView()" style="background:none;border:none;cursor:pointer;padding:4px 8px;font-size:20px;color:var(--bark)">
-        <span id="fav-tab-label">★</span>
-      </button>
-      <div id="mode-badge" class="mode-badge online" style="display:none">
-        <span class="mode-dot"></span>
-        <span id="mode-label">ONLINE</span>
       </div>
-      <button class="header-icon-btn" onclick="showScreen('settings')" title="Einstellungen">&#9881;</button>
+      <div id="mode-badge" class="mode-badge online" style="display:none"><span class="mode-dot"></span><span id="mode-label">ONLINE</span></div>
     </div>
   </div>
 <div id="guest-info-bar">&#128100; Gast-Modus — nur Lesen</div>
