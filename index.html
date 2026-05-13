@@ -1958,15 +1958,15 @@ function importPairingRecipe(r) {
 
 function renderNaehrwerte(n, portions) {
   var portLabel = portions ? ' / ' + portions : ' / 100g';
-  return '<div class="nw-section">'
-    + '<span class="nw-section-label">Nährwerte' + portLabel + '</span>'
-    + '<div class="nw-grid">'
-    + '<div class="nw-tile"><div class="nw-tile-val">' + (n.kalorien||'—') + '</div><div class="nw-tile-unit">kcal</div><div class="nw-tile-label">Energie</div></div>'
-    + '<div class="nw-tile"><div class="nw-tile-val">' + (n.protein||'—') + '</div><div class="nw-tile-unit">g</div><div class="nw-tile-label">Protein</div></div>'
-    + '<div class="nw-tile"><div class="nw-tile-val">' + (n.kohlenhydrate||'—') + '</div><div class="nw-tile-unit">g</div><div class="nw-tile-label">Kohlenhydrate</div></div>'
-    + '<div class="nw-tile"><div class="nw-tile-val">' + (n.fett||'—') + '</div><div class="nw-tile-unit">g</div><div class="nw-tile-label">Fett</div></div>'
+  return '<div class="wk-card" style="margin:16px 0 8px">'
+    + '<div class="wk-card-title">Nährwerte' + portLabel + '</div>'
+    + '<div class="wk-nwert">'
+    + '<div class="wk-nwert-item"><div class="wk-nwert-val">' + (n.kalorien||'—') + '</div><div class="wk-nwert-label">Kalorien</div></div>'
+    + '<div class="wk-nwert-item"><div class="wk-nwert-val">' + (n.protein||'—') + '</div><div class="wk-nwert-label">Protein</div></div>'
+    + '<div class="wk-nwert-item"><div class="wk-nwert-val">' + (n.kohlenhydrate||'—') + '</div><div class="wk-nwert-label">Kohlenhydrate</div></div>'
+    + '<div class="wk-nwert-item"><div class="wk-nwert-val">' + (n.fett||'—') + '</div><div class="wk-nwert-label">Fett</div></div>'
     + '</div>'
-    + (n.notiz ? '<div class="nw-note">' + n.notiz + '</div>' : '')
+    + (n.notiz ? '<div class="wk-card-text" style="font-size:12px;color:var(--smoke);margin-top:10px">' + n.notiz + '</div>' : '')
     + '</div>';
 }
 
@@ -3026,7 +3026,7 @@ function openDetail(r) {
     }())
     + (function(){
       if (r.naehrwerte) return renderNaehrwerte(r.naehrwerte, r.portions);
-      return '<div class="nw-section"><span class="nw-section-label">Nährwerte</span><div class="nw-pending" id="nw-pending">Werden berechnet...</div></div>';
+      return '<div class="wk-card" style="margin:16px 0 8px" id="nw-pending"><div class="wk-card-title">Nährwerte</div><div class="nw-pending">Werden berechnet...</div></div>';
     }())
     + (r.instructions ? '<span class="section-label">Zubereitung</span><div class="instructions-text">' + r.instructions + '</div>' : '')
     + (r.notes ? '<span class="section-label">Notizen</span><div class="notes-text">' + r.notes + '</div>' : '')
