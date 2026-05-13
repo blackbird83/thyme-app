@@ -811,6 +811,17 @@ html,body{overflow-y:auto;-webkit-overflow-scrolling:touch;height:auto}
 .archive-filter-btn{background:transparent;border:1px solid #3D3020;border-radius:99px;color:#888070;font-size:11px;padding:5px 12px;cursor:pointer;font-family:'DM Sans',sans-serif;text-transform:uppercase;letter-spacing:.5px}
 .archive-filter-btn.active{border-color:#B8973A;color:#B8973A;background:var(--parchment)}
 
+.wk-card{background:var(--parchment);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:12px}
+.wk-card-title{font-size:10px;text-transform:uppercase;letter-spacing:2px;color:#B8973A;margin-bottom:6px;font-family:'DM Sans',sans-serif}
+.wk-card-text{font-size:14px;color:var(--bark);line-height:1.65}
+.wk-nwert{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.wk-nwert-item{background:var(--cream);border-radius:8px;padding:10px 12px}
+.wk-nwert-val{font-family:'Cormorant Garamond',serif;font-size:22px;color:#B8973A;line-height:1}
+.wk-nwert-label{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--smoke);margin-top:2px}
+.pairing-profil{background:var(--parchment);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:16px;display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.pairing-profil-item{display:flex;flex-direction:column;gap:3px}
+.pairing-profil-label{font-size:9px;text-transform:uppercase;letter-spacing:1.5px;color:#B8973A;font-family:'DM Sans',sans-serif}
+.pairing-profil-value{font-size:13px;color:var(--bark);line-height:1.4;font-family:'DM Sans',sans-serif}
 /* ── FLAVOUR PAIRING ────────────────────────────────────────────────────── */
 #screen-pairing{background:var(--cream);flex-direction:column;min-height:100vh}
 .pairing-header{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-bottom:1px solid var(--border);flex-shrink:0}
@@ -1860,12 +1871,12 @@ async function runPairing() {
   var results = document.getElementById('pairing-results');
   results.innerHTML = '<div class="pairing-loading">Analysiere Aromen...<div class="pairing-spin"></div></div>';
 
-  var prompt = 'Flavour Pairing Experte. Analysiere: ' + query + '. NUR JSON, keine Backticks: {"klassisch":[{"name":"Zutat","desc":"max 8 Worte"},{"name":"Zutat","desc":"max 8 Worte"},{"name":"Zutat","desc":"max 8 Worte"},{"name":"Zutat","desc":"max 8 Worte"},{"name":"Zutat","desc":"max 8 Worte"}],"modern":[{"name":"Zutat","desc":"max 8 Worte"},{"name":"Zutat","desc":"max 8 Worte"},{"name":"Zutat","desc":"max 8 Worte"}],"ueberraschend":[{"name":"Zutat","desc":"max 8 Worte"},{"name":"Zutat","desc":"max 8 Worte"}],"erklaerung":"2 Saetze","rezept_titel":"Titel","rezept_meta":"4 Portionen 45 Min Hauptgang","rezept_idee":"2-3 Saetze"}';
+  var prompt = 'Flavour Pairing Experte auf Profi-Koch-Niveau. Analysiere: ' + query + '. NUR JSON, keine Backticks: {"profil":{"aroma":"Hauptaromen in 8 Worten","geschmack":"Geschmacksprofil in 10 Worten","saison":"Saison oder ganzjaehrig","kueche":"Typische Kuechen/Anwendung in 8 Worten"},"klassisch":[{"name":"Zutat","desc":"max 8 Worte"},{"name":"Zutat","desc":"max 8 Worte"},{"name":"Zutat","desc":"max 8 Worte"},{"name":"Zutat","desc":"max 8 Worte"},{"name":"Zutat","desc":"max 8 Worte"}],"modern":[{"name":"Zutat","desc":"max 8 Worte"},{"name":"Zutat","desc":"max 8 Worte"},{"name":"Zutat","desc":"max 8 Worte"}],"ueberraschend":[{"name":"Zutat","desc":"max 8 Worte"},{"name":"Zutat","desc":"max 8 Worte"}],"erklaerung":"2 Saetze Aromachemie","rezept_titel":"Titel","rezept_meta":"4 Portionen 45 Min Hauptgang","rezept_idee":"2-3 Saetze"}';
 
   try {
     var d = await callClaude({
       model: 'claude-sonnet-4-20250514',
-      max_tokens: 1500,
+      max_tokens: 1800,
       messages: [{role:'user', content: prompt}]
     });
     if (!d.content || !d.content[0]) throw new Error('Keine Antwort');
@@ -1943,6 +1954,80 @@ function importPairingRecipe(r) {
   document.getElementById('f-title').value = r.rezept_titel || '';
   document.getElementById('f-notes').value = 'Flavour Pairing Idee: ' + (r.rezept_idee || '');
   showToast('Rezeptidee in Formular übertragen', 'success');
+}
+
+// ── WARENKUNDE ─────────────────────────────────────────────────────────────
+function openWarenkunde() {
+  document.getElementById('wk-input').value = '';
+  document.getElementById('wk-results').innerHTML = '';
+  document.getElementById('wk-header-title').textContent = 'Warenkunde';
+  showScreen('warenkunde');
+  setTimeout(function(){ document.getElementById('wk-input').focus(); }, 150);
+}
+
+async function runWarenkunde() {
+  var query = document.getElementById('wk-input').value.trim();
+  if (!query) return;
+  document.getElementById('wk-header-title').textContent = query;
+  var results = document.getElementById('wk-results');
+  results.innerHTML = '<div class="pairing-loading">Analyse läuft...<div class="pairing-spin"></div></div>';
+
+  var prompt = 'Profi-Koch Warenkunde. Erstelle ein umfassendes Produktprofil fuer: ' + query + '. NUR JSON, keine Backticks: {'
+    + '"geschmack":"Geschmacksprofil 2-3 Saetze",'
+    + '"aroma":"Aromacharakter 1-2 Saetze",'
+    + '"saison":"Saison/Verfuegbarkeit",'
+    + '"herkunft":"Herkunft/Anbaugebiete 1-2 Saetze",'
+    + '"kueche":"Kulinarische Verwendung 2-3 Saetze",'
+    + '"lagerung":"Lagerung und Haltbarkeit 1-2 Saetze",'
+    + '"naehrwerte":{"kalorien":"X kcal/100g","protein":"Xg","kohlenhydrate":"Xg","fett":"Xg","besonderheiten":"wichtigste Mikronährstoffe 1 Satz"},'
+    + '"pro_tipp":"Profi-Tipp aus Kuechen-Sicht 2 Saetze"}';
+
+  try {
+    var d = await callClaude({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 1200,
+      messages: [{role:'user', content: prompt}]
+    });
+    if (!d.content || !d.content[0]) throw new Error('Keine Antwort');
+    var r = JSON.parse(d.content[0].text.replace(/```json|```/g,'').trim());
+
+    var html = '';
+
+    // Geschmack & Aroma
+    if (r.geschmack) html += '<div class="wk-card"><div class="wk-card-title">Geschmacksprofil</div><div class="wk-card-text">' + r.geschmack + '</div></div>';
+    if (r.aroma) html += '<div class="wk-card"><div class="wk-card-title">Aromacharakter</div><div class="wk-card-text">' + r.aroma + '</div></div>';
+
+    // Saison & Herkunft
+    if (r.saison || r.herkunft) {
+      html += '<div class="wk-card"><div class="wk-nwert">';
+      if (r.saison) html += '<div class="wk-nwert-item"><div class="wk-nwert-label">Saison</div><div class="wk-card-text" style="font-size:13px;margin-top:4px">' + r.saison + '</div></div>';
+      if (r.herkunft) html += '<div class="wk-nwert-item"><div class="wk-nwert-label">Herkunft</div><div class="wk-card-text" style="font-size:13px;margin-top:4px">' + r.herkunft + '</div></div>';
+      html += '</div></div>';
+    }
+
+    // Nährwerte
+    if (r.naehrwerte) {
+      var n = r.naehrwerte;
+      html += '<div class="wk-card"><div class="wk-card-title">Nährwerte pro 100g</div><div class="wk-nwert">'
+        + '<div class="wk-nwert-item"><div class="wk-nwert-val">' + (n.kalorien||'—') + '</div><div class="wk-nwert-label">Kalorien</div></div>'
+        + '<div class="wk-nwert-item"><div class="wk-nwert-val">' + (n.protein||'—') + '</div><div class="wk-nwert-label">Protein</div></div>'
+        + '<div class="wk-nwert-item"><div class="wk-nwert-val">' + (n.kohlenhydrate||'—') + '</div><div class="wk-nwert-label">Kohlenhydrate</div></div>'
+        + '<div class="wk-nwert-item"><div class="wk-nwert-val">' + (n.fett||'—') + '</div><div class="wk-nwert-label">Fett</div></div>'
+        + '</div>' + (n.besonderheiten ? '<div class="wk-card-text" style="margin-top:10px;font-size:12px;color:var(--smoke)">' + n.besonderheiten + '</div>' : '')
+        + '</div>';
+    }
+
+    // Verwendung & Lagerung
+    if (r.kueche) html += '<div class="wk-card"><div class="wk-card-title">Kulinarische Verwendung</div><div class="wk-card-text">' + r.kueche + '</div></div>';
+    if (r.lagerung) html += '<div class="wk-card"><div class="wk-card-title">Lagerung</div><div class="wk-card-text">' + r.lagerung + '</div></div>';
+
+    // Profi-Tipp
+    if (r.pro_tipp) html += '<div class="wk-card" style="border-color:#B8973A"><div class="wk-card-title" style="color:#B8973A">Profi-Tipp</div><div class="wk-card-text">' + r.pro_tipp + '</div></div>';
+
+    results.innerHTML = html;
+  } catch(e) {
+    results.innerHTML = '<div style="color:#FFAAAA;padding:20px;font-size:14px">Fehler: ' + e.message + '</div>';
+  }
 }
 
 // ── FOODPAIRING MINDMAP ────────────────────────────────────────────────────
@@ -2141,6 +2226,17 @@ function pmFillRecipe(r) {
   document.getElementById('pm-recipe-meta').textContent = r.rezept_meta || '';
   document.getElementById('pm-recipe-text').textContent = r.rezept_idee || '';
   document.getElementById('pm-recipe-save').onclick = function() { importPairingRecipe(r); };
+  // Profil-Box befüllen
+  if (r.profil) {
+    var box = document.getElementById('pm-profil-box');
+    if (box) {
+      box.style.display = 'grid';
+      document.getElementById('pm-profil-aroma').textContent = r.profil.aroma || '';
+      document.getElementById('pm-profil-geschmack').textContent = r.profil.geschmack || '';
+      document.getElementById('pm-profil-saison').textContent = r.profil.saison || '';
+      document.getElementById('pm-profil-kueche').textContent = r.profil.kueche || '';
+    }
+  }
 }
 
 function pmFillList(r) {
@@ -5834,7 +5930,22 @@ function applyRoleUI() {
       </div>
     </div>
 
-    <!-- 6. Einkaufsliste -->
+    <!-- 6. Warenkunde -->
+    <div class="nav-card" onclick="openWarenkunde()">
+      <div class="nav-card-icon" style="background:#0E1F2E">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#5B9BD5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2z"/>
+          <path d="M12 8v4l3 3"/>
+          <line x1="9" y1="3.5" x2="15" y2="3.5"/>
+        </svg>
+      </div>
+      <div class="nav-card-texts">
+        <div class="nav-card-name" style="color:#5B9BD5">WARENKUNDE</div>
+        <div class="nav-card-sub">Geschmack &middot; Nährwerte &middot; Saison &middot; Aromenchemie</div>
+      </div>
+    </div>
+
+    <!-- 7. Einkaufsliste -->
     <div class="nav-card" onclick="openShopList()">
       <div class="nav-card-icon" style="background:#1A1A2E">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#7B7BD5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
@@ -5990,7 +6101,26 @@ function applyRoleUI() {
   </div>
   <!-- Mindmap View -->
   <div id="pairing-mindmap-view" style="display:none;flex-direction:column;flex:1">
-    <div class="cook-tabs" style="flex-shrink:0">
+    <!-- Profil-Box -->
+    <div id="pm-profil-box" class="pairing-profil" style="display:none;margin:12px 16px 0">
+      <div class="pairing-profil-item">
+        <span class="pairing-profil-label">Aroma</span>
+        <span class="pairing-profil-value" id="pm-profil-aroma"></span>
+      </div>
+      <div class="pairing-profil-item">
+        <span class="pairing-profil-label">Geschmack</span>
+        <span class="pairing-profil-value" id="pm-profil-geschmack"></span>
+      </div>
+      <div class="pairing-profil-item">
+        <span class="pairing-profil-label">Saison</span>
+        <span class="pairing-profil-value" id="pm-profil-saison"></span>
+      </div>
+      <div class="pairing-profil-item">
+        <span class="pairing-profil-label">Küche</span>
+        <span class="pairing-profil-value" id="pm-profil-kueche"></span>
+      </div>
+    </div>
+    <div class="cook-tabs" style="flex-shrink:0;margin-top:10px">
       <div class="cook-tab active" id="pm-tab-map" onclick="pmShowTab('map')">Mindmap</div>
       <div class="cook-tab" id="pm-tab-list" onclick="pmShowTab('list')">Liste</div>
       <div class="cook-tab" id="pm-tab-recipe" onclick="pmShowTab('recipe')">Rezeptidee</div>
@@ -6015,6 +6145,22 @@ function applyRoleUI() {
       <div style="font-size:15px;color:var(--smoke);line-height:1.75;margin-bottom:16px" id="pm-recipe-text"></div>
       <button id="pm-recipe-save" style="width:100%;background:transparent;border:1px solid #3D5A3E;border-radius:10px;color:#5C7F5D;font-size:14px;font-weight:600;padding:14px;cursor:pointer;font-family:'DM Sans',sans-serif">+ Als Rezept speichern</button>
     </div>
+  </div>
+</div>
+
+<!-- ── WARENKUNDE SCREEN ──────────────────────────────────────────────────── -->
+<div id="screen-warenkunde" class="screen">
+  <div class="pairing-header">
+    <button class="pairing-back" onclick="showScreen('navigation')">&#8592;</button>
+    <span class="pairing-title" id="wk-header-title">Warenkunde</span>
+    <div style="width:40px"></div>
+  </div>
+  <div class="pairing-body" style="padding-top:8px">
+    <div class="pairing-search">
+      <input class="pairing-input" id="wk-input" placeholder="Produkt eingeben... z.B. Steinpilz" onkeydown="if(event.key==='Enter')runWarenkunde()">
+      <button class="pairing-search-btn" onclick="runWarenkunde()">Abrufen</button>
+    </div>
+    <div id="wk-results"></div>
   </div>
 </div>
 
