@@ -785,8 +785,8 @@ html,body{overflow-y:auto;-webkit-overflow-scrolling:touch;height:auto}
 
 
 /* ── TAGESGRUSS ─────────────────────────────────────────────────────────── */
-#greeting-card{background:linear-gradient(135deg,#2E5435 0%,#3D6B44 60%,#4a7c59 100%);border-radius:16px;margin:16px 16px;padding:18px 20px;position:relative;overflow:hidden;display:none}
-#greeting-card.visible{display:block!important}
+#greeting-card{background:linear-gradient(135deg,#2E5435 0%,#3D6B44 60%,#4a7c59 100%);border-radius:16px;margin:16px 16px;padding:18px 20px;position:relative;overflow:hidden}
+#greeting-card.visible{display:block}
 .gr-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px}
 .gr-date{font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:rgba(255,255,255,.6);font-family:'DM Sans',sans-serif}
 .gr-season{font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:#B8E6B0;font-family:'DM Sans',sans-serif}
@@ -1351,7 +1351,7 @@ html,body{overflow-y:auto;-webkit-overflow-scrolling:touch;height:auto}
   </button>
   </div>
   <!-- TAGESGRUSS -->
-  <div id="greeting-card">
+  <div id="greeting-card" style="display:none">
     <div class="gr-top">
       <span class="gr-date" id="gr-date"></span>
       <span class="gr-season" id="gr-season"></span>
@@ -2434,7 +2434,7 @@ function onSearchScreenInput() {
 // ── TAGESGRUSS ──────────────────────────────────────────────────────────────
 var _greetingProduct = '';
 
-var SEASON_DATA = {
+var GREETING_SEASON_DATA = {
   0:  {season:'Winter',    emoji:'❄️',  products:['Rosenkohl','Pastinaken','Sellerie','Chicorée','Feldsalat','Orangen','Clementinen']},
   1:  {season:'Winter',    emoji:'❄️',  products:['Schwarzwurzel','Lauch','Endivie','Grünkohl','Kiwi','Zitrusfrüchte']},
   2:  {season:'Frühling',  emoji:'🌱',  products:['Bärlauch','erste Erdbeeren','Spinat','Radieschen','Frühlingszwiebeln']},
@@ -2455,7 +2455,7 @@ function initGreeting() {
   var now = new Date();
   var month = now.getMonth();
   var hour = now.getHours();
-  var sd = SEASON_DATA[month];
+  var sd = GREETING_SEASON_DATA[month];
 
   // Datum
   var days = ['Sonntag','Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag'];
@@ -2513,6 +2513,7 @@ function bnGo(tab) {
     document.getElementById('bn-home').classList.add('active');
     setActiveCat('all');
     showScreen('home');
+    setTimeout(function(){ try { initGreeting(); } catch(e){} }, 100);
   } else if (tab === 'search') {
     openSearchScreen();
   } else if (tab === 'add') {
@@ -2945,6 +2946,7 @@ function showScreen(name) {
     window.scrollTo(0, 0);
     renderGrid();
     setTimeout(function() { renderRecent(); }, 80);
+    setTimeout(function() { try { initGreeting(); } catch(e){ console.warn('greeting:', e); } }, 150);
     var cover = document.getElementById('book-cover');
     if(cover) cover.style.display = 'flex';
     var hint = document.getElementById('book-cover-hint');
