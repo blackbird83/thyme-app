@@ -783,6 +783,22 @@ html,body{overflow-y:auto;-webkit-overflow-scrolling:touch;height:auto}
 
 
 
+
+/* ── TAGESGRUSS ─────────────────────────────────────────────────────────── */
+#greeting-card{background:linear-gradient(135deg,#2E5435 0%,#3D6B44 60%,#4a7c59 100%);border-radius:16px;margin:16px 16px;padding:18px 20px;position:relative;overflow:hidden;display:none}
+#greeting-card.visible{display:block}
+.gr-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px}
+.gr-date{font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:rgba(255,255,255,.6);font-family:'DM Sans',sans-serif}
+.gr-season{font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:#B8E6B0;font-family:'DM Sans',sans-serif}
+.gr-title{font-family:'Cormorant Garamond',serif;font-size:22px;color:#FFFFFF;font-weight:300;line-height:1.3;margin-bottom:6px}
+.gr-sub{font-size:13px;color:rgba(255,255,255,.75);line-height:1.5;margin-bottom:14px}
+.gr-chips{display:flex;gap:8px;flex-wrap:wrap}
+.gr-chip{background:rgba(255,255,255,.15);border-radius:99px;padding:5px 12px;font-size:11px;color:#FFFFFF;font-family:'DM Sans',sans-serif;cursor:pointer;border:none}
+.gr-chip.highlight{background:rgba(184,230,176,.25);color:#B8E6B0;border:1px solid rgba(184,230,176,.3)}
+.gr-footer{display:flex;align-items:center;gap:8px;margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,255,255,.12)}
+.gr-footer-text{font-size:11px;color:rgba(255,255,255,.55);font-family:'DM Sans',sans-serif}
+.gr-pairing-btn{margin-left:auto;font-size:11px;color:#B8E6B0;background:none;border:1px solid rgba(184,230,176,.4);border-radius:99px;padding:5px 13px;cursor:pointer;font-family:'DM Sans',sans-serif}
+
 /* ── BOTTOM NAV ─────────────────────────────────────────────────────────── */
 #bottom-nav{position:fixed;bottom:0;left:0;right:0;max-width:900px;margin:0 auto;background:var(--cream);border-top:1px solid var(--border);display:flex;align-items:stretch;z-index:500;padding-bottom:env(safe-area-inset-bottom,0px)}
 .bn-tab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px 4px 10px;gap:3px;cursor:pointer;border:none;background:none;-webkit-tap-highlight-color:transparent}
@@ -1334,6 +1350,21 @@ html,body{overflow-y:auto;-webkit-overflow-scrolling:touch;height:auto}
     <span style="font-size:13px;letter-spacing:1.5px;color:#FFFFFF;text-transform:uppercase;font-family:'DM Sans',sans-serif;font-weight:600">KATEGORIE WÄHLEN</span>
   </button>
   </div>
+  <!-- TAGESGRUSS -->
+  <div id="greeting-card">
+    <div class="gr-top">
+      <span class="gr-date" id="gr-date"></span>
+      <span class="gr-season" id="gr-season"></span>
+    </div>
+    <div class="gr-title" id="gr-title">Guten Morgen, Sebastian</div>
+    <div class="gr-sub" id="gr-sub">Jetzt Saison — die besten Produkte des Monats.</div>
+    <div class="gr-chips" id="gr-chips"></div>
+    <div class="gr-footer">
+      <span class="gr-footer-text" id="gr-footer-text">Foodpairing?</span>
+      <button class="gr-pairing-btn" id="gr-pairing-btn" onclick="greetingPairing()">Analysieren →</button>
+    </div>
+  </div>
+
   <!-- ZULETZT VERWENDET -->
   <div id="recent-section" style="display:none;padding:24px 20px 0">
     <span style="font-size:11px;color:var(--smoke);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:14px;display:block">Zuletzt verwendet</span>
@@ -2400,6 +2431,75 @@ function onSearchScreenInput() {
 }
 
 
+// ── TAGESGRUSS ──────────────────────────────────────────────────────────────
+var _greetingProduct = '';
+
+var SEASON_DATA = {
+  0:  {season:'Winter',    emoji:'❄️',  products:['Rosenkohl','Pastinaken','Sellerie','Chicorée','Feldsalat','Orangen','Clementinen']},
+  1:  {season:'Winter',    emoji:'❄️',  products:['Schwarzwurzel','Lauch','Endivie','Grünkohl','Kiwi','Zitrusfrüchte']},
+  2:  {season:'Frühling',  emoji:'🌱',  products:['Bärlauch','erste Erdbeeren','Spinat','Radieschen','Frühlingszwiebeln']},
+  3:  {season:'Frühling',  emoji:'🌿',  products:['Spargel','Rhabarber','Morcheln','Erbsen','Bärlauch','Frühlingszwiebeln']},
+  4:  {season:'Frühling',  emoji:'🌿',  products:['Spargel','Rhabarber','Morcheln','Erbsen','Bärlauch','Erdbeeren']},
+  5:  {season:'Sommer',    emoji:'☀️',  products:['Erdbeeren','Himbeeren','Erbsen','Zucchini','Fenchel','Kirschen','Spinat']},
+  6:  {season:'Sommer',    emoji:'☀️',  products:['Tomaten','Auberginen','Paprika','Heidelbeeren','Pfifferlinge','Bohnen']},
+  7:  {season:'Sommer',    emoji:'🌻',  products:['Tomaten','Mais','Pflaumen','Pfifferlinge','Melonen','Bohnen','Peperoni']},
+  8:  {season:'Herbst',    emoji:'🍂',  products:['Steinpilze','Kürbis','Birnen','Zwetschgen','Trauben','Äpfel','Mais']},
+  9:  {season:'Herbst',    emoji:'🍁',  products:['Kürbis','Maronen','Quitten','Äpfel','Birnen','Rosenkohl','Rote Bete']},
+  10: {season:'Herbst',    emoji:'🍁',  products:['Maronen','Grünkohl','Rosenkohl','Lauch','Schwarzwurzel','Quitten']},
+  11: {season:'Winter',    emoji:'❄️',  products:['Rosenkohl','Grünkohl','Pastinaken','Feldsalat','Clementinen','Orangen']},
+};
+
+var GREETINGS = ['Guten Morgen','Bonjour','Buongiorno','Guten Tag'];
+
+function initGreeting() {
+  var now = new Date();
+  var month = now.getMonth();
+  var hour = now.getHours();
+  var sd = SEASON_DATA[month];
+
+  // Datum
+  var days = ['Sonntag','Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag'];
+  var months = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+  document.getElementById('gr-date').textContent = days[now.getDay()] + ', ' + now.getDate() + '. ' + months[month] + ' ' + now.getFullYear();
+  document.getElementById('gr-season').textContent = sd.emoji + ' ' + sd.season;
+
+  // Begrüssung
+  var greeting = hour < 12 ? 'Guten Morgen' : hour < 17 ? 'Guten Tag' : 'Guten Abend';
+  document.getElementById('gr-title').textContent = greeting + ', Sebastian';
+  document.getElementById('gr-sub').textContent = 'Jetzt Saison — die besten Produkte für ' + sd.season + '.';
+
+  // Produkte als Chips
+  var chipsEl = document.getElementById('gr-chips');
+  chipsEl.innerHTML = '';
+  sd.products.slice(0, 5).forEach(function(p, i) {
+    var btn = document.createElement('button');
+    btn.className = 'gr-chip' + (i < 2 ? ' highlight' : '');
+    btn.textContent = p;
+    btn.onclick = function() { greetingPairingProduct(p); };
+    chipsEl.appendChild(btn);
+  });
+
+  // Footer — erstes Highlight-Produkt
+  _greetingProduct = sd.products[0];
+  document.getElementById('gr-footer-text').textContent = 'Foodpairing für ' + _greetingProduct + '?';
+  document.getElementById('greeting-card').classList.add('visible');
+}
+
+function greetingPairing() {
+  greetingPairingProduct(_greetingProduct);
+}
+
+function greetingPairingProduct(product) {
+  pairingSourceRecipe = null;
+  document.getElementById('pairing-search-view').style.display = 'block';
+  document.getElementById('pairing-mindmap-view').style.display = 'none';
+  document.getElementById('pairing-header-title').textContent = 'Foodpairing';
+  showScreen('pairing');
+  document.getElementById('pairing-input').value = product;
+  document.getElementById('pairing-results').innerHTML = '';
+  runPairing();
+}
+
 // ── BOTTOM NAV ─────────────────────────────────────────────────────────────
 function bnGo(tab) {
   // Alle Tabs deaktivieren
@@ -2916,7 +3016,7 @@ function renderGrid() {
   if (hint) hint.style.display = showCover ? 'block' : 'none';
   var catBtn = document.getElementById('cat-open-btn');
   if (catBtn) catBtn.style.display = showCover ? 'block' : 'none';
-  if (showCover) { renderRecent(); } else { var rs = document.getElementById('recent-section'); if (rs) rs.style.display = 'none'; }
+  if (showCover) { renderRecent(); try { initGreeting(); } catch(e){} } else { var rs = document.getElementById('recent-section'); if (rs) rs.style.display = 'none'; var gc = document.getElementById('greeting-card'); if(gc) gc.classList.remove('visible'); }
   // Cat active bar
   var catBar = document.getElementById('cat-active-bar');
   var catBarName = document.getElementById('cat-active-name');
