@@ -786,7 +786,7 @@ html,body{overflow-y:auto;-webkit-overflow-scrolling:touch;height:auto}
 
 /* ── TAGESGRUSS ─────────────────────────────────────────────────────────── */
 #greeting-card{background:linear-gradient(135deg,#2E5435 0%,#3D6B44 60%,#4a7c59 100%);border-radius:16px;margin:16px 16px;padding:18px 20px;position:relative;overflow:hidden;display:none}
-#greeting-card.visible{display:block}
+#greeting-card.visible{display:block!important}
 .gr-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px}
 .gr-date{font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:rgba(255,255,255,.6);font-family:'DM Sans',sans-serif}
 .gr-season{font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:#B8E6B0;font-family:'DM Sans',sans-serif}
@@ -2482,7 +2482,8 @@ function initGreeting() {
   // Footer — erstes Highlight-Produkt
   _greetingProduct = sd.products[0];
   document.getElementById('gr-footer-text').textContent = 'Foodpairing für ' + _greetingProduct + '?';
-  document.getElementById('greeting-card').classList.add('visible');
+  var gc = document.getElementById('greeting-card');
+  if (gc) gc.style.display = 'block';
 }
 
 function greetingPairing() {
@@ -3013,10 +3014,10 @@ function renderGrid() {
   var rvBar = document.getElementById('rezeptverzeichnis-bar');
   if (rvBar) rvBar.style.display = showCover ? 'none' : 'block';
   var hint = document.getElementById('book-cover-hint');
-  if (hint) hint.style.display = showCover ? 'block' : 'none';
+  if (hint) hint.style.display = showCover ? 'flex' : 'none';
   var catBtn = document.getElementById('cat-open-btn');
   if (catBtn) catBtn.style.display = showCover ? 'block' : 'none';
-  if (showCover) { renderRecent(); try { initGreeting(); } catch(e){} } else { var rs = document.getElementById('recent-section'); if (rs) rs.style.display = 'none'; var gc = document.getElementById('greeting-card'); if(gc) gc.classList.remove('visible'); }
+  if (showCover) { renderRecent(); try { initGreeting(); } catch(e){} } else { var rs = document.getElementById('recent-section'); if (rs) rs.style.display = 'none'; var gc2 = document.getElementById('greeting-card'); if(gc2) gc2.style.display = 'none'; }
   // Cat active bar
   var catBar = document.getElementById('cat-active-bar');
   var catBarName = document.getElementById('cat-active-name');
