@@ -175,15 +175,15 @@ textarea{resize:vertical}
 /* ── ZULETZT VERWENDET ───────────────────────────────── */
 .recent-section{padding:24px 20px 0}
 .recent-label{font-size:14.5px;color:var(--bark);letter-spacing:2px;text-transform:uppercase;margin-bottom:14px;display:block;opacity:0.9;font-weight:500}
-.recent-scroll{display:flex;gap:12px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.recent-scroll{display:flex;gap:14px;overflow-x:auto;padding-bottom:8px;scrollbar-width:none;-webkit-overflow-scrolling:touch;-webkit-overflow-scrolling:touch}
 .recent-scroll::-webkit-scrollbar{display:none}
-.recent-card{flex-shrink:0;width:161px;cursor:pointer;border-radius:13px;overflow:hidden;background:#0A0805;border:1px solid var(--border);transition:transform .2s ease}
-.recent-card:active{transform:scale(0.96)}
-.recent-card-photo{width:100%;height:92px;object-fit:cover;display:block}
-.recent-card-color{width:100%;height:92px;display:block;opacity:0.7}
-.recent-card-body{padding:11px 13px}
-.recent-card-title{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:400;color:#F0E8D8;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.recent-card-cat{font-size:11px;color:#8FAE90;letter-spacing:1.5px;text-transform:uppercase;margin-top:3px}
+.recent-card{flex-shrink:0;width:190px;cursor:pointer;border-radius:14px;overflow:hidden;background:var(--parchment);border:1px solid var(--border);transition:transform .2s ease;box-shadow:0 2px 12px rgba(0,0,0,.12)}
+.recent-card:active{transform:scale(0.97)}
+.recent-card-photo{width:100%;height:120px;object-fit:cover;display:block}
+.recent-card-color{width:100%;height:120px;display:block;opacity:0.8}
+.recent-card-body{padding:12px 14px}
+.recent-card-title{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:400;color:var(--bark);line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.recent-card-cat{font-size:11px;color:var(--smoke);letter-spacing:1px;text-transform:uppercase;margin-top:4px}
 .recent-divider{height:1px;background:var(--border);margin:20px 0 0}
 /* ── FAVORITEN ────────────────────────────────────────── */
 .fav-btn{background:none;border:none;cursor:pointer;font-size:24px;padding:4px 6px;line-height:1;transition:transform .2s ease, color .2s ease;flex-shrink:0}
@@ -380,7 +380,7 @@ body.light-mode .fav-btn.inactive{color:rgba(0,0,0,0.2)}
 /* ── BUCHCOVER (Home ohne Kategorie) ────────────── */
 #book-cover{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px 20px 80px;cursor:pointer;min-height:70vh;-webkit-tap-highlight-color:rgba(184,151,58,0.15)}
 #book-cover-inner{display:flex;flex-direction:column;align-items:center;padding:20px 0 0}
-#book-cover svg{width:380px;height:auto;margin-bottom:4px}
+#book-cover svg{width:min(440px, 92vw);height:auto;margin-bottom:4px}
 #book-cover-hint{font-family:'DM Sans',sans-serif;font-size:12px;color:#4A6741;letter-spacing:2px;text-transform:uppercase;margin-top:12px}
 
 /* ── HEADER mit anklickbarem Logo ──────────────── */
@@ -1330,14 +1330,13 @@ html,body{overflow-y:auto;-webkit-overflow-scrolling:touch;height:auto}
       font-family="'DM Sans',system-ui,sans-serif"
       font-size="9" fill="#B8973A" letter-spacing="3" opacity="0.8">PRIVAT</text>
   </svg>
-</div><button id="book-cover-hint" onclick="try{showScreen('navigation');}catch(e){console.warn(e);}" style="display:none;background:none;border:none;cursor:pointer;padding:12px 40px 20px;text-align:center;-webkit-tap-highlight-color:rgba(61,90,62,0.2);width:100%">
-    <span style="font-size:12px;letter-spacing:2px;color:#5C7F5D;text-transform:uppercase;display:block;margin-bottom:6px">KATEGORIE WÄHLEN</span>
-    <span style="font-size:15px;color:#5C7F5D;display:block;line-height:1">&#8964;</span>
+</div><button id="book-cover-hint" onclick="try{showScreen('navigation');}catch(e){console.warn(e);}" style="display:none;background:#3D5A3E;border:none;border-radius:99px;cursor:pointer;padding:14px 36px;margin:8px auto 24px;text-align:center;-webkit-tap-highlight-color:rgba(61,90,62,0.2);display:none;align-items:center;gap:8px">
+    <span style="font-size:13px;letter-spacing:1.5px;color:#FFFFFF;text-transform:uppercase;font-family:'DM Sans',sans-serif;font-weight:600">KATEGORIE WÄHLEN</span>
   </button>
   </div>
   <!-- ZULETZT VERWENDET -->
   <div id="recent-section" style="display:none;padding:24px 20px 0">
-    <span style="font-size:9.9px;color:var(--smoke);letter-spacing:2px;text-transform:uppercase;margin-bottom:14px;display:block;opacity:0.7">Zuletzt verwendet</span>
+    <span style="font-size:11px;color:var(--smoke);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:14px;display:block">Zuletzt verwendet</span>
     <div id="recent-scroll" style="display:flex;gap:12px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none"></div>
     <div style="height:1px;background:var(--border);margin:20px 0 0"></div>
   </div>
@@ -2848,7 +2847,7 @@ function showScreen(name) {
     var cover = document.getElementById('book-cover');
     if(cover) cover.style.display = 'flex';
     var hint = document.getElementById('book-cover-hint');
-    if(hint) hint.style.display = 'block';
+    if(hint) hint.style.display = 'flex';
     var catBtn = document.getElementById('cat-open-btn');
     if(catBtn) catBtn.style.display = 'block';
   }
