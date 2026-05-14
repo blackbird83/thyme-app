@@ -2416,7 +2416,7 @@ function bnGo(tab) {
   } else if (tab === 'search') {
     openSearchScreen();
   } else if (tab === 'add') {
-    openAdd();
+    openAddSheet();
   } else if (tab === 'favs') {
     document.getElementById('bn-favs').classList.add('active');
     showingFavs = true;
@@ -3054,6 +3054,24 @@ function openDetail(r) {
 }
 
 // ─── FORMULAR ──────────────────────────────────────────────────────────────
+function openAddSheet() {
+  document.getElementById('add-sheet').style.display = 'block';
+  document.getElementById('add-sheet-overlay').style.display = 'block';
+  setTimeout(function(){
+    document.getElementById('add-sheet').classList.add('open');
+    document.getElementById('add-sheet-overlay').classList.add('open');
+  }, 10);
+}
+
+function closeAddSheet() {
+  document.getElementById('add-sheet').classList.remove('open');
+  document.getElementById('add-sheet-overlay').classList.remove('open');
+  setTimeout(function(){
+    document.getElementById('add-sheet').style.display = 'none';
+    document.getElementById('add-sheet-overlay').style.display = 'none';
+  }, 350);
+}
+
 function openAdd() {
   editId = null;
   document.getElementById('form-screen-title').textContent = 'Neues Rezept';
@@ -6277,6 +6295,29 @@ function applyRoleUI() {
     <button onclick="closeSearchScreen()" style="background:none;border:none;color:#B8973A;font-size:14px;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap;padding:0 4px">Abbrechen</button>
   </div>
   <div id="search-screen-results" style="padding:8px 0 80px;overflow-y:auto"></div>
+</div>
+
+<!-- ── ADD SHEET ─────────────────────────────────────────────────────────── -->
+<div class="action-sheet-overlay" id="add-sheet-overlay" onclick="closeAddSheet()"></div>
+<div class="action-sheet" id="add-sheet" style="display:none">
+  <div class="action-sheet-panel">
+    <div style="padding:16px 20px 8px;text-align:center;font-size:11px;text-transform:uppercase;letter-spacing:2px;color:var(--smoke)">Rezept hinzufügen</div>
+    <button class="action-sheet-item" onclick="closeAddSheet();openAdd()">
+      <span style="font-size:20px">✏️</span>
+      <div>
+        <div style="font-size:16px;color:var(--bark)">Manuell eingeben</div>
+        <div style="font-size:12px;color:var(--smoke);margin-top:2px">Rezept selbst erfassen</div>
+      </div>
+    </button>
+    <button class="action-sheet-item" onclick="closeAddSheet();showScreen('scan')">
+      <span style="font-size:20px">📷</span>
+      <div>
+        <div style="font-size:16px;color:var(--bark)">Foto scannen</div>
+        <div style="font-size:12px;color:var(--smoke);margin-top:2px">Rezept aus Foto oder Buch</div>
+      </div>
+    </button>
+  </div>
+  <button class="action-sheet-cancel" onclick="closeAddSheet()">Abbrechen</button>
 </div>
 
 <!-- ── BOTTOM NAV ───────────────────────────────────────────────────────── -->
