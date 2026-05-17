@@ -623,12 +623,12 @@ body.light-mode .protein-season-badge{background:#FFF3DC;color:#8A6E20}
 #screen-navigation{background:var(--cream)}
 .nav-body{padding:24px 20px 100px}
 .nav-header-title{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--smoke);text-align:center;margin-bottom:24px}
-.nav-card{border:1px solid #B8973A;border-radius:12px;padding:18px 16px;margin-bottom:12px;cursor:pointer;display:flex;align-items:center;gap:16px;-webkit-tap-highlight-color:rgba(184,151,58,.15);transition:opacity .15s}
+.nav-card{border:1px solid #B8973A;border-radius:14px;padding:22px 18px;margin-bottom:12px;cursor:pointer;display:flex;align-items:center;gap:18px;-webkit-tap-highlight-color:rgba(184,151,58,.15);transition:opacity .15s}
 .nav-card:active{opacity:0.8;transform:scale(0.99)}
-.nav-card-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.nav-card-icon{width:52px;height:52px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .nav-card-texts{flex:1}
-.nav-card-name{font-size:17px;font-family:'Cormorant Garamond',serif;color:#FFFFFF;letter-spacing:2px;margin-bottom:3px}
-.nav-card-sub{font-size:12px;color:rgba(255,255,255,.65)}
+.nav-card-name{font-size:22px;font-family:'Cormorant Garamond',serif;color:#FFFFFF;letter-spacing:2px;margin-bottom:4px;font-weight:400}
+.nav-card-sub{font-size:13px;color:rgba(255,255,255,.7)}
 .nav-card-arrow{display:none}
 
 
@@ -6040,8 +6040,8 @@ function applyRoleUI() {
   <div class="nav-body" style="padding-top:24px">
 
     <!-- 1. Rezeptverzeichnis — Dunkelgrün -->
-    <div class="nav-card" onclick="closeCatSheet();openCatSheet()" style="background:#2E5435">
-      <div class="nav-card-icon" style="background:rgba(0,0,0,.2)">
+    <div class="nav-card" onclick="closeCatSheet();openCatSheet()" style="background:#3D7A50">
+      <div class="nav-card-icon" style="background:rgba(0,0,0,.25)">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
           <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
         </svg>
@@ -6053,8 +6053,8 @@ function applyRoleUI() {
     </div>
 
     <!-- 2. Rezeptarchiv — Gold -->
-    <div class="nav-card" onclick="openArchive()" style="background:#3D2E08;border:2px solid #B8973A">
-      <div class="nav-card-icon" style="background:rgba(0,0,0,.2)">
+    <div class="nav-card" onclick="openArchive()" style="background:#5C4010;border:2px solid #B8973A">
+      <div class="nav-card-icon" style="background:rgba(0,0,0,.25)">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#B8973A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
           <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
           <line x1="9" y1="7" x2="15" y2="7"/><line x1="9" y1="11" x2="15" y2="11"/>
@@ -6067,8 +6067,8 @@ function applyRoleUI() {
     </div>
 
     <!-- 3. Saisonkalender — Waldgrün -->
-    <div class="nav-card" onclick="openSaisonStandalone()" style="background:#1E3D28">
-      <div class="nav-card-icon" style="background:rgba(0,0,0,.2)">
+    <div class="nav-card" onclick="openSaisonStandalone()" style="background:#2E6B44">
+      <div class="nav-card-icon" style="background:rgba(0,0,0,.25)">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
           <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
           <circle cx="8" cy="15" r="1" fill="#FFFFFF"/><circle cx="12" cy="15" r="1" fill="#FFFFFF"/><circle cx="16" cy="15" r="1" fill="#FFFFFF"/>
@@ -6081,8 +6081,8 @@ function applyRoleUI() {
     </div>
 
     <!-- 4. Produktkatalog — Dunkelblau-Grau -->
-    <div class="nav-card" onclick="openKatalog()" style="background:#1C2B3A">
-      <div class="nav-card-icon" style="background:rgba(0,0,0,.2)">
+    <div class="nav-card" onclick="openKatalog()" style="background:#2A4A6B">
+      <div class="nav-card-icon" style="background:rgba(0,0,0,.25)">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
           <line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/>
           <line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>
@@ -6095,8 +6095,8 @@ function applyRoleUI() {
     </div>
 
     <!-- 5. Foodpairing — Smaragdgrün -->
-    <div class="nav-card" onclick="openPairingScreen(null)" style="background:#1A3D2E;border:2px solid #4a7c59">
-      <div class="nav-card-icon" style="background:rgba(0,0,0,.2)">
+    <div class="nav-card" onclick="openPairingScreen(null)" style="background:#2A6B50;border:2px solid #5C9E7A">
+      <div class="nav-card-icon" style="background:rgba(0,0,0,.25)">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="9" cy="9" r="4"/><circle cx="15" cy="15" r="4"/>
           <path d="M12.5 5.5 C14 7 14 10 12 12 C10 14 7 14 5.5 12.5"/>
@@ -6110,8 +6110,8 @@ function applyRoleUI() {
     </div>
 
     <!-- 6. Warenkunde — Dunkelbraun -->
-    <div class="nav-card" onclick="openWarenkunde()" style="background:#2A1E0E">
-      <div class="nav-card-icon" style="background:rgba(0,0,0,.2)">
+    <div class="nav-card" onclick="openWarenkunde()" style="background:#6B3D1A">
+      <div class="nav-card-icon" style="background:rgba(0,0,0,.25)">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
         </svg>
@@ -6123,8 +6123,8 @@ function applyRoleUI() {
     </div>
 
     <!-- 7. Einkaufsliste — Dunkel-Olive -->
-    <div class="nav-card" onclick="openShopList()" style="background:#1F2A1A">
-      <div class="nav-card-icon" style="background:rgba(0,0,0,.2)">
+    <div class="nav-card" onclick="openShopList()" style="background:#3D5A2A">
+      <div class="nav-card-icon" style="background:rgba(0,0,0,.25)">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
           <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>
         </svg>
