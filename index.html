@@ -2621,9 +2621,9 @@ function bnGo(tab) {
   } else if (tab === 'favs') {
     document.getElementById('bn-favs').classList.add('active');
     showingFavs = true;
-    setActiveCat('all');
+    activeCat = 'all';
     showScreen('home');
-    renderGrid();
+    setTimeout(function(){ renderGrid(); }, 80);
   } else if (tab === 'settings') {
     document.getElementById('bn-settings').classList.add('active');
     showScreen('settings');
@@ -6163,7 +6163,7 @@ function applyRoleUI() {
         <div class="nav-card-name">REZEPTARCHIV</div>
         <div class="nav-card-sub">100 Basisrezepte &middot; Klassiker &middot; Referenz</div>
       </div>
-      <button class="nav-info-btn" onclick="showNavInfo('rezeptarchiv',event)" style="background:rgba(184,151,58,.25);color:#B8973A">ⓘ</button>
+      <button class="nav-info-btn" onclick="showNavInfo('rezeptarchiv',event)">ⓘ</button>
     </div>
 
     <!-- 3. Saisonkalender — Waldgrün -->
