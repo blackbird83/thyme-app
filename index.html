@@ -6016,12 +6016,10 @@ function applyRoleUI() {
 
 <!-- SCREEN: EINKAUFSLISTE -->
 <div id="screen-shopping" class="screen">
-  <div class="sub-header">
+  <div class="sub-header" style="position:relative">
     <button class="back-btn" onclick="goBack()" style="font-size:18px;color:#5C7F5D">&#8592;</button>
-    <span class="sub-title" class="sub-title">EINKAUFSLISTE</span>
-    <div style="display:flex;align-items:center;gap:10px;margin-left:auto">
-      <span id="shop-recipe-count" style="font-size:11px;color:#B8973A;letter-spacing:1px"></span>
-    </div>
+    <span class="sub-title" style="position:absolute;left:50%;transform:translateX(-50%)">EINKAUFSLISTE</span>
+    <span id="shop-recipe-count" style="font-size:11px;color:#B8973A;letter-spacing:1px;margin-left:auto"></span>
   </div>
   <div class="cat-scroll" id="shop-filter-bar" style="padding:8px 16px;border-bottom:1px solid var(--border)">
     <button class="pill active" onclick="setShopFilter('alle')" data-filter="alle">Alle</button>
