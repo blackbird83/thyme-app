@@ -626,7 +626,7 @@ body.light-mode .protein-season-badge{background:#FFF3DC;color:#8A6E20}
 
 
 /* ── NAVIGATION DECKSEITE ────────────────────────────────────────────────── */
-#screen-navigation{background:var(--cream)}
+#screen-navigation{background:var(--cream);overflow-y:auto}
 .nav-body{padding:24px 20px 100px}
 .nav-header-title{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--smoke);text-align:center;margin-bottom:24px}
 .nav-card{border:1px solid #B8973A;border-radius:14px;padding:22px 18px;margin-bottom:12px;cursor:pointer;display:flex;align-items:center;gap:18px;-webkit-tap-highlight-color:rgba(184,151,58,.15);transition:opacity .15s}
@@ -6132,12 +6132,12 @@ function applyRoleUI() {
 
 <!-- SCREEN: NAVIGATION -->
 <div id="screen-navigation" class="screen">
-  <div class="sub-header">
+  <div class="sub-header" style="position:relative;top:auto">
     <button class="back-btn" onclick="goBack()" style="font-size:18px;color:#5C7F5D">&#8592;</button>
     <span class="sub-title" style="font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:300;letter-spacing:2px">NAVIGATION</span>
     <div style="width:60px"></div>
   </div>
-  <div class="nav-body" style="padding-top:24px">
+  <div class="nav-body" style="padding-top:16px;padding-left:16px;padding-right:16px">
 
     <!-- 1. Rezeptverzeichnis — Dunkelgrün -->
     <div class="nav-card" onclick="closeCatSheet();openCatSheet()" style="background:#3D7A50">
