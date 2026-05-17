@@ -107,7 +107,6 @@ textarea{resize:vertical}
 /* Badge: winzig, versaliert */
 .badge{background:transparent;border-radius:99px;padding:3px 0;font-size:12px;color:var(--smoke);display:inline-block;letter-spacing:2px;text-transform:uppercase}
 /* Sub-title im Header */
-.sub-title{font-family:'Cormorant Garamond',serif;font-size:27px;font-weight:300;color:var(--bark);letter-spacing:1px}
 /* Anweisungen */
 .instructions-text{font-size:18px;color:var(--smoke);line-height:1.85;white-space:pre-wrap;letter-spacing:0.2px}
 .app{max-width:900px;margin:0 auto}
@@ -136,9 +135,9 @@ textarea{resize:vertical}
 .mode-dot{width:6px;height:6px;border-radius:50%}
 .mode-badge.online .mode-dot{background:#3D5A3E}
 .mode-badge.offline .mode-dot{background:#B8973A}
-.sub-header{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--border);background:var(--cream);position:sticky;top:0;z-index:10}
-.back-btn{font-size:17px;font-weight:600;color:var(--thyme);background:none;border:none;cursor:pointer;padding:4px 0}
-.sub-title{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:600;color:var(--bark)}
+.sub-header{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--border);background:var(--cream);position:sticky;top:56px;z-index:10}
+.back-btn{font-size:22px;font-weight:300;color:var(--thyme);background:none;border:none;cursor:pointer;padding:4px 0;line-height:1}
+.sub-title{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:300;color:var(--bark);letter-spacing:2px}
 .search-wrap{display:flex;align-items:center;margin:10px 16px;background:transparent;border-radius:0;border:none;border-bottom:1.5px solid var(--border);padding:0 4px;transition:border-color .25s ease}
 .search-wrap:focus-within{border-bottom-color:var(--gold)}
 .search-icon{font-size:18px;margin-right:10px;color:var(--smoke);opacity:0.5;transition:opacity .2s}
@@ -171,6 +170,12 @@ textarea{resize:vertical}
 .card-arrow{color:var(--border);font-size:19px;flex-shrink:0;opacity:0.4;transition:opacity .15s}
 .card:active .card-arrow{opacity:0.8}
 .badge{background:transparent;padding:0;font-size:12px;color:var(--smoke);display:inline-block;letter-spacing:2px;text-transform:uppercase}
+
+.empty-state{text-align:center;padding:80px 30px}
+.empty-icon{font-size:40px;margin-bottom:16px;opacity:.4;display:block}
+.empty-title{font-family:'Cormorant Garamond',serif;font-size:24px;color:var(--bark);margin-bottom:8px;font-weight:300;display:block}
+.empty-sub{font-size:14px;color:var(--smoke);line-height:1.6;max-width:260px;margin:0 auto;display:block}
+
 .empty{text-align:center;color:var(--smoke);padding:60px 20px;font-size:18px}
 /* ── ZULETZT VERWENDET ───────────────────────────────── */
 .recent-section{padding:24px 20px 0}
@@ -649,7 +654,7 @@ html,body{overflow-y:auto;-webkit-overflow-scrolling:touch;height:auto}
 .katalog-detail-back{background:none;border:none;color:#5C7F5D;font-size:20px;cursor:pointer;padding:4px}
 .katalog-detail-name{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:300;color:var(--bark);letter-spacing:1px;flex:1}
 .katalog-detail-body{padding:20px}
-.kd-section{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#B8973A;margin:16px 0 8px;display:block}
+.kd-section{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#B8973A;margin:16px 0 8px;display:block}
 .kd-section:first-child{margin-top:0}
 .kd-input{width:100%;background:var(--parchment);border:1px solid var(--border);border-radius:10px;padding:11px 14px;font-size:15px;color:var(--bark);font-family:'DM Sans',sans-serif;margin-bottom:8px}
 .kd-textarea{width:100%;background:var(--parchment);border:1px solid var(--border);border-radius:10px;padding:11px 14px;font-size:15px;color:var(--bark);font-family:'DM Sans',sans-serif;margin-bottom:8px;min-height:100px;resize:none}
@@ -715,7 +720,7 @@ html,body{overflow-y:auto;-webkit-overflow-scrolling:touch;height:auto}
 .do-photo-hint{color:#5C7F5D;font-size:12px;letter-spacing:2px;text-transform:uppercase}
 .do-photo-del{position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.55);border:none;border-radius:50%;width:28px;height:28px;color:#fff;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center}
 /* Label */
-.do-label{font-size:9px;letter-spacing:2.5px;text-transform:uppercase;color:#B8973A;margin:0 0 6px;display:block}
+.do-label{font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:#B8973A;margin:0 0 6px;display:block}
 /* Monate — 2 Reihen à 6 */
 .do-hint{font-size:11px;color:var(--smoke);margin-bottom:8px}
 .do-months{display:grid;grid-template-columns:repeat(6,1fr);gap:5px;margin-bottom:10px}
@@ -752,7 +757,7 @@ html,body{overflow-y:auto;-webkit-overflow-scrolling:touch;height:auto}
 .a-tab{flex:1;padding:11px;background:transparent;border:none;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--smoke);cursor:pointer}
 .a-tab.on{background:#3D5A3E;color:#F0E8D8}
 .a-field{margin-bottom:12px;width:100%;max-width:360px}
-.a-lbl{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#B8973A;display:block;margin-bottom:5px}
+.a-lbl{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#B8973A;display:block;margin-bottom:5px}
 .a-inp{width:100%;background:var(--parchment);border:1px solid var(--border);border-radius:10px;padding:12px 14px;font-size:15px;color:var(--bark);font-family:'DM Sans',sans-serif;box-sizing:border-box}
 .a-btn{width:100%;max-width:360px;padding:13px;background:#3D5A3E;border:none;border-radius:12px;color:#F0E8D8;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:500;cursor:pointer;margin-top:6px;margin-bottom:14px}
 .a-skip{text-align:center;font-size:13px;color:var(--smoke);cursor:pointer;text-decoration:underline}
@@ -835,7 +840,7 @@ html,body{overflow-y:auto;-webkit-overflow-scrolling:touch;height:auto}
 .archive-sheet.open{transform:translateY(0)}
 
 /* ── REZEPT-ARCHIV ──────────────────────────────────────────────────────── */
-.archive-badge{display:inline-block;font-size:9px;text-transform:uppercase;letter-spacing:1.5px;color:#B8973A;border:1px solid #B8973A;border-radius:4px;padding:2px 6px;margin-bottom:6px;font-family:'DM Sans',sans-serif}
+.archive-badge{display:inline-block;font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:#B8973A;border:1px solid #B8973A;border-radius:4px;padding:2px 6px;margin-bottom:6px;font-family:'DM Sans',sans-serif}
 .archive-card{position:relative;border:1px solid var(--border);border-radius:12px;overflow:hidden;cursor:pointer;background:var(--parchment)}
 .archive-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,#B8973A,#5C4A30)}
 .archive-subcategory{font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:#5C4A30;margin-bottom:4px}
@@ -852,7 +857,7 @@ html,body{overflow-y:auto;-webkit-overflow-scrolling:touch;height:auto}
 .wk-nwert-label{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--smoke);margin-top:2px}
 .pairing-profil{background:var(--parchment);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:16px;display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .pairing-profil-item{display:flex;flex-direction:column;gap:3px}
-.pairing-profil-label{font-size:9px;text-transform:uppercase;letter-spacing:1.5px;color:#B8973A;font-family:'DM Sans',sans-serif}
+.pairing-profil-label{font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:#B8973A;font-family:'DM Sans',sans-serif}
 .pairing-profil-value{font-size:13px;color:var(--bark);line-height:1.4;font-family:'DM Sans',sans-serif}
 /* ── FLAVOUR PAIRING ────────────────────────────────────────────────────── */
 #screen-pairing{background:var(--cream);flex-direction:column;min-height:100vh}
@@ -2399,7 +2404,7 @@ function onSearchScreenInput() {
   if (clearBtn) clearBtn.style.display = q ? 'block' : 'none';
   var results = document.getElementById('search-screen-results');
   if (!q) {
-    results.innerHTML = '<div style="padding:40px 20px;text-align:center;color:#5C4A30;font-size:14px;letter-spacing:1px">Rezeptname eingeben...</div>';
+    results.innerHTML = '<div class="empty-state"><div class="empty-icon">🔍</div><div class="empty-title">Rezept suchen</div><div class="empty-sub">Gib einen Rezeptnamen oder eine Zutat ein</div></div>';
     return;
   }
   var matches = recipes.filter(function(r) {
@@ -2410,7 +2415,7 @@ function onSearchScreenInput() {
     return r.title && r.title.toLowerCase().indexOf(q) >= 0;
   });
   if (!matches.length && !archiveMatches.length) {
-    results.innerHTML = '<div style="padding:40px 20px;text-align:center;color:#5C4A30;font-size:14px">Keine Rezepte gefunden</div>';
+    results.innerHTML = '<div class="empty-state"><div class="empty-icon">🌿</div><div class="empty-title">Kein Ergebnis</div><div class="empty-sub">Versuche einen anderen Suchbegriff</div></div>';
     return;
   }
   var html = '';
@@ -3060,10 +3065,10 @@ function showScreen(name) {
     // Sofort sichtbar setzen — Animation als Enhancement
     next.classList.add('active');
     next.style.opacity = '0';
-    next.style.transform = 'translateY(10px)';
+    next.style.transform = 'translateY(6px)';
     requestAnimationFrame(function() {
       requestAnimationFrame(function() {
-        next.style.transition = 'opacity .28s ease, transform .28s cubic-bezier(.2,0,.2,1)';
+        next.style.transition = 'opacity .22s ease, transform .22s cubic-bezier(.2,0,.2,1)';
         next.style.opacity = '1';
         next.style.transform = 'translateY(0)';
       });
@@ -3130,8 +3135,8 @@ function renderGrid() {
   if (showCover) { el.innerHTML = ''; return; }
   if (!filtered.length) {
     var emptyMsg = showingFavs
-      ? '<div class="empty" style="padding:60px 20px"><div style="font-size:32px;margin-bottom:12px">★</div><div>Noch keine Favoriten</div><div style="font-size:12px;margin-top:8px;letter-spacing:1px">Rezept öffnen und ★ antippen</div></div>'
-      : '<div class="empty">Keine Rezepte gefunden.</div>';
+      ? '<div class="empty-state"><div class="empty-icon">★</div><div class="empty-title">Noch keine Favoriten</div><div class="empty-sub">Tippe ★ bei einem Rezept um es hier zu speichern</div></div>'
+      : '<div class="empty-state"><div class="empty-icon">🌿</div><div class="empty-title">Noch keine Rezepte</div><div class="empty-sub">Tippe + um dein erstes Rezept zu erstellen</div></div>';
     el.innerHTML = emptyMsg;
     return;
   }
@@ -5137,7 +5142,7 @@ function renderSeasonPage2() {
   var out='';
   ['g','s','p','b','o','k'].forEach(function(cat){
     if(!groups[cat] || !groups[cat].length) return;
-    out+='<div class="cs-page-subtitle" style="padding:12px 20px 6px;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#B8973A">'+labels[cat]+'</div>';
+    out+='<div class="cs-page-subtitle" style="padding:12px 20px 6px;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#B8973A">'+labels[cat]+'</div>';
     groups[cat].forEach(function(p){
       var ip=p.peak.indexOf(m)>=0;
       out+='<div class="season-prod-item" onclick="openSeasonDetail(this)" data-product="'+p.name.replace(/"/g,'&quot;')+'"><div class="season-dot" style="background:'+(ip?'#B8973A':'#3D5A3E')+'"></div>';
