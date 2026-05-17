@@ -799,6 +799,22 @@ html,body{overflow-y:auto;-webkit-overflow-scrolling:touch;height:auto}
 .gr-footer-text{font-size:11px;color:rgba(255,255,255,.55);font-family:'DM Sans',sans-serif}
 .gr-pairing-btn{margin-left:auto;font-size:11px;color:#B8E6B0;background:none;border:1px solid rgba(184,230,176,.4);border-radius:99px;padding:5px 13px;cursor:pointer;font-family:'DM Sans',sans-serif}
 
+
+/* ── NAV INFO SHEET ─────────────────────────────────────────────────────── */
+.nav-info-btn{position:absolute;top:10px;right:12px;width:22px;height:22px;border-radius:50%;background:rgba(255,255,255,.15);border:none;color:rgba(255,255,255,.8);font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-family:'DM Sans',sans-serif;font-weight:600;flex-shrink:0;z-index:2}
+.nav-card{position:relative}
+#nav-info-sheet{position:fixed;bottom:0;left:0;right:0;max-width:900px;margin:0 auto;z-index:600;transform:translateY(100%);transition:transform .35s cubic-bezier(.4,0,.2,1);background:var(--cream);border-radius:24px 24px 0 0;padding:24px 24px 48px;display:none}
+#nav-info-sheet.open{transform:translateY(0);display:block}
+#nav-info-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:599}
+#nav-info-overlay.open{display:block}
+.nav-info-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:14px}
+.nav-info-title{font-family:'Cormorant Garamond',serif;font-size:26px;color:var(--bark);margin-bottom:8px;letter-spacing:1px}
+.nav-info-text{font-size:15px;color:var(--smoke);line-height:1.75;margin-bottom:14px}
+.nav-info-features{display:flex;flex-direction:column;gap:8px;margin-bottom:20px}
+.nav-info-feature{display:flex;align-items:flex-start;gap:10px;font-size:14px;color:var(--bark)}
+.nav-info-dot{width:6px;height:6px;border-radius:50%;background:#B8973A;flex-shrink:0;margin-top:5px}
+.nav-info-close{width:100%;background:#3D5A3E;border:none;border-radius:12px;color:white;font-size:15px;font-weight:600;padding:14px;cursor:pointer;font-family:'DM Sans',sans-serif}
+
 /* ── BOTTOM NAV ─────────────────────────────────────────────────────────── */
 #bottom-nav{position:fixed;bottom:0;left:0;right:0;max-width:900px;margin:0 auto;background:var(--cream);border-top:1px solid var(--border);display:flex;align-items:stretch;z-index:500;padding-bottom:env(safe-area-inset-bottom,0px)}
 .bn-tab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px 4px 10px;gap:3px;cursor:pointer;border:none;background:none;-webkit-tap-highlight-color:transparent}
@@ -2499,6 +2515,84 @@ function greetingPairingProduct(product) {
   document.getElementById('pairing-input').value = product;
   document.getElementById('pairing-results').innerHTML = '';
   runPairing();
+}
+
+// ── NAV INFO ───────────────────────────────────────────────────────────────
+var NAV_INFO = {
+  rezeptverzeichnis: {
+    title: 'Rezeptverzeichnis',
+    color: '#3D7A50',
+    icon: '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>',
+    text: 'Deine persönliche Rezeptsammlung. Hier verwaltest du alle eigenen Rezepte — sortiert nach Kategorien, jederzeit durchsuchbar.',
+    features: ['Rezepte nach Kategorien organisieren','Favoritenmarkierung','Live-Suche über alle Rezepte','Rezept manuell eingeben oder per Foto scannen','Bewertungssystem']
+  },
+  rezeptarchiv: {
+    title: 'Rezeptarchiv',
+    color: '#5C4010',
+    icon: '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#B8973A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><line x1="9" y1="7" x2="15" y2="7"/><line x1="9" y1="11" x2="15" y2="11"/></svg>',
+    text: '100 klassische Kochschul-Basisrezepte — professionell, nicht löschbar, immer verfügbar. Die Grundlage jeder professionellen Küche.',
+    features: ['100 Basisrezepte in 9 Kategorien','Fonds & Saucen, Teige, Patisserie, Gels & mehr','Rezepte als Vorlage in eigene Sammlung kopieren','Koch-Modus und Foodpairing verfügbar','Nicht bearbeitbar — garantierte Qualität']
+  },
+  saisonkalender: {
+    title: 'Saisonkalender',
+    color: '#2E6B44',
+    icon: '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>',
+    text: '113 Produkte mit vollständigen Saisondaten. Immer wissen welche Zutaten gerade Hochsaison haben — für optimale Qualität und günstige Einkaufspreise.',
+    features: ['113 Gemüse, Obst, Kräuter und Pilze','Monatsübersicht mit Hochsaison-Markierung','Direkter Link zu Foodpairing','Produktdetails mit Herkunft und Lagerung','Eigene Produkte hinzufügen']
+  },
+  produktkatalog: {
+    title: 'Produktkatalog',
+    color: '#2A4A6B',
+    icon: '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>',
+    text: 'Professioneller Katalog für Fleisch, Fisch, Geflügel, Wild und Charcuterie — mit Lieferanteninformationen und Saisondaten.',
+    features: ['Fleisch, Fisch, Geflügel, Wild, Charcuterie','Lieferanteninfos und Bezugsquellen','Saisonalität auf einen Blick','Direktlink zu Foodpairing','Eigene Produkte und Lieferanten ergänzen']
+  },
+  foodpairing: {
+    title: 'Foodpairing',
+    color: '#2A6B50',
+    icon: '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="9" r="4"/><circle cx="15" cy="15" r="4"/></svg>',
+    text: 'KI-gestützte Aromaanalyse auf Profi-Niveau. Entdecke klassische, moderne und überraschende Kombinationen — visualisiert als interaktive Mindmap.',
+    features: ['Zutat eingeben → Mindmap mit Pairings','Klassisch, Modern & Kreativ, Mutig & Überraschend','Erklärung der Aromachemie','Rezeptidee direkt speicherbar','Geschmacksprofil der Hauptzutat']
+  },
+  warenkunde: {
+    title: 'Warenkunde',
+    color: '#6B3D1A',
+    icon: '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>',
+    text: 'Umfassendes Produktwissen auf Profi-Niveau — von Claude generiert. Alles was ein Küchenchef über eine Zutat wissen muss.',
+    features: ['Geschmacks- und Aromaprofil','Nährwerte pro 100g','Saison und Herkunft','Kulinarische Verwendung und Techniken','Lagerung und Haltbarkeit','Exklusiver Profi-Tipp']
+  },
+  einkaufsliste: {
+    title: 'Einkaufsliste',
+    color: '#3D5A2A',
+    icon: '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>',
+    text: 'Smarte Einkaufsliste direkt aus deinen Rezepten befüllt. Organisiert nach Lieferanten und Kategorien — bereit für den Marktbesuch.',
+    features: ['Zutaten direkt aus Rezepten hinzufügen','Nach Lieferanten und Kategorien sortieren','Mengen automatisch berechnet','Export-Funktion','Abhaken während dem Einkauf']
+  }
+};
+
+function showNavInfo(key, event) {
+  event.stopPropagation();
+  var info = NAV_INFO[key];
+  if (!info) return;
+  document.getElementById('nav-info-title').textContent = info.title;
+  document.getElementById('nav-info-text').textContent = info.text;
+  var iconEl = document.getElementById('nav-info-icon');
+  iconEl.style.background = info.color;
+  iconEl.innerHTML = info.icon;
+  var featEl = document.getElementById('nav-info-features');
+  featEl.innerHTML = info.features.map(function(f) {
+    return '<div class="nav-info-feature"><div class="nav-info-dot"></div><span>' + f + '</span></div>';
+  }).join('');
+  document.getElementById('nav-info-overlay').classList.add('open');
+  var sheet = document.getElementById('nav-info-sheet');
+  sheet.style.display = 'block';
+  requestAnimationFrame(function(){ sheet.classList.add('open'); });
+}
+
+function closeNavInfo() {
+  document.getElementById('nav-info-sheet').classList.remove('open');
+  document.getElementById('nav-info-overlay').classList.remove('open');
+  setTimeout(function(){ document.getElementById('nav-info-sheet').style.display='none'; }, 350);
 }
 
 // ── BOTTOM NAV ─────────────────────────────────────────────────────────────
@@ -6050,6 +6144,7 @@ function applyRoleUI() {
         <div class="nav-card-name">REZEPTVERZEICHNIS</div>
         <div class="nav-card-sub">Kategorien &middot; Suche &middot; Favoriten</div>
       </div>
+      <button class="nav-info-btn" onclick="showNavInfo('rezeptverzeichnis',event)">ⓘ</button>
     </div>
 
     <!-- 2. Rezeptarchiv — Gold -->
@@ -6064,6 +6159,7 @@ function applyRoleUI() {
         <div class="nav-card-name" style="color:#B8973A">REZEPTARCHIV</div>
         <div class="nav-card-sub">100 Basisrezepte &middot; Klassiker &middot; Referenz</div>
       </div>
+      <button class="nav-info-btn" onclick="showNavInfo('rezeptarchiv',event)" style="background:rgba(184,151,58,.25);color:#B8973A">ⓘ</button>
     </div>
 
     <!-- 3. Saisonkalender — Waldgrün -->
@@ -6078,6 +6174,7 @@ function applyRoleUI() {
         <div class="nav-card-name">SAISONKALENDER</div>
         <div class="nav-card-sub">113 Produkte &middot; Gemüse &middot; Obst &middot; Kräuter</div>
       </div>
+      <button class="nav-info-btn" onclick="showNavInfo('saisonkalender',event)">ⓘ</button>
     </div>
 
     <!-- 4. Produktkatalog — Dunkelblau-Grau -->
@@ -6092,6 +6189,7 @@ function applyRoleUI() {
         <div class="nav-card-name">PRODUKTKATALOG</div>
         <div class="nav-card-sub">Fleisch &middot; Fisch &middot; Geflügel &middot; Wild &middot; Charcuterie</div>
       </div>
+      <button class="nav-info-btn" onclick="showNavInfo('produktkatalog',event)">ⓘ</button>
     </div>
 
     <!-- 5. Foodpairing — Smaragdgrün -->
@@ -6107,6 +6205,7 @@ function applyRoleUI() {
         <div class="nav-card-name">FOODPAIRING</div>
         <div class="nav-card-sub">Aromen &middot; Kombinationen &middot; Rezeptideen</div>
       </div>
+      <button class="nav-info-btn" onclick="showNavInfo('foodpairing',event)">ⓘ</button>
     </div>
 
     <!-- 6. Warenkunde — Dunkelbraun -->
@@ -6120,6 +6219,7 @@ function applyRoleUI() {
         <div class="nav-card-name">WARENKUNDE</div>
         <div class="nav-card-sub">Geschmack &middot; Nährwerte &middot; Saison &middot; Aromenchemie</div>
       </div>
+      <button class="nav-info-btn" onclick="showNavInfo('warenkunde',event)">ⓘ</button>
     </div>
 
     <!-- 7. Einkaufsliste — Dunkel-Olive -->
@@ -6133,6 +6233,7 @@ function applyRoleUI() {
         <div class="nav-card-name">EINKAUFSLISTE</div>
         <div class="nav-card-sub">Lieferanten &middot; Kategorien &middot; Export</div>
       </div>
+      <button class="nav-info-btn" onclick="showNavInfo('einkaufsliste',event)">ⓘ</button>
     </div>
 
   </div>
@@ -6395,6 +6496,17 @@ function applyRoleUI() {
     <button onclick="closeSearchScreen()" style="background:none;border:none;color:#B8973A;font-size:14px;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap;padding:0 4px">Abbrechen</button>
   </div>
   <div id="search-screen-results" style="padding:8px 0 80px;overflow-y:auto"></div>
+</div>
+
+<!-- ── NAV INFO SHEET ───────────────────────────────────────────────────── -->
+<div id="nav-info-overlay" onclick="closeNavInfo()"></div>
+<div id="nav-info-sheet">
+  <div style="width:40px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 20px"></div>
+  <div class="nav-info-icon" id="nav-info-icon"></div>
+  <div class="nav-info-title" id="nav-info-title"></div>
+  <div class="nav-info-text" id="nav-info-text"></div>
+  <div class="nav-info-features" id="nav-info-features"></div>
+  <button class="nav-info-close" onclick="closeNavInfo()">Schliessen</button>
 </div>
 
 <!-- ── ADD SHEET ─────────────────────────────────────────────────────────── -->
