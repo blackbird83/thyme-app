@@ -1612,6 +1612,7 @@ html,body{overflow-y:auto;-webkit-overflow-scrolling:touch;height:auto}
       <h3>&#128260; Synchronisation</h3>
       <p style="font-size:14px;color:#888;margin-bottom:10px">Daten werden lokal gespeichert und bei Internetverbindung mit der Cloud synchronisiert.</p>
       <button class="btn-import" onclick="syncNow()">&#8635; Jetzt synchronisieren</button>
+      <button class="btn-import" onclick="diagnosSync()" style="background:transparent;border:1px solid #B8973A;color:#B8973A;margin-top:8px">&#128269; Sync Diagnose</button>
     </div>
     <div class="settings-section">
       <h3>&#127763; Darstellung</h3>
@@ -2567,6 +2568,13 @@ var NAV_INFO = {
     text: 'Umfassendes Produktwissen auf Profi-Niveau — von Claude generiert. Alles was ein Küchenchef über eine Zutat wissen muss.',
     features: ['Geschmacks- und Aromaprofil','Nährwerte pro 100g','Saison und Herkunft','Kulinarische Verwendung und Techniken','Lagerung und Haltbarkeit','Exklusiver Profi-Tipp']
   },
+  miseenplace: {
+    title: 'Mise en Place',
+    color: '#2A1F3D',
+    icon: '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><polyline points="3,6 4,7 6,5"/><polyline points="3,12 4,13 6,11"/><polyline points="3,18 4,19 6,17"/></svg>',
+    text: 'Deine tägliche Küchenplanung. Verknüpfe Rezepte mit Gängen, berechne Mengen automatisch und behalte den Überblick über alle Aufgaben deines Services.',
+    features: ['Service anlegen (Mittag / Abend / Event)','Gänge zuweisen (Amuse bis Dessert)','Rezepte aus Verzeichnis verknüpfen','Portionen eingeben → Mengen automatisch skaliert','Status-Tracking (offen / in Arbeit / fertig)','Einkaufsliste aus MeP generieren','Koch-Modus direkt aus der MeP starten']
+  },
   einkaufsliste: {
     title: 'Einkaufsliste',
     color: '#2A5A8B',
@@ -2949,7 +2957,7 @@ async function syncToCloud() {
   if (!db || !isOnline) return;
   try {
     const [rRes, cRes] = await Promise.all([
-      db.from('recipes').select('*').order('created_at', {ascending: false}),
+      _aUser ? db.from('recipes').select('*').eq('user_id', _aUser.id).order('created_at', {ascending: false}) : db.from('recipes').select('*').order('created_at', {ascending: false}),
       db.from('categories').select('*').order('sort_order')
     ]);
     if (rRes.data) {
@@ -3001,6 +3009,47 @@ async function syncToCloud() {
     localSave();
     var savedCat = activeCat; var savedPrevCat = _prevCat; renderCatScroll(); activeCat = savedCat; _prevCat = savedPrevCat; renderGrid(); renderCatList(); renderCatPicker('');
   } catch(e) { console.warn('Sync Fehler:', e); }
+}
+
+async function diagnosSync() {
+  if (!db) { showToast('Kein Supabase — bitte einloggen', 'error'); return; }
+  var msg = [];
+  msg.push('=== SYNC DIAGNOSE ===');
+  msg.push('User: ' + (_aUser ? _aUser.email : 'NICHT EINGELOGGT'));
+  msg.push('User ID: ' + (_aUser ? _aUser.id : '—'));
+  msg.push('Lokale Rezepte: ' + recipes.length);
+
+  try {
+    // Alle Rezepte in Supabase (ohne Filter)
+    var r1 = await db.from('recipes').select('id, title, user_id').limit(50);
+    msg.push('Supabase total (sichtbar): ' + (r1.data ? r1.data.length : 0));
+    if (r1.error) msg.push('Fehler: ' + r1.error.message);
+
+    // Mit user_id Filter
+    if (_aUser) {
+      var r2 = await db.from('recipes').select('id, title').eq('user_id', _aUser.id).limit(50);
+      msg.push('Supabase mit user_id: ' + (r2.data ? r2.data.length : 0));
+      if (r2.error) msg.push('Fehler user_id: ' + r2.error.message);
+    }
+
+    // Test-Insert
+    var testR = await db.from('recipes').insert([{
+      title: '__TEST__', category: 'test',
+      user_id: _aUser ? _aUser.id : null
+    }]).select();
+    if (testR.data && testR.data[0]) {
+      msg.push('Insert Test: OK (id=' + testR.data[0].id + ')');
+      // Gleich wieder löschen
+      await db.from('recipes').delete().eq('id', testR.data[0].id);
+      msg.push('Delete Test: OK');
+    } else {
+      msg.push('Insert Test FEHLER: ' + (testR.error ? testR.error.message : 'unbekannt'));
+    }
+  } catch(e) {
+    msg.push('Exception: ' + e.message);
+  }
+
+  alert(msg.join('\n'));
 }
 
 async function syncNow() {
@@ -3362,14 +3411,21 @@ async function saveRecipe() {
     savedId = editId;
     recipes = recipes.map(r => r.id === editId ? Object.assign({}, r, payload) : r);
     localSave();
-    if (db && isOnline) db.from('recipes').update(payload).eq('id', editId).select();
+    if (db && isOnline) {
+      var updatePayload = Object.assign({}, payload);
+      if (_aUser && _aUser.id) updatePayload.user_id = _aUser.id;
+      db.from('recipes').update(updatePayload).eq('id', editId).select();
+    }
   } else {
     savedId = 'local-' + Date.now();
     const newR = Object.assign({id: savedId, created_at: new Date().toISOString()}, payload);
     recipes = [newR, ...recipes];
     localSave();
     if (db && isOnline) {
-      db.from('recipes').insert([payload]).select().then(res => {
+      // user_id für RLS mitsenden
+      var insertPayload = Object.assign({}, payload);
+      if (_aUser && _aUser.id) insertPayload.user_id = _aUser.id;
+      db.from('recipes').insert([insertPayload]).select().then(res => {
         if (res.data && res.data[0]) {
           var dbId = res.data[0].id;
           recipes = recipes.map(r => r.id === savedId ? res.data[0] : r);
@@ -5179,6 +5235,8 @@ var _origInitProfiPages = typeof initProfiPages === 'function' ? initProfiPages 
 var activeArchiveCat = 'all';
 var ARCHIVE_SUBS = ['all','Fonds & Saucen','Teige & Massen','Suppen','Grundzubereitungen','Patisserie Basics','Gels & Texturen','Fisch & Meeresfrüchte','Fleisch & Geflügel','Gemüse & Beilagen'];
 
+function openMeP() { showToast("Mise en Place — coming soon", "success"); }
+
 function openArchive() {
   activeArchiveCat = 'all';
   // Navigation-Screen sichtbar lassen — Sheet liegt darüber (wie Rezeptverzeichnis)
@@ -6198,6 +6256,22 @@ function applyRoleUI() {
         <div class="nav-card-sub">113 Produkte &middot; Gemüse &middot; Obst &middot; Kräuter</div>
       </div>
       <button class="nav-info-btn" onclick="showNavInfo('saisonkalender',event)">ⓘ</button>
+    </div>
+
+
+    <!-- 3b. Mise en Place — Dunkelviolett -->
+    <div class="nav-card" onclick="openMeP()" style="background:#2A1F3D">
+      <div class="nav-card-icon" style="background:rgba(0,0,0,.25)">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/>
+          <polyline points="3,6 4,7 6,5"/><polyline points="3,12 4,13 6,11"/><polyline points="3,18 4,19 6,17"/>
+        </svg>
+      </div>
+      <div class="nav-card-texts">
+        <div class="nav-card-name">MISE EN PLACE</div>
+        <div class="nav-card-sub">Tagesplanung &middot; Gänge &middot; Rezeptverknüpfung</div>
+      </div>
+      <button class="nav-info-btn" onclick="showNavInfo('miseenplace',event)">ⓘ</button>
     </div>
 
     <!-- 4. Produktkatalog — Dunkelblau-Grau -->
