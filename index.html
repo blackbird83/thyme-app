@@ -2952,18 +2952,37 @@ async function syncToCloud() {
       db.from('recipes').select('*').order('created_at', {ascending: false}),
       db.from('categories').select('*').order('sort_order')
     ]);
-    if (rRes.data && rRes.data.length > 0) {
-      // Supabase hat Rezepte — zusammenführen mit lokalen
-      var localIds = recipes.map(function(r){ return r.id; });
-      var newFromCloud = rRes.data.filter(function(r){ return localIds.indexOf(r.id) < 0; });
-      recipes = recipes.concat(newFromCloud);
-    } else if (recipes.length > 0) {
-      // Supabase leer aber lokal vorhanden — hochladen
-      try {
-        await db.from('recipes').upsert(recipes.map(function(r){
-          return Object.assign({}, r, {photo: r.photo && r.photo.startsWith('http') ? r.photo : null});
-        }));
-      } catch(e) { console.warn('Upload lokaler Rezepte:', e); }
+    if (rRes.data) {
+      var cloudIds = rRes.data.map(function(r){ return String(r.id); });
+      var localIds = recipes.map(function(r){ return String(r.id); });
+
+      // 1. Neue Rezepte von Cloud holen die lokal fehlen
+      var newFromCloud = rRes.data.filter(function(r){ return localIds.indexOf(String(r.id)) < 0; });
+      if (newFromCloud.length) recipes = recipes.concat(newFromCloud);
+
+      // 2. Lokale Rezepte hochladen die in Cloud fehlen (kein local- prefix = bereits sync'd)
+      var toUpload = recipes.filter(function(r){
+        return cloudIds.indexOf(String(r.id)) < 0 && !String(r.id).startsWith('local-');
+      });
+      if (toUpload.length) {
+        try {
+          await db.from('recipes').upsert(toUpload.map(function(r){
+            return Object.assign({}, r, {photo: r.photo && r.photo.startsWith('data:') ? null : r.photo});
+          }));
+        } catch(e) { console.warn('Upload fehlgeschlagen:', e); }
+      }
+
+      // 3. Cloud-Daten übernehmen (neueste Version gewinnt via created_at)
+      rRes.data.forEach(function(cloudR) {
+        var localIdx = recipes.findIndex(function(r){ return String(r.id) === String(cloudR.id); });
+        if (localIdx >= 0) {
+          // Cloud-Version übernehmen aber lokale Fotos behalten
+          var localPhoto = recipes[localIdx].photo;
+          recipes[localIdx] = Object.assign({}, cloudR, {
+            photo: localPhoto || cloudR.photo
+          });
+        }
+      });
     }
     if (cRes.data && cRes.data.length > 0) categories = cRes.data;
     // Fotos aus thyme_photo_ Keys wiederherstellen (Supabase hat kein photo Feld)
