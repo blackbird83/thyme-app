@@ -790,6 +790,44 @@ html,body{overflow-y:auto;-webkit-overflow-scrolling:touch;height:auto}
 
 
 
+
+/* ── MISE EN PLACE ──────────────────────────────────────────────────────── */
+#screen-mep{background:var(--cream)}
+.mep-service-bar{padding:10px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
+.mep-s-tab{background:transparent;border:1px solid var(--border);border-radius:99px;padding:5px 12px;font-size:11px;color:var(--smoke);cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s}
+.mep-s-tab.active{background:#2A1F3D;border-color:#6B5B95;color:#C4B8E0}
+.mep-meta-bar{padding:8px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.mep-meta-input{background:var(--parchment);border:1px solid var(--border);border-radius:6px;padding:3px 8px;font-size:12px;color:#B8973A;font-family:'DM Sans',sans-serif;text-align:center}
+.mep-body{padding:12px 14px 120px;overflow-y:auto}
+.mep-posten{margin-bottom:16px}
+.mep-posten-hdr{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.mep-posten-name{background:transparent;border:none;font-size:9px;text-transform:uppercase;letter-spacing:2px;color:#B8973A;font-family:'DM Sans',sans-serif;outline:none;min-width:60px;max-width:140px;padding:2px 0}
+.mep-posten-name::placeholder{color:var(--border)}
+.mep-posten-line{flex:1;height:1px;background:var(--border)}
+.mep-posten-del{font-size:11px;color:var(--smoke);cursor:pointer;background:none;border:none;padding:2px 4px;opacity:.5}
+.mep-task{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border)}
+.mep-dot{width:16px;height:16px;border-radius:50%;border:1.5px solid var(--border);flex-shrink:0;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:9px;transition:all .15s}
+.mep-dot.wip{background:#B8973A;border-color:#B8973A;color:#fff}
+.mep-dot.done{background:#3D5A3E;border-color:#3D5A3E;color:#fff}
+.mep-task-name{flex:1;font-size:13px;color:var(--bark);font-family:'DM Sans',sans-serif;background:transparent;border:none;outline:none;padding:0}
+.mep-task-name::placeholder{color:var(--border)}
+.mep-task-name.done{text-decoration:line-through;color:var(--smoke)}
+.mep-task-badge{font-size:10px;color:#4a7c59;border:1px solid #4a7c59;border-radius:4px;padding:1px 6px;white-space:nowrap;cursor:pointer;flex-shrink:0;background:none;font-family:'DM Sans',sans-serif}
+.mep-task-del{color:var(--smoke);background:none;border:none;cursor:pointer;font-size:13px;opacity:.4;padding:0 2px}
+.mep-add-task{display:flex;align-items:center;gap:8px;padding:5px 0;cursor:pointer}
+.mep-add-icon{width:16px;height:16px;border-radius:50%;border:1px dashed var(--border);display:flex;align-items:center;justify-content:center;color:var(--smoke);font-size:11px;flex-shrink:0}
+.mep-add-input{flex:1;background:transparent;border:none;font-size:12px;color:var(--smoke);font-family:'DM Sans',sans-serif;outline:none}
+.mep-add-input::placeholder{color:var(--smoke);opacity:.4}
+.mep-add-posten{width:100%;padding:8px;background:transparent;border:1px dashed var(--border);border-radius:8px;color:var(--smoke);font-size:11px;cursor:pointer;font-family:'DM Sans',sans-serif;margin-top:8px;letter-spacing:1px;text-transform:uppercase;opacity:.6}
+.mep-bottom{position:fixed;bottom:60px;left:0;right:0;max-width:900px;margin:0 auto;background:var(--cream);border-top:1px solid var(--border);padding:10px 14px;display:flex;gap:8px;z-index:10}
+.mep-bb{flex:1;padding:11px;border-radius:99px;font-size:12px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;border:none}
+.mep-bb.p{background:#3D5A3E;color:#fff}
+.mep-bb.s{background:transparent;border:1px solid var(--border);color:var(--smoke)}
+.mep-sessions-list{display:flex;flex-direction:column;gap:8px;padding:12px 14px}
+.mep-session-card{background:var(--parchment);border:1px solid var(--border);border-radius:12px;padding:12px 14px;cursor:pointer;display:flex;align-items:center;gap:12px}
+.mep-session-card:active{opacity:.8}
+.mep-session-badge{background:#2A1F3D;border:1px solid #6B5B95;border-radius:6px;padding:3px 8px;font-size:10px;color:#C4B8E0;white-space:nowrap}
+
 /* ── TAGESGRUSS ─────────────────────────────────────────────────────────── */
 #greeting-card{background:linear-gradient(135deg,#2E5435 0%,#3D6B44 60%,#4a7c59 100%);border-radius:16px;margin:16px 16px;padding:20px 22px;position:relative;overflow:hidden;box-shadow:0 4px 24px rgba(46,84,53,.35)}
 #greeting-card.visible{display:block}
@@ -2453,6 +2491,217 @@ function onSearchScreenInput() {
   resultsEl.appendChild(container);
 }
 
+
+// ── MISE EN PLACE ──────────────────────────────────────────────────────────
+var mepSessions = [];
+var mepCurrentId = null;
+
+function mepLoad() {
+  try { mepSessions = JSON.parse(localStorage.getItem('thyme_mep') || '[]'); } catch(e) { mepSessions = []; }
+}
+
+function mepSaveAll() {
+  localStorage.setItem('thyme_mep', JSON.stringify(mepSessions));
+}
+
+function openMeP() {
+  mepLoad();
+  showScreen('mep');
+  document.getElementById('mep-detail').style.display = 'none';
+  document.getElementById('mep-overview').style.display = 'block';
+  mepRenderOverview();
+}
+
+function mepRenderOverview() {
+  var list = document.getElementById('mep-sessions-list');
+  if (!mepSessions.length) {
+    list.innerHTML = '<div class="empty-state"><div class="empty-icon">📋</div><div class="empty-title">Kein Service</div><div class="empty-sub">Erstelle deinen ersten Mise en Place Service</div></div>';
+    return;
+  }
+  var days = ['So','Mo','Di','Mi','Do','Fr','Sa'];
+  list.innerHTML = '';
+  mepSessions.forEach(function(s) {
+    var d = s.date ? new Date(s.date + 'T12:00:00') : null;
+    var dateStr = d ? days[d.getDay()] + ', ' + d.toLocaleDateString('de-CH') : 'Kein Datum';
+    var done = 0, total = 0;
+    (s.posten || []).forEach(function(p){ (p.tasks||[]).forEach(function(t){ total++; if(t.status==='done') done++; }); });
+    var card = document.createElement('div');
+    card.className = 'mep-session-card';
+    card.innerHTML = '<div style="flex:1"><div style="font-family:\'Cormorant Garamond\',serif;font-size:18px;color:var(--bark);margin-bottom:4px">' + s.service + ' — ' + dateStr + '</div>'
+      + '<div style="font-size:11px;color:var(--smoke)">' + (s.pax||0) + ' Pax · ' + (s.posten||[]).length + ' Posten · ' + done + '/' + total + ' erledigt</div></div>'
+      + '<span class="mep-session-badge">' + s.service + '</span>';
+    (function(sid){ card.addEventListener('click', function(){ mepOpenSession(sid); }); })(s.id);
+    list.appendChild(card);
+  });
+}
+
+
+function mepNewSession() {
+  var id = 'mep-' + Date.now();
+  var today = new Date().toISOString().split('T')[0];
+  var session = {id:id, service:'Abend', date:today, pax:10, posten:[
+    {id:'p1', name:'', tasks:[]}
+  ]};
+  mepSessions.unshift(session);
+  mepSaveAll();
+  mepOpenSession(id);
+}
+
+function mepOpenSession(id) {
+  mepCurrentId = id;
+  var s = mepSessions.find(function(x){ return x.id===id; });
+  if (!s) return;
+  document.getElementById('mep-overview').style.display = 'none';
+  document.getElementById('mep-detail').style.display = 'block';
+
+  // Service Tabs
+  document.querySelectorAll('.mep-s-tab').forEach(function(btn){
+    btn.classList.toggle('active', btn.textContent === s.service);
+  });
+
+  // Datum + Pax
+  document.getElementById('mep-date-input').value = s.date || '';
+  document.getElementById('mep-pax-input').value = s.pax || 10;
+  mepUpdateDateDisplay(s);
+  mepRenderBody(s);
+}
+
+function mepUpdateDateDisplay(s) {
+  var d = s.date ? new Date(s.date + 'T12:00:00') : null;
+  var days = ['So','Mo','Di','Mi','Do','Fr','Sa'];
+  var months = ['Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'];
+  var el = document.getElementById('mep-date-display');
+  if (el && d) el.innerHTML = days[d.getDay()] + ', ' + d.getDate() + '. ' + months[d.getMonth()] + '<br><span style="color:#B8973A;font-weight:600">' + (s.pax||0) + ' Pax</span>';
+}
+
+function mepSetService(service, btn) {
+  document.querySelectorAll('.mep-s-tab').forEach(function(b){ b.classList.remove('active'); });
+  btn.classList.add('active');
+  var s = mepSessions.find(function(x){ return x.id===mepCurrentId; });
+  if (s) { s.service = service; mepSaveAll(); }
+}
+
+function mepSave() {
+  var s = mepSessions.find(function(x){ return x.id===mepCurrentId; });
+  if (!s) return;
+  s.date = document.getElementById('mep-date-input').value;
+  s.pax = parseInt(document.getElementById('mep-pax-input').value) || 10;
+  mepUpdateDateDisplay(s);
+  mepSaveAll();
+}
+
+function mepRenderBody(s) {
+  var body = document.getElementById('mep-body');
+  var html = (s.posten || []).map(function(p, pi) {
+    var tasksHtml = (p.tasks || []).map(function(t, ti) {
+      var dotClass = t.status === 'done' ? 'done' : t.status === 'wip' ? 'wip' : '';
+      var dotIcon = t.status === 'done' ? '✓' : t.status === 'wip' ? '↻' : '';
+      var nameClass = t.status === 'done' ? 'done' : '';
+      var badgeText = t.recipeId ? (t.recipeType === 'archive' ? 'Archiv' : 'Rezept') : '';
+      var badge = t.recipeId ? '<button class="mep-task-badge" data-rid="' + t.recipeId + '" data-rtype="' + t.recipeType + '">→ ' + badgeText + '</button>' : '';
+      return '<div class="mep-task" id="mep-task-' + pi + '-' + ti + '">'
+        + '<div class="mep-dot ' + dotClass + '" onclick="mepCycleStatus(' + pi + ',' + ti + ')">' + dotIcon + '</div>'
+        + '<input class="mep-task-name ' + nameClass + '" value="' + (t.name||'').replace(/"/g,'&quot;') + '" placeholder="Aufgabe..." onblur="mepTaskName(' + pi + ',' + ti + ',this.value)">'
+        + badge
+        + '<button class="mep-task-del" onclick="mepDelTask(' + pi + ',' + ti + ')">✕</button>'
+        + '</div>';
+    }).join('');
+    return '<div class="mep-posten">'
+      + '<div class="mep-posten-hdr">'
+      + '<input class="mep-posten-name" value="' + (p.name||'') + '" placeholder="POSTEN" onblur="mepPostenName(' + pi + ',this.value)">'
+      + '<div class="mep-posten-line"></div>'
+      + '<button class="mep-posten-del" onclick="mepDelPosten(' + pi + ')">✕</button>'
+      + '</div>'
+      + tasksHtml
+      + '<div class="mep-add-task" onclick="mepAddTask(' + pi + ')">'
+      + '<div class="mep-add-icon">+</div>'
+      + '<span class="mep-add-input" style="color:var(--smoke);opacity:.4;font-size:12px">Aufgabe eingeben...</span>'
+      + '</div></div>';
+  }).join('');
+  html += '<button class="mep-add-posten" onclick="mepAddPosten()">+ Posten hinzufügen</button>';
+  body.innerHTML = html;
+  // Event-Delegation für Badges
+  body.querySelectorAll('.mep-task-badge[data-rid]').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      mepOpenRecipe(this.getAttribute('data-rid'), this.getAttribute('data-rtype'));
+    });
+  });
+}
+
+function mepCycleStatus(pi, ti) {
+  var s = mepSessions.find(function(x){ return x.id===mepCurrentId; });
+  if (!s) return;
+  var t = s.posten[pi].tasks[ti];
+  var states = ['', 'wip', 'done'];
+  t.status = states[(states.indexOf(t.status||'') + 1) % states.length];
+  mepSaveAll();
+  mepRenderBody(s);
+}
+
+function mepTaskName(pi, ti, val) {
+  var s = mepSessions.find(function(x){ return x.id===mepCurrentId; });
+  if (!s) return;
+  s.posten[pi].tasks[ti].name = val;
+  mepSaveAll();
+}
+
+function mepPostenName(pi, val) {
+  var s = mepSessions.find(function(x){ return x.id===mepCurrentId; });
+  if (!s) return;
+  s.posten[pi].name = val;
+  mepSaveAll();
+}
+
+function mepAddTask(pi) {
+  var s = mepSessions.find(function(x){ return x.id===mepCurrentId; });
+  if (!s) return;
+  s.posten[pi].tasks.push({id:'t'+Date.now(), name:'', status:''});
+  mepSaveAll();
+  mepRenderBody(s);
+  // Focus auf neues Feld
+  var tasks = document.querySelectorAll('.mep-posten:nth-child(' + (pi+1) + ') .mep-task-name');
+  if (tasks.length) tasks[tasks.length-1].focus();
+}
+
+function mepDelTask(pi, ti) {
+  var s = mepSessions.find(function(x){ return x.id===mepCurrentId; });
+  if (!s) return;
+  s.posten[pi].tasks.splice(ti, 1);
+  mepSaveAll();
+  mepRenderBody(s);
+}
+
+function mepAddPosten() {
+  var s = mepSessions.find(function(x){ return x.id===mepCurrentId; });
+  if (!s) return;
+  s.posten.push({id:'p'+Date.now(), name:'', tasks:[]});
+  mepSaveAll();
+  mepRenderBody(s);
+}
+
+function mepDelPosten(pi) {
+  var s = mepSessions.find(function(x){ return x.id===mepCurrentId; });
+  if (!s) return;
+  s.posten.splice(pi, 1);
+  mepSaveAll();
+  mepRenderBody(s);
+}
+
+function mepOpenRecipe(id, type) {
+  if (type === 'archive') openArchiveDetail(id);
+  else { var r = recipes.find(function(x){ return x.id===id; }); if(r) openDetail(r); }
+}
+
+function mepToShopList() {
+  var s = mepSessions.find(function(x){ return x.id===mepCurrentId; });
+  if (!s) return;
+  showToast('Einkaufsliste wird generiert...', 'success');
+  setTimeout(function(){ openShopList(); }, 400);
+}
+
+function mepToCookMode() {
+  showToast('Koch-Modus: Rezept antippen', 'success');
+}
 
 // ── TAGESGRUSS ──────────────────────────────────────────────────────────────
 var _greetingProduct = '';
@@ -5235,8 +5484,6 @@ var _origInitProfiPages = typeof initProfiPages === 'function' ? initProfiPages 
 var activeArchiveCat = 'all';
 var ARCHIVE_SUBS = ['all','Fonds & Saucen','Teige & Massen','Suppen','Grundzubereitungen','Patisserie Basics','Gels & Texturen','Fisch & Meeresfrüchte','Fleisch & Geflügel','Gemüse & Beilagen'];
 
-function openMeP() { showToast("Mise en Place — coming soon", "success"); }
-
 function openArchive() {
   activeArchiveCat = 'all';
   // Navigation-Screen sichtbar lassen — Sheet liegt darüber (wie Rezeptverzeichnis)
@@ -6593,6 +6840,47 @@ function applyRoleUI() {
     <button onclick="closeSearchScreen()" style="background:none;border:none;color:#B8973A;font-size:14px;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap;padding:0 4px">Abbrechen</button>
   </div>
   <div id="search-screen-results" style="padding:8px 0 80px;overflow-y:auto"></div>
+</div>
+
+<!-- ── MISE EN PLACE SCREEN ─────────────────────────────────────────────── -->
+<div id="screen-mep" class="screen">
+  <div class="sub-header" style="position:relative;top:auto;padding:18px 16px">
+    <button class="back-btn" onclick="showScreen('navigation')" style="font-size:18px;color:#4a7c59">&#8592;</button>
+    <span class="sub-title">MISE EN PLACE</span>
+    <button onclick="mepNewSession()" style="background:#2A1F3D;border:1px solid #6B5B95;border-radius:99px;padding:5px 12px;font-size:11px;color:#C4B8E0;cursor:pointer;font-family:'DM Sans',sans-serif">+ Neu</button>
+  </div>
+
+  <!-- Übersicht oder Detail -->
+  <div id="mep-overview" style="padding-bottom:80px">
+    <div class="mep-sessions-list" id="mep-sessions-list"></div>
+    <div style="padding:0 14px">
+      <button class="mep-add-posten" onclick="mepNewSession()" style="margin-top:0">+ Service erstellen</button>
+    </div>
+  </div>
+
+  <div id="mep-detail" style="display:none">
+    <!-- Service Tabs -->
+    <div class="mep-service-bar" id="mep-service-bar">
+      <button class="mep-s-tab active" onclick="mepSetService('Mittag',this)">Mittag</button>
+      <button class="mep-s-tab" onclick="mepSetService('Abend',this)">Abend</button>
+      <button class="mep-s-tab" onclick="mepSetService('Event',this)">Event</button>
+      <div style="margin-left:auto;font-size:10px;color:var(--smoke);text-align:right;line-height:1.5" id="mep-date-display"></div>
+    </div>
+    <!-- Datum + Pax global -->
+    <div class="mep-meta-bar">
+      <span style="font-size:11px;color:var(--smoke)">📅</span>
+      <input class="mep-meta-input" id="mep-date-input" type="date" onchange="mepSave()" style="width:130px">
+      <span style="font-size:11px;color:var(--smoke);margin-left:auto">Pax</span>
+      <input class="mep-meta-input" id="mep-pax-input" type="number" value="10" min="1" max="999" onchange="mepSave()" style="width:52px">
+    </div>
+    <!-- Posten Liste -->
+    <div class="mep-body" id="mep-body"></div>
+    <!-- Bottom Buttons -->
+    <div class="mep-bottom">
+      <button class="mep-bb s" onclick="mepToShopList()">🛒 Einkaufsliste</button>
+      <button class="mep-bb p" onclick="mepToCookMode()">▶ Koch-Modus</button>
+    </div>
+  </div>
 </div>
 
 <!-- ── NAV INFO SHEET ───────────────────────────────────────────────────── -->
