@@ -3232,68 +3232,54 @@ function localSave() {
 async function syncToCloud() {
   if (!db || !isOnline || !_aUser) return;
   try {
-    // ── SCHRITT 1: Lokale Rezepte mit local- ID nach Supabase hochladen ──
-    var localOnlyRecipes = recipes.filter(function(r){ return String(r.id).startsWith('local-'); });
-    for (var i = 0; i < localOnlyRecipes.length; i++) {
-      var r = localOnlyRecipes[i];
+    // ── SCHRITT 1: Alle lokalen Rezepte zu Supabase hochladen ────────────
+    var toUpload = recipes.filter(function(r){ return String(r.id).startsWith('local-'); });
+    for (var i = 0; i < toUpload.length; i++) {
+      var r = toUpload[i];
+      // Nur Felder die in der DB existieren
       var payload = {
-        title: r.title, category: r.category, subcategory: r.subcategory || '',
-        ingredients: r.ingredients, instructions: r.instructions, notes: r.notes || '',
-        portions: r.portions || '', cook_time: r.cook_time || '', tags: r.tags || [],
-        color: r.color || '', allergens: r.allergens || [], naehrwerte: r.naehrwerte || null,
-        favorite: r.favorite || false, rating: r.rating || 0,
-        user_id: _aUser.id, created_at: r.created_at || new Date().toISOString(),
-        updated_at: new Date().toISOString()
+        title: r.title || 'Unbenannt',
+        category: r.category || '',
+        ingredients: r.ingredients || [],
+        instructions: r.instructions || '',
+        notes: r.notes || '',
+        portions: r.portions || '',
+        color: r.color || '',
+        allergens: r.allergens || [],
+        naehrwerte: r.naehrwerte || null,
+        favorite: r.favorite || false,
+        user_id: _aUser.id
       };
-      // Foto zu Supabase Storage hochladen
+      // Foto hochladen
       if (r.photo && r.photo.startsWith('data:')) {
-        var photoUrl = await uploadPhotoToStorage(r.photo, r.id);
-        if (photoUrl) payload.photo = photoUrl;
+        try {
+          var photoUrl = await uploadPhotoToStorage(r.photo, r.id);
+          if (photoUrl) payload.photo = photoUrl;
+        } catch(pe) { console.warn('Foto Upload:', pe); }
       } else if (r.photo && r.photo.startsWith('http')) {
         payload.photo = r.photo;
       }
-      var res = await db.from('recipes').insert([payload]).select();
-      if (res.data && res.data[0]) {
-        var newId = res.data[0].id;
-        // Lokale ID ersetzen
-        recipes = recipes.map(function(x){ return x.id === r.id ? Object.assign({}, x, {id: newId, photo: payload.photo || x.photo}) : x; });
-        // Altes Foto aus localStorage entfernen
-        localStorage.removeItem('thyme_photo_' + r.id);
-        if (payload.photo) localStorage.removeItem('thyme_photo_' + newId);
-      }
+      try {
+        var res = await db.from('recipes').insert([payload]).select();
+        if (res.data && res.data[0]) {
+          var newId = res.data[0].id;
+          var oldId = r.id;
+          recipes = recipes.map(function(x){
+            return x.id === oldId ? Object.assign({}, x, {id: newId, photo: payload.photo || x.photo}) : x;
+          });
+          localStorage.removeItem('thyme_photo_' + oldId);
+        }
+      } catch(ie) { console.warn('Insert Fehler:', ie); }
     }
 
-    // ── SCHRITT 2: Cloud laden — Supabase ist die Wahrheit ───────────────
-    const [rRes, cRes] = await Promise.all([
-      db.from('recipes').select('*').eq('user_id', _aUser.id).order('updated_at', {ascending: false}),
-      db.from('categories').select('*').order('sort_order')
-    ]);
+    // ── SCHRITT 2: Von Supabase laden und zusammenführen ─────────────────
+    var rRes = await db.from('recipes').select('*').eq('user_id', _aUser.id).order('created_at', {ascending: false});
+    var cRes = await db.from('categories').select('*').order('sort_order');
 
-    if (rRes.data && rRes.data.length > 0) {
-      var cloudIds = rRes.data.map(function(r){ return String(r.id); });
+    if (rRes.error) { console.warn('Cloud Load Fehler:', rRes.error.message); return; }
 
-      // Rezepte die noch lokal (non-local-) vorhanden sind aber nicht in Cloud → hochladen
-      var missingInCloud = recipes.filter(function(r){
-        return !String(r.id).startsWith('local-') && cloudIds.indexOf(String(r.id)) < 0;
-      });
-      for (var j = 0; j < missingInCloud.length; j++) {
-        var mr = missingInCloud[j];
-        var mp = { title: mr.title, category: mr.category, ingredients: mr.ingredients,
-          instructions: mr.instructions, notes: mr.notes || '', portions: mr.portions || '',
-          allergens: mr.allergens || [], naehrwerte: mr.naehrwerte || null,
-          favorite: mr.favorite || false, user_id: _aUser.id,
-          updated_at: new Date().toISOString() };
-        if (mr.photo && mr.photo.startsWith('data:')) {
-          var pu = await uploadPhotoToStorage(mr.photo, mr.id);
-          if (pu) mp.photo = pu;
-        } else if (mr.photo && mr.photo.startsWith('http')) {
-          mp.photo = mr.photo;
-        }
-        await db.from('recipes').upsert([Object.assign({id: mr.id}, mp)]);
-      }
-
-      // Cloud ist die primäre Quelle — überschreibt lokale Daten
-      // Lokale Fotos (Base64) aus localStorage wiederherstellen als Fallback
+    if (rRes.data) {
+      // Lokale Fotos als Fallback
       var photoMap = {};
       for (var k = 0; k < localStorage.length; k++) {
         var lkey = localStorage.key(k);
@@ -3302,24 +3288,43 @@ async function syncToCloud() {
         }
       }
 
-      // Merge: Cloud gewinnt, Foto aus Storage hat Priorität, Base64 als Fallback
-      var cloudRecipes = rRes.data.map(function(cloudR) {
-        var localR = recipes.find(function(x){ return String(x.id) === String(cloudR.id); });
-        var photo = cloudR.photo || (localR && localR.photo && localR.photo.startsWith('http') ? localR.photo : null)
-          || photoMap[String(cloudR.id)] || (localR && localR.photo) || null;
-        return Object.assign({}, cloudR, { photo: photo });
+      // Cloud-Rezepte mit lokalen Fotos anreichern
+      var cloudMap = {};
+      rRes.data.forEach(function(cr) {
+        var localR = recipes.find(function(x){ return String(x.id) === String(cr.id); });
+        var photo = cr.photo
+          || (localR && localR.photo && !localR.photo.startsWith('data:') ? localR.photo : null)
+          || photoMap[String(cr.id)]
+          || (localR && localR.photo ? localR.photo : null);
+        cloudMap[String(cr.id)] = Object.assign({}, cr, {photo: photo});
       });
 
-      // Lokale Rezepte die noch nicht uploaded wurden behalten
-      var remainingLocal = recipes.filter(function(r){ return String(r.id).startsWith('local-'); });
-      recipes = cloudRecipes.concat(remainingLocal);
+      // Alle lokalen behalten + Cloud-Rezepte hinzufügen die lokal fehlen
+      var localIds = recipes.map(function(r){ return String(r.id); });
+      var newFromCloud = rRes.data.filter(function(cr){
+        return localIds.indexOf(String(cr.id)) < 0;
+      }).map(function(cr){
+        return Object.assign({}, cr, {photo: photoMap[String(cr.id)] || cr.photo || null});
+      });
+
+      // Lokale Rezepte updaten wenn Cloud-Version vorhanden
+      recipes = recipes.map(function(r){
+        var sid = String(r.id);
+        if (cloudMap[sid]) return cloudMap[sid];
+        return r;
+      });
+
+      // Neue Cloud-Rezepte hinzufügen
+      if (newFromCloud.length) recipes = recipes.concat(newFromCloud);
     }
 
-    if (cRes.data && cRes.data.length > 0) categories = cRes.data;
+    if (cRes && cRes.data && cRes.data.length > 0) categories = cRes.data;
     localSave();
-    var savedCat = activeCat; renderCatScroll(); activeCat = savedCat; renderGrid(); renderCatList(); renderCatPicker('');
-    console.log('Sync OK — ' + recipes.length + ' Rezepte');
-  } catch(e) { console.warn('Sync Fehler:', e); }
+    var savedCat = activeCat;
+    renderCatScroll(); activeCat = savedCat;
+    renderGrid(); renderCatList(); renderCatPicker('');
+    showToast('Sync: ' + recipes.length + ' Rezepte', 'success');
+  } catch(e) { console.warn('Sync Fehler:', e.message); showToast('Sync Fehler: ' + e.message, 'error'); }
 }
 
 async function uploadPhotoToStorage(base64Data, recipeId) {
