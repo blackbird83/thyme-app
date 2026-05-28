@@ -3345,35 +3345,31 @@ async function diagnosSync() {
   if (!db) { showToast('Kein Supabase — bitte einloggen', 'error'); return; }
   var msg = [];
   msg.push('=== SYNC DIAGNOSE ===');
+  msg.push('Online: ' + isOnline);
   msg.push('User: ' + (_aUser ? _aUser.email : 'NICHT EINGELOGGT'));
-  msg.push('User ID: ' + (_aUser ? _aUser.id : '—'));
+  msg.push('User ID: ' + (_aUser ? _aUser.id.substring(0,8) + '...' : '—'));
   msg.push('Lokale Rezepte: ' + recipes.length);
+  msg.push('local- IDs: ' + recipes.filter(function(r){ return String(r.id).startsWith('local-'); }).length);
 
   try {
-    // Alle Rezepte in Supabase (ohne Filter)
-    var r1 = await db.from('recipes').select('id, title, user_id').limit(50);
-    msg.push('Supabase total (sichtbar): ' + (r1.data ? r1.data.length : 0));
-    if (r1.error) msg.push('Fehler: ' + r1.error.message);
+    // Session prüfen
+    var sess = await db.auth.getSession();
+    msg.push('Session aktiv: ' + (sess.data && sess.data.session ? 'JA' : 'NEIN'));
+    if (sess.data && sess.data.session) {
+      msg.push('Session User: ' + sess.data.session.user.id.substring(0,8) + '...');
+    }
+
+    // Supabase abfragen — ohne Filter
+    var r1 = await db.from('recipes').select('id, title, user_id').limit(5);
+    msg.push('Supabase ohne Filter: ' + (r1.data ? r1.data.length : 0) + (r1.error ? ' ERR:' + r1.error.message : ''));
 
     // Mit user_id Filter
     if (_aUser) {
-      var r2 = await db.from('recipes').select('id, title').eq('user_id', _aUser.id).limit(50);
-      msg.push('Supabase mit user_id: ' + (r2.data ? r2.data.length : 0));
-      if (r2.error) msg.push('Fehler user_id: ' + r2.error.message);
-    }
-
-    // Test-Insert
-    var testR = await db.from('recipes').insert([{
-      title: '__TEST__', category: 'test',
-      user_id: _aUser ? _aUser.id : null
-    }]).select();
-    if (testR.data && testR.data[0]) {
-      msg.push('Insert Test: OK (id=' + testR.data[0].id + ')');
-      // Gleich wieder löschen
-      await db.from('recipes').delete().eq('id', testR.data[0].id);
-      msg.push('Delete Test: OK');
-    } else {
-      msg.push('Insert Test FEHLER: ' + (testR.error ? testR.error.message : 'unbekannt'));
+      var r2 = await db.from('recipes').select('id, title').eq('user_id', _aUser.id);
+      msg.push('Supabase mit user_id: ' + (r2.data ? r2.data.length : 0) + (r2.error ? ' ERR:' + r2.error.message : ''));
+      if (r2.data && r2.data.length > 0) {
+        msg.push('Erstes Rezept: ' + r2.data[0].title);
+      }
     }
   } catch(e) {
     msg.push('Exception: ' + e.message);
