@@ -3425,12 +3425,16 @@ async function init() {
   if (isOnline && typeof supabase !== 'undefined' && supabase.createClient) {
     try {
       db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
-      await syncToCloud();
     } catch(e) { console.warn('Supabase nicht verfuegbar:', e); db = null; }
   }
 
-  aInit();
+  // aInit zuerst — setzt _aUser, dann erst Sync
+  await aInit();
   outletInit();
+  // Sync erst nachdem User eingeloggt
+  if (db && isOnline && _aUser) {
+    await syncToCloud();
+  }
 }
 
 // ─── NAVIGATION ────────────────────────────────────────────────────────────
@@ -6248,9 +6252,14 @@ async function aInit() {
   var c = _aSC(); if (!c) return;
   try {
     var res = await c.auth.getSession();
-    if (res.data&&res.data.session) { _aUser=res.data.session.user; aUpdateUI(); return; }
+    if (res.data&&res.data.session) { 
+      _aUser=res.data.session.user; 
+      aUpdateUI(); 
+      return _aUser; 
+    }
   } catch(e) {}
   setTimeout(aOpen, 1200);
+  return null;
 }
 async function aLogout() {
   var c=_aSC(); if(c) await c.auth.signOut();
