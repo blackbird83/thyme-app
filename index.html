@@ -3240,14 +3240,18 @@ async function syncToCloud() {
       var payload = {
         title: r.title || 'Unbenannt',
         category: r.category || '',
+        emoji: r.emoji || '',
         ingredients: r.ingredients || [],
         instructions: r.instructions || '',
         notes: r.notes || '',
         portions: r.portions || '',
+        time: r.cook_time || r.time || '',
         color: r.color || '',
+        photo: null,
+        favorite: r.favorite || false,
         allergens: r.allergens || [],
         naehrwerte: r.naehrwerte || null,
-        favorite: r.favorite || false,
+        rating: r.rating || 0,
         user_id: _aUser.id
       };
       // Foto hochladen
@@ -3758,9 +3762,26 @@ async function saveRecipe() {
     localSave();
     if (db && isOnline && _aUser) {
       (async function() {
-        var insertPayload = Object.assign({}, payload);
+        // Nur Felder die in der DB existieren
+        var insertPayload = {
+          title: payload.title || 'Unbenannt',
+          category: payload.category || '',
+          emoji: payload.emoji || '',
+          ingredients: payload.ingredients || [],
+          instructions: payload.instructions || '',
+          notes: payload.notes || '',
+          portions: payload.portions || '',
+          time: payload.time || '',
+          color: payload.color || '',
+          photo: null,
+          favorite: payload.favorite || false,
+          allergens: payload.allergens || [],
+          naehrwerte: payload.naehrwerte || null,
+          rating: payload.rating || 0,
+          user_id: _aUser.id
+        };
         insertPayload.user_id = _aUser.id;
-        insertPayload.updated_at = new Date().toISOString();
+        // user_id gesetzt
         // Foto in Supabase Storage hochladen
         if (insertPayload.photo && insertPayload.photo.startsWith('data:')) {
           var photoUrl = await uploadPhotoToStorage(insertPayload.photo, savedId);
