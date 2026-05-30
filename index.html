@@ -1674,6 +1674,19 @@ html,body{overflow-y:auto;-webkit-overflow-scrolling:touch;height:auto}
       </button>
     </div>
     <div class="settings-section">
+      <h3>&#128190; BACKUP</h3>
+      <p style="font-size:14px;color:var(--smoke);margin-bottom:12px;line-height:1.5">Alle Rezepte als JSON-Datei exportieren oder aus einem Backup wiederherstellen. Fotos werden eingebettet.</p>
+      <button onclick="exportBackup()" style="width:100%;padding:13px;background:#3D5A3E;border:none;border-radius:10px;color:#fff;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;margin-bottom:8px">
+        &#11015; Backup exportieren
+      </button>
+      <label style="width:100%;display:block">
+        <input type="file" accept=".json" onchange="importBackup(this.files[0])" style="display:none">
+        <span style="display:block;width:100%;padding:13px;background:transparent;border:1px solid var(--border);border-radius:10px;color:var(--smoke);font-family:'DM Sans',sans-serif;font-size:14px;cursor:pointer;text-align:center;box-sizing:border-box">
+          &#11014; Backup importieren
+        </span>
+      </label>
+    </div>
+    <div class="settings-section">
       <h3>&#128260; Synchronisation</h3>
       <p style="font-size:16px;color:#888;margin-bottom:10px">Daten werden lokal gespeichert und bei Internetverbindung mit der Cloud synchronisiert.</p>
       <button class="btn-import" onclick="syncNow()">&#8635; Jetzt synchronisieren</button>
@@ -2519,6 +2532,72 @@ function onSearchScreenInput() {
 }
 
 
+// ── BACKUP / EXPORT ────────────────────────────────────────────────────────
+function exportBackup() {
+  try {
+    var backup = {
+      version: 1,
+      exported_at: new Date().toISOString(),
+      device: navigator.userAgent,
+      recipes: recipes.map(function(r) {
+        // Foto aus localStorage laden falls nicht im Rezept
+        var photo = r.photo;
+        if (!photo || photo === '__local__') {
+          photo = localStorage.getItem('thyme_photo_' + r.id) || null;
+        }
+        return Object.assign({}, r, {photo: photo});
+      }),
+      categories: categories
+    };
+    var json = JSON.stringify(backup, null, 2);
+    var blob = new Blob([json], {type: 'application/json'});
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = 'thyme_backup_' + new Date().toISOString().split('T')[0] + '.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast('Backup gespeichert — ' + recipes.length + ' Rezepte', 'success');
+  } catch(e) {
+    showToast('Backup Fehler: ' + e.message, 'error');
+  }
+}
+
+function importBackup(file) {
+  if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      var backup = JSON.parse(e.target.result);
+      if (!backup.recipes || !Array.isArray(backup.recipes)) {
+        showToast('Ungültiges Backup', 'error'); return;
+      }
+      // Neue Rezepte hinzufügen die noch nicht vorhanden sind
+      var existingIds = recipes.map(function(r){ return String(r.id); });
+      var imported = 0;
+      backup.recipes.forEach(function(r) {
+        if (existingIds.indexOf(String(r.id)) < 0) {
+          // Foto separat speichern
+          if (r.photo && r.photo.startsWith('data:')) {
+            try { localStorage.setItem('thyme_photo_' + r.id, r.photo); } catch(e) {}
+            r = Object.assign({}, r, {photo: '__local__'});
+          }
+          recipes.push(r);
+          imported++;
+        }
+      });
+      localSave();
+      renderGrid();
+      showToast(imported + ' Rezepte importiert', 'success');
+    } catch(e) {
+      showToast('Import Fehler: ' + e.message, 'error');
+    }
+  };
+  reader.readAsText(file);
+}
+
 // ── MISE EN PLACE ──────────────────────────────────────────────────────────
 var mepSessions = [];
 var mepCurrentId = null;
@@ -3347,11 +3426,15 @@ async function uploadPhotoToStorage(base64Data, recipeId) {
     var arr = new Uint8Array(byteStr.length);
     for (var i = 0; i < byteStr.length; i++) arr[i] = byteStr.charCodeAt(i);
     var blob = new Blob([arr], {type: mime});
-    var filename = _aUser.id + '/' + recipeId + '_' + Date.now() + '.' + ext;
+    // Dateiname NUR mit recipeId — keine local- Präfixe im Dateinamen
+    var cleanId = String(recipeId).replace('local-', 'r');
+    var filename = _aUser.id + '/' + cleanId + '.' + ext;
     var res = await db.storage.from('recipe-photos').upload(filename, blob, {upsert: true, contentType: mime});
     if (res.error) { console.warn('Foto Upload Fehler:', res.error.message); return null; }
     var urlRes = db.storage.from('recipe-photos').getPublicUrl(filename);
-    return urlRes.data ? urlRes.data.publicUrl : null;
+    var url = urlRes.data ? urlRes.data.publicUrl : null;
+    console.log('Foto hochgeladen:', filename, url ? 'OK' : 'FEHLER');
+    return url;
   } catch(e) { console.warn('Foto Upload Exception:', e); return null; }
 }
 
