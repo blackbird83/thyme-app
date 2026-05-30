@@ -3232,11 +3232,25 @@ function localSave() {
 async function syncToCloud() {
   if (!db || !isOnline || !_aUser) return;
   try {
-    // ── SCHRITT 1: Alle lokalen Rezepte zu Supabase hochladen ────────────
+    // ── SCHRITT 1: Lokale Fotos aus localStorage laden ───────────────────
+    var photoMap = {};
+    for (var k = 0; k < localStorage.length; k++) {
+      var lkey = localStorage.key(k);
+      if (lkey && lkey.startsWith('thyme_photo_')) {
+        photoMap[lkey.replace('thyme_photo_', '')] = localStorage.getItem(lkey);
+      }
+    }
+    // Fotos in Rezepte einlesen
+    recipes = recipes.map(function(r) {
+      if (photoMap[String(r.id)]) return Object.assign({}, r, {photo: photoMap[String(r.id)]});
+      return r;
+    });
+
+    // ── SCHRITT 2: Lokale Rezepte mit local- ID hochladen ───────────────
     var toUpload = recipes.filter(function(r){ return String(r.id).startsWith('local-'); });
+    console.log('Hochzuladen:', toUpload.length);
     for (var i = 0; i < toUpload.length; i++) {
       var r = toUpload[i];
-      // Nur Felder die in der DB existieren
       var payload = {
         title: r.title || 'Unbenannt',
         category: r.category || '',
@@ -3245,7 +3259,7 @@ async function syncToCloud() {
         instructions: r.instructions || '',
         notes: r.notes || '',
         portions: r.portions || '',
-        time: r.cook_time || r.time || '',
+        time: r.time || r.cook_time || '',
         color: r.color || '',
         photo: null,
         favorite: r.favorite || false,
@@ -3255,71 +3269,59 @@ async function syncToCloud() {
         user_id: _aUser.id
       };
       // Foto hochladen
-      if (r.photo && r.photo.startsWith('data:')) {
+      var photoData = r.photo || photoMap[String(r.id)];
+      if (photoData && photoData.startsWith('data:')) {
         try {
-          var photoUrl = await uploadPhotoToStorage(r.photo, r.id);
+          var photoUrl = await uploadPhotoToStorage(photoData, r.id);
           if (photoUrl) payload.photo = photoUrl;
-        } catch(pe) { console.warn('Foto Upload:', pe); }
-      } else if (r.photo && r.photo.startsWith('http')) {
-        payload.photo = r.photo;
+        } catch(pe) { console.warn('Foto Upload Fehler:', pe); }
+      } else if (photoData && photoData.startsWith('http')) {
+        payload.photo = photoData;
       }
       try {
         var res = await db.from('recipes').insert([payload]).select();
         if (res.data && res.data[0]) {
           var newId = res.data[0].id;
           var oldId = r.id;
+          var uploadedPhoto = payload.photo || photoData;
+          // Lokale ID durch Supabase-ID ersetzen, Foto behalten
           recipes = recipes.map(function(x){
-            return x.id === oldId ? Object.assign({}, x, {id: newId, photo: payload.photo || x.photo}) : x;
+            return x.id === oldId ? Object.assign({}, x, {id: newId, photo: uploadedPhoto}) : x;
           });
+          // localStorage bereinigen
           localStorage.removeItem('thyme_photo_' + oldId);
+          if (uploadedPhoto && uploadedPhoto.startsWith('data:')) {
+            localStorage.setItem('thyme_photo_' + newId, uploadedPhoto);
+          }
+          console.log('Hochgeladen:', r.title, '→', newId);
+        } else {
+          console.warn('Insert fehlgeschlagen:', r.title, res.error ? res.error.message : 'unbekannt');
         }
-      } catch(ie) { console.warn('Insert Fehler:', ie); }
+      } catch(ie) { console.warn('Insert Exception:', r.title, ie.message); }
     }
 
-    // ── SCHRITT 2: Von Supabase laden und zusammenführen ─────────────────
+    // ── SCHRITT 3: Cloud laden — NUR neue Rezepte hinzufügen ────────────
     var rRes = await db.from('recipes').select('*').eq('user_id', _aUser.id).order('created_at', {ascending: false});
     var cRes = await db.from('categories').select('*').order('sort_order');
 
-    if (rRes.error) { console.warn('Cloud Load Fehler:', rRes.error.message); return; }
+    if (rRes.error) {
+      console.warn('Cloud Load Fehler:', rRes.error.message);
+      showToast('Sync Fehler: ' + rRes.error.message, 'error');
+      return;
+    }
 
-    if (rRes.data) {
-      // Lokale Fotos als Fallback
-      var photoMap = {};
-      for (var k = 0; k < localStorage.length; k++) {
-        var lkey = localStorage.key(k);
-        if (lkey && lkey.startsWith('thyme_photo_')) {
-          photoMap[lkey.replace('thyme_photo_', '')] = localStorage.getItem(lkey);
-        }
-      }
-
-      // Cloud-Rezepte mit lokalen Fotos anreichern
-      var cloudMap = {};
-      rRes.data.forEach(function(cr) {
-        var localR = recipes.find(function(x){ return String(x.id) === String(cr.id); });
-        var photo = cr.photo
-          || (localR && localR.photo && !localR.photo.startsWith('data:') ? localR.photo : null)
-          || photoMap[String(cr.id)]
-          || (localR && localR.photo ? localR.photo : null);
-        cloudMap[String(cr.id)] = Object.assign({}, cr, {photo: photo});
-      });
-
-      // Alle lokalen behalten + Cloud-Rezepte hinzufügen die lokal fehlen
+    if (rRes.data && rRes.data.length > 0) {
       var localIds = recipes.map(function(r){ return String(r.id); });
+      // Nur neue Rezepte von Cloud hinzufügen — NIEMALS lokale überschreiben
       var newFromCloud = rRes.data.filter(function(cr){
         return localIds.indexOf(String(cr.id)) < 0;
       }).map(function(cr){
         return Object.assign({}, cr, {photo: photoMap[String(cr.id)] || cr.photo || null});
       });
-
-      // Lokale Rezepte updaten wenn Cloud-Version vorhanden
-      recipes = recipes.map(function(r){
-        var sid = String(r.id);
-        if (cloudMap[sid]) return cloudMap[sid];
-        return r;
-      });
-
-      // Neue Cloud-Rezepte hinzufügen
-      if (newFromCloud.length) recipes = recipes.concat(newFromCloud);
+      if (newFromCloud.length) {
+        recipes = recipes.concat(newFromCloud);
+        console.log('Von Cloud hinzugefügt:', newFromCloud.length);
+      }
     }
 
     if (cRes && cRes.data && cRes.data.length > 0) categories = cRes.data;
@@ -3328,7 +3330,10 @@ async function syncToCloud() {
     renderCatScroll(); activeCat = savedCat;
     renderGrid(); renderCatList(); renderCatPicker('');
     showToast('Sync: ' + recipes.length + ' Rezepte', 'success');
-  } catch(e) { console.warn('Sync Fehler:', e.message); showToast('Sync Fehler: ' + e.message, 'error'); }
+  } catch(e) {
+    console.warn('Sync Fehler:', e.message);
+    showToast('Sync Fehler: ' + e.message, 'error');
+  }
 }
 
 async function uploadPhotoToStorage(base64Data, recipeId) {
