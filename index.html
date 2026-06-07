@@ -1060,6 +1060,9 @@ html,body{overflow-y:auto;-webkit-overflow-scrolling:touch;height:auto}
     <input type="password" id="a-pw" class="a-inp" placeholder="Mindestens 6 Zeichen" autocomplete="current-password">
   </div>
   <button class="a-btn" id="a-btn" onclick="aSubmit()">Anmelden</button>
+  <div id="a-forgot" style="text-align:center;margin-top:2px;margin-bottom:8px">
+    <span onclick="aForgotPassword()" style="font-size:14px;color:#B8973A;cursor:pointer;font-family:'DM Sans',sans-serif;text-decoration:underline;text-underline-offset:3px">Passwort vergessen?</span>
+  </div>
 </div>
 
 
@@ -6252,6 +6255,8 @@ function aTab(m) {
   document.getElementById('at1').classList.toggle('on', m==='register');
   document.getElementById('a-name-f').style.display = m==='register'?'block':'none';
   document.getElementById('a-btn').textContent = m==='login'?'Anmelden':'Registrieren';
+  var forgot = document.getElementById('a-forgot');
+  if (forgot) forgot.style.display = m === 'login' ? 'block' : 'none';
   document.getElementById('a-err').style.display = 'none';
   document.getElementById('a-ok').style.display = 'none';
 }
@@ -6282,13 +6287,41 @@ async function aSubmit() {
     }
   } catch(e) {
     var msg=e.message||'Fehler';
-    if(msg.includes('Invalid login')) msg='E-Mail oder Passwort falsch';
-    if(msg.includes('already registered')) msg='E-Mail bereits registriert';
-    if(msg.includes('Email not confirmed')) msg='Bitte E-Mail bestätigen';
+    if(msg.includes('Invalid login') || msg.includes('invalid_credentials')) {
+      msg='E-Mail oder Passwort falsch.';
+      // Passwort vergessen Link hervorheben
+      var forgot = document.getElementById('a-forgot');
+      if (forgot) { forgot.style.display='block'; forgot.style.animation='pulse 1s ease'; }
+    }
+    if(msg.includes('already registered')) msg='E-Mail bereits registriert. Bitte anmelden.';
+    if(msg.includes('Email not confirmed')) msg='Bitte E-Mail zuerst bestätigen (Postfach prüfen).';
+    if(msg.includes('rate limit')) msg='Zu viele Versuche. Bitte kurz warten.';
     err.textContent=msg; err.style.display='block';
   }
   btn.disabled=false; btn.textContent=_aMode==='login'?'Anmelden':'Registrieren';
 }
+function aForgotPassword() {
+  var email = (document.getElementById('a-em') ? document.getElementById('a-em').value : '').trim();
+  if (!email) {
+    // Passwort-Reset Seite öffnen
+    window.open('https://blackbird83.github.io/thyme-app/reset-password.html', '_blank');
+    return;
+  }
+  // Email vorhanden — direkt Reset-Mail senden
+  var c = _aSC();
+  if (!c) return;
+  c.auth.resetPasswordForEmail(email, {
+    redirectTo: 'https://blackbird83.github.io/thyme-app/reset-password.html'
+  }).then(function(res) {
+    if (res.error) {
+      document.getElementById('a-error').textContent = 'Fehler: ' + res.error.message;
+    } else {
+      document.getElementById('a-error').style.color = '#4a7c59';
+      document.getElementById('a-error').textContent = 'Reset-Link wurde an ' + email + ' gesendet. Bitte prüfe dein Postfach.';
+    }
+  });
+}
+
 function aSkip() { /* Login Pflicht — kein Gast-Modus */ }
 function aClose() { document.getElementById('screen-auth').classList.remove('visible'); }
 function aOpen() { document.getElementById('screen-auth').classList.add('visible'); }
