@@ -406,6 +406,9 @@ body.light-mode .fav-btn.inactive{color:rgba(0,0,0,0.2)}
 .cat-sheet-handle{width:36px;height:4px;background:var(--border);border-radius:99px;margin:14px auto 0}
 .cat-sheet-title{font-family:'Cormorant Garamond',serif;font-size:27px;font-weight:600;color:var(--bark);padding:16px 24px 8px;text-align:center}
 .cat-sheet-list{padding:0 16px 40px}
+.cat-sheet-count{margin-left:auto;font-size:12px;color:var(--smoke);background:var(--parchment);border-radius:99px;padding:2px 9px;font-family:'DM Sans',sans-serif;min-width:24px;text-align:center}
+.cat-sheet-item.active .cat-sheet-count{color:#B8973A;background:rgba(184,151,58,.12)}
+
 .cat-sheet-item{display:flex;align-items:center;gap:18px;padding:16px 28px;cursor:pointer;transition:background .15s;border-bottom:1px solid var(--border)}
 .cat-sheet-item:active{background:#221A0E}
 .cat-sheet-dot{width:7px;height:7px;border-radius:50%;background:var(--border);border:1.5px solid var(--border2, #4A3820);flex-shrink:0;transition:all .2s}
@@ -3546,7 +3549,7 @@ function renderGrid() {
     (activeCat === 'all' || r.category === catName)
     && r.title.toLowerCase().includes(search)
     && (!showingFavs || r.favorite)
-  );
+  ).sort(function(a, b){ return a.title.localeCompare(b.title, 'de'); });
   const el = document.getElementById('recipe-grid');
   const cover = document.getElementById('book-cover');
   // Buchcover: sichtbar wenn keine Kategorie + keine Suche + keine Favoriten-Ansicht
@@ -4118,15 +4121,21 @@ function renderCatSheet() {
   var list = document.getElementById('cat-sheet-list');
   var out = '';
   var allActive = activeCat === 'all' ? 'active' : '';
+  var totalCount = recipes.length;
   out += '<div class="cat-sheet-item ' + allActive + '" onclick="selectCatFromSheet(&#39;all&#39;)">';
   out += '<span class="cat-sheet-dot"></span>';
-  out += '<span class="cat-sheet-name cat-sheet-all">Alle Rezepte</span></div>';
-  for (var i = 0; i < categories.length; i++) {
-    var c = categories[i];
+  out += '<span class="cat-sheet-name cat-sheet-all">Alle Rezepte</span>';
+  out += '<span class="cat-sheet-count">' + totalCount + '</span></div>';
+  // Kategorien alphabetisch sortieren
+  var sortedCats = categories.slice().sort(function(a, b){ return a.name.localeCompare(b.name, 'de'); });
+  for (var i = 0; i < sortedCats.length; i++) {
+    var c = sortedCats[i];
     var isActive = activeCat === c.id ? 'active' : '';
+    var count = recipes.filter(function(r){ return r.category === c.name; }).length;
     out += '<div class="cat-sheet-item ' + isActive + '" onclick="selectCatFromSheet(&#39;' + c.id + '&#39;)">';
     out += '<span class="cat-sheet-dot"></span>';
-    out += '<span class="cat-sheet-name">' + c.name + '</span></div>';
+    out += '<span class="cat-sheet-name">' + c.name + '</span>';
+    out += '<span class="cat-sheet-count">' + count + '</span></div>';
   }
   list.innerHTML = out;
 }
