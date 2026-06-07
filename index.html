@@ -3327,57 +3327,63 @@ async function syncToCloud() {
 
     // ── SCHRITT 2: Lokale Rezepte mit local- ID hochladen ───────────────
     var toUpload = recipes.filter(function(r){ return String(r.id).startsWith('local-'); });
-    console.log('Hochzuladen:', toUpload.length);
+    console.log('Hochzuladen:', toUpload.length, 'Rezepte');
+    if (toUpload.length > 0) showToast('Lade ' + toUpload.length + ' Rezepte hoch...', 'success');
+    var uploadOk = 0, uploadFail = 0;
     for (var i = 0; i < toUpload.length; i++) {
       var r = toUpload[i];
-      var payload = {
-        title: r.title || 'Unbenannt',
-        category: r.category || '',
-        emoji: r.emoji || '',
-        ingredients: r.ingredients || [],
-        instructions: r.instructions || '',
-        notes: r.notes || '',
-        portions: r.portions || '',
-        time: r.time || r.cook_time || '',
-        color: r.color || '',
-        photo: null,
-        favorite: r.favorite || false,
-        allergens: r.allergens || [],
-        naehrwerte: r.naehrwerte || null,
-        rating: r.rating || 0,
-        user_id: _aUser.id
-      };
-      // Foto hochladen
-      var photoData = r.photo || photoMap[String(r.id)];
-      if (photoData && photoData.startsWith('data:')) {
-        try {
+      try {
+        var payload = {
+          title: r.title || 'Unbenannt',
+          category: r.category || '',
+          ingredients: r.ingredients || [],
+          instructions: r.instructions || '',
+          notes: r.notes || '',
+          portions: r.portions || '',
+          color: r.color || '',
+          photo: null,
+          favorite: r.favorite || false,
+          allergens: r.allergens || [],
+          naehrwerte: r.naehrwerte || null,
+          rating: r.rating || 0,
+          user_id: _aUser.id
+        };
+        // Foto hochladen
+        var photoData = r.photo || photoMap[String(r.id)];
+        if (photoData && photoData.startsWith('data:')) {
           var photoUrl = await uploadPhotoToStorage(photoData, r.id);
           if (photoUrl) payload.photo = photoUrl;
-        } catch(pe) { console.warn('Foto Upload Fehler:', pe); }
-      } else if (photoData && photoData.startsWith('http')) {
-        payload.photo = photoData;
-      }
-      try {
+          else payload.photo = null; // Foto bleibt lokal
+        } else if (photoData && photoData.startsWith('http')) {
+          payload.photo = photoData;
+        }
         var res = await db.from('recipes').insert([payload]).select();
         if (res.data && res.data[0]) {
           var newId = res.data[0].id;
           var oldId = r.id;
-          var uploadedPhoto = payload.photo || photoData;
-          // Lokale ID durch Supabase-ID ersetzen, Foto behalten
+          var finalPhoto = payload.photo || photoData || null;
           recipes = recipes.map(function(x){
-            return x.id === oldId ? Object.assign({}, x, {id: newId, photo: uploadedPhoto}) : x;
+            return x.id === oldId ? Object.assign({}, x, {id: newId, photo: finalPhoto}) : x;
           });
-          // localStorage bereinigen
           localStorage.removeItem('thyme_photo_' + oldId);
-          if (uploadedPhoto && uploadedPhoto.startsWith('data:')) {
-            localStorage.setItem('thyme_photo_' + newId, uploadedPhoto);
+          if (finalPhoto && finalPhoto.startsWith('data:')) {
+            try { localStorage.setItem('thyme_photo_' + newId, finalPhoto); } catch(e) {}
           }
-          console.log('Hochgeladen:', r.title, '→', newId);
+          uploadOk++;
+          console.log('OK:', r.title, '->', newId);
         } else {
-          console.warn('Insert fehlgeschlagen:', r.title, res.error ? res.error.message : 'unbekannt');
+          uploadFail++;
+          var errMsg = res.error ? res.error.message : 'Unbekannt';
+          console.warn('FEHLER:', r.title, errMsg);
+          showToast('Upload Fehler: ' + r.title + ' — ' + errMsg, 'error');
         }
-      } catch(ie) { console.warn('Insert Exception:', r.title, ie.message); }
+      } catch(ie) {
+        uploadFail++;
+        console.warn('Exception:', r.title, ie.message);
+        showToast('Exception: ' + ie.message, 'error');
+      }
     }
+    if (uploadOk > 0) { localSave(); console.log(uploadOk + ' hochgeladen, ' + uploadFail + ' Fehler'); }
 
     // ── SCHRITT 3: Cloud laden — NUR neue Rezepte hinzufügen ────────────
     var rRes = await db.from('recipes').select('*').eq('user_id', _aUser.id).order('created_at', {ascending: false});
