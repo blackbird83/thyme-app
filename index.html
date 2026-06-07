@@ -1506,7 +1506,7 @@ html,body{overflow-y:auto;-webkit-overflow-scrolling:touch;height:auto}
     <div class="form-group">
       <label class="form-label">Zutaten</label>
       <div id="f-ingredients-list"></div>
-      <button class="add-ing-btn" onclick="addIngredientRow()">+ Zutat hinzufuegen</button>
+      <button class="add-ing-btn" onclick="addIngredientRow()">+ Zutat hinzufügen</button>
       <input type="hidden" id="f-ingredients">
     </div>
     <div class="form-group">
@@ -1515,7 +1515,7 @@ html,body{overflow-y:auto;-webkit-overflow-scrolling:touch;height:auto}
     </div>
     <div class="form-group">
       <label class="form-label">Zubereitung</label>
-      <textarea class="form-input" id="f-instructions" rows="7" placeholder="Schritt fuer Schritt..."></textarea>
+      <textarea class="form-input" id="f-instructions" rows="7" placeholder="Schritt für Schritt..."></textarea>
     </div>
     <div class="form-group">
       <label class="form-label">Notizen</label>
@@ -1537,13 +1537,13 @@ html,body{overflow-y:auto;-webkit-overflow-scrolling:touch;height:auto}
   </div>
   <div class="form-body">
     <div id="scan-offline-notice" class="notice" style="display:none">
-      &#9888;&#65039; Scan benoetigt Internetverbindung und Claude API Key.
+      &#9888;&#65039; Scan benötigt Internetverbindung und Claude API Key.
     </div>
     <div class="upload-box" id="scan-upload-box">
       <div style="font-size:53px">&#128444;&#65039;</div>
-      <p>Foto eines handgeschriebenen oder gedruckten Rezepts auswaehlen</p>
+      <p>Foto eines handgeschriebenen oder gedruckten Rezepts auswählen</p>
       <label class="file-btn">
-        &#128247; Foto auswaehlen
+        &#128247; Foto auswählen
         <input type="file" accept="image/*" style="display:none" onchange="handleScan(this)">
       </label>
     </div>
@@ -1596,7 +1596,7 @@ html,body{overflow-y:auto;-webkit-overflow-scrolling:touch;height:auto}
   </div>
   <div class="form-body">
     <div id="import-offline-notice" class="notice" style="display:none">
-      &#9888;&#65039; Import benoetigt Internetverbindung.
+      &#9888;&#65039; Import benötigt Internetverbindung.
     </div>
     <div class="import-section">
       <span class="form-label">&#127760; Von URL importieren</span>
@@ -1610,7 +1610,7 @@ html,body{overflow-y:auto;-webkit-overflow-scrolling:touch;height:auto}
       <div class="upload-box">
         <div style="font-size:44px;margin-bottom:10px">&#128206;</div>
         <label class="file-btn btn-import-secondary">
-          Datei auswaehlen
+          Datei auswählen
           <input type="file" accept=".txt" style="display:none" onchange="handleFileImport(this)">
         </label>
       </div>
@@ -1634,7 +1634,7 @@ html,body{overflow-y:auto;-webkit-overflow-scrolling:touch;height:auto}
         <input class="form-input" id="new-cat-name" placeholder="Kategoriename" style="flex:1">
       </div>
     </div>
-    <button class="btn-save" onclick="addCategory()" style="width:100%;margin-top:8px">+ Kategorie hinzufuegen</button>
+    <button class="btn-save" onclick="addCategory()" style="width:100%;margin-top:8px">+ Kategorie hinzufügen</button>
   </div>
 </div>
 
@@ -1711,7 +1711,7 @@ html,body{overflow-y:auto;-webkit-overflow-scrolling:touch;height:auto}
         </div>
 <div class="settings-section">
       <h3>&#128241; Als App installieren (iPhone/iPad)</h3>
-      <p style="font-size:16px;color:#888">In Safari: Teilen-Button &#128085; antippen dann "Zum Home-Bildschirm" auswaehlen.</p>
+      <p style="font-size:16px;color:#888">In Safari: Teilen-Button &#128085; antippen dann "Zum Home-Bildschirm" auswählen.</p>
     </div>
   </div>
 </div>
@@ -1728,7 +1728,7 @@ var SHOP_CATS = {
   proteine:  { label: 'Proteine',              keywords: ['fleisch','rind','kalb','schwein','lamm','poulet','hähnchen','huhn','ente','gans','pute','truthahn','wurst','speck','schinken','hack','filet','steak','kotelett','entrecôte','leber','cervelat','salami','chorizo','bratwurst'] },
   fisch:     { label: 'Fisch & Meeresfrüchte', keywords: ['lachs','thon','thunfisch','forelle','wolfsbarsch','dorade','kabeljau','heilbutt','makrele','sardine','garnele','crevette','muschel','tintenfisch','calamari','hummer','krebs','languste'] },
   milch:     { label: 'Milchprodukte',         keywords: ['milch','rahm','butter','käse','parmesan','gruyere','mozzarella','ricotta','mascarpone','frischkäse','crème fraîche','joghurt','quark','sahne','butterschmalz','ghee','emmentaler','brie','camembert','gorgonzola','sbrinz'] },
-  gemuese:   { label: 'Gemüse & Kräuter',      keywords: ['zwiebel','schalotte','knoblauch','karotte','rüebli','sellerie','fenchel','zucchini','aubergine','tomate','paprika','spinat','lauch','porree','kartoffel','rübe','kohlrabi','blumenkohl','broccoli','salat','rucola','basilikum','thymian','rosmarin','petersilie','schnittlauch','koriander','minze','salbei','lorbeer','ingwer','pilze','champignon','morchel','steinpilz','erbsen','bohnen','spargel','artischocke','avocado','zitrone','orange','apfel','birne','beeren'] },
+  gemüse:   { label: 'Gemüse & Kräuter',      keywords: ['zwiebel','schalotte','knoblauch','karotte','rüebli','sellerie','fenchel','zucchini','aubergine','tomate','paprika','spinat','lauch','porree','kartoffel','rübe','kohlrabi','blumenkohl','broccoli','salat','rucola','basilikum','thymian','rosmarin','petersilie','schnittlauch','koriander','minze','salbei','lorbeer','ingwer','pilze','champignon','morchel','steinpilz','erbsen','bohnen','spargel','artischocke','avocado','zitrone','orange','apfel','birne','beeren'] },
   kolonial:  { label: 'Kolonialwaren',         keywords: ['mehl','zucker','salz','pfeffer','öl','olivenöl','essig','senf','honig','reis','pasta','nudel','spaghetti','risottoreis','quinoa','linsen','kichererbsen','tomatenmark','bouillon','fond','weisswein','rotwein','cognac','porto','madera','schokolade','kakao','vanille','zimt','muskat','curry','backpulver','hefe','stärke','maizena','paniermehl','mandeln','nüsse','rosinen'] }
 };
 
@@ -1824,7 +1824,7 @@ function renderShopList() {
   if (!filtered.length) { body.innerHTML = '<div class="shop-empty">Keine Artikel' + (shopFilter !== 'alle' ? ' in dieser Kategorie' : ' — Rezepte hinzufügen um zu starten') + '</div>'; return; }
   var groups = {};
   filtered.forEach(function(item) { if (!groups[item.cat]) groups[item.cat] = []; groups[item.cat].push(item); });
-  var catOrder = ['proteine','fisch','milch','gemuese','kolonial','sonstiges'];
+  var catOrder = ['proteine','fisch','milch','gemüse','kolonial','sonstiges'];
   var out = '';
   catOrder.forEach(function(catKey) {
     var items = groups[catKey];
@@ -1878,7 +1878,7 @@ function shopExport() {
   var lines = ['EINKAUFSLISTE — thyme', ''];
   var groups = {};
   shopItems.filter(function(i) { return !i.done; }).forEach(function(i) { if (!groups[i.cat]) groups[i.cat] = []; groups[i.cat].push(i); });
-  ['proteine','fisch','milch','gemuese','kolonial','sonstiges'].forEach(function(cat) {
+  ['proteine','fisch','milch','gemüse','kolonial','sonstiges'].forEach(function(cat) {
     if (!groups[cat] || !groups[cat].length) return;
     lines.push((SHOP_CATS[cat] ? SHOP_CATS[cat].label : 'Sonstiges').toUpperCase());
     groups[cat].forEach(function(i) { lines.push((i.amount ? i.amount + '  ' : '') + i.name); });
@@ -2007,7 +2007,7 @@ async function runPairing() {
   var results = document.getElementById('pairing-results');
   results.innerHTML = '<div class="pairing-loading">Analysiere Aromen...<div class="pairing-spin"></div></div>';
 
-  var prompt = 'Flavour Pairing Experte auf Profi-Koch-Niveau. Analysiere: ' + query + '. NUR JSON, keine Backticks: {"profil":{"aroma":"Hauptaromen in 8 Worten","geschmack":"Geschmacksprofil in 10 Worten","saison":"Saison oder ganzjaehrig","kueche":"Typische Kuechen/Anwendung in 8 Worten"},"klassisch":[{"name":"Zutat","desc":"max 8 Worte"},{"name":"Zutat","desc":"max 8 Worte"},{"name":"Zutat","desc":"max 8 Worte"},{"name":"Zutat","desc":"max 8 Worte"},{"name":"Zutat","desc":"max 8 Worte"}],"modern":[{"name":"Zutat","desc":"max 8 Worte"},{"name":"Zutat","desc":"max 8 Worte"},{"name":"Zutat","desc":"max 8 Worte"}],"ueberraschend":[{"name":"Zutat","desc":"max 8 Worte"},{"name":"Zutat","desc":"max 8 Worte"}],"erklaerung":"2 Saetze Aromachemie","rezept_titel":"Titel","rezept_meta":"4 Portionen 45 Min Hauptgang","rezept_idee":"2-3 Saetze"}';
+  var prompt = 'Flavour Pairing Experte auf Profi-Koch-Niveau. Analysiere: ' + query + '. NUR JSON, keine Backticks: {"profil":{"aroma":"Hauptaromen in 8 Worten","geschmack":"Geschmacksprofil in 10 Worten","saison":"Saison oder ganzjährig","küche":"Typische Küchen/Anwendung in 8 Worten"},"klassisch":[{"name":"Zutat","desc":"max 8 Worte"},{"name":"Zutat","desc":"max 8 Worte"},{"name":"Zutat","desc":"max 8 Worte"},{"name":"Zutat","desc":"max 8 Worte"},{"name":"Zutat","desc":"max 8 Worte"}],"modern":[{"name":"Zutat","desc":"max 8 Worte"},{"name":"Zutat","desc":"max 8 Worte"},{"name":"Zutat","desc":"max 8 Worte"}],"überraschend":[{"name":"Zutat","desc":"max 8 Worte"},{"name":"Zutat","desc":"max 8 Worte"}],"erklärung":"2 Sätze Aromachemie","rezept_titel":"Titel","rezept_meta":"4 Portionen 45 Min Hauptgang","rezept_idee":"2-3 Sätze"}';
 
   try {
     var d = await callClaude({
@@ -2039,7 +2039,7 @@ async function runPairing() {
     }
 
     // Überraschende Pairings
-    var ue = r.ueberraschend || r['überraschend'] || [];
+    var ue = r.überraschend || r['überraschend'] || [];
     if (ue.length) {
       html += '<div class="pairing-section">'
         + '<span class="pairing-section-title">Überraschend &amp; Mutig</span>'
@@ -2049,10 +2049,10 @@ async function runPairing() {
     }
 
     // Erklärung
-    if (r.erklaerung) {
+    if (r.erklärung) {
       html += '<div class="pairing-section">'
         + '<span class="pairing-section-title">Warum es funktioniert</span>'
-        + '<div class="pairing-explain">' + r.erklaerung + '</div>'
+        + '<div class="pairing-explain">' + r.erklärung + '</div>'
         + '</div>';
     }
 
@@ -2092,7 +2092,7 @@ function importPairingRecipe(r) {
   showToast('Rezeptidee in Formular übertragen', 'success');
 }
 
-function renderNaehrwerte(n, portions) {
+function renderNährwerte(n, portions) {
   var portLabel = portions ? ' / ' + portions : ' / 100g';
   return '<div class="wk-card" style="margin:16px 0 8px">'
     + '<div class="wk-card-title">Nährwerte' + portLabel + '</div>'
@@ -2106,7 +2106,7 @@ function renderNaehrwerte(n, portions) {
     + '</div>';
 }
 
-async function calcNaehrwerteWithClaude(recipeId, ingredients, portions) {
+async function calcNährwerteWithClaude(recipeId, ingredients, portions) {
   if (!ingredients || !ingredients.length) return;
   try {
     var ingNames = ingredients.map(function(s) {
@@ -2115,8 +2115,8 @@ async function calcNaehrwerteWithClaude(recipeId, ingredients, portions) {
     var portCount = 1;
     if (portions) { var m = String(portions).match(/(\d+)/); if (m) portCount = parseInt(m[1]); }
 
-    var prompt = 'Berechne Naehrwerte fuer dieses Rezept (' + portCount + ' Portionen): ' + ingNames
-      + '. NUR JSON: {"kalorien":"X","protein":"X","kohlenhydrate":"X","fett":"X","notiz":"kurze Anmerkung falls noetig"}. Werte pro Portion, gerundet.';
+    var prompt = 'Berechne Nährwerte für dieses Rezept (' + portCount + ' Portionen): ' + ingNames
+      + '. NUR JSON: {"kalorien":"X","protein":"X","kohlenhydrate":"X","fett":"X","notiz":"kurze Anmerkung falls nötig"}. Werte pro Portion, gerundet.';
 
     var d = await callClaude({model:'claude-haiku-4-5-20251001', max_tokens:200, messages:[{role:'user',content:prompt}]});
     if (!d.content || !d.content[0]) return;
@@ -2124,19 +2124,19 @@ async function calcNaehrwerteWithClaude(recipeId, ingredients, portions) {
 
     // In Rezept speichern
     recipes = recipes.map(function(r) {
-      if (r.id === recipeId) return Object.assign({}, r, {naehrwerte: nw});
+      if (r.id === recipeId) return Object.assign({}, r, {nährwerte: nw});
       return r;
     });
     localSave();
-    if (db && isOnline) db.from('recipes').update({naehrwerte: nw}).eq('id', recipeId);
+    if (db && isOnline) db.from('recipes').update({nährwerte: nw}).eq('id', recipeId);
 
     // Detail-Ansicht live aktualisieren
     if (currentRecipe && currentRecipe.id === recipeId) {
-      currentRecipe = Object.assign({}, currentRecipe, {naehrwerte: nw});
+      currentRecipe = Object.assign({}, currentRecipe, {nährwerte: nw});
       var nwSection = document.querySelector('.nw-section');
       if (nwSection) {
         var portions = currentRecipe.portions;
-        nwSection.outerHTML = renderNaehrwerte(nw, portions);
+        nwSection.outerHTML = renderNährwerte(nw, portions);
       }
     }
   } catch(e) { console.log('Nährwerte:', e); }
@@ -2159,14 +2159,14 @@ async function runWarenkunde() {
   results.innerHTML = '<div class="pairing-loading">Analyse läuft...<div class="pairing-spin"></div></div>';
 
   var prompt = 'Profi-Koch Warenkunde. Erstelle ein umfassendes Produktprofil fuer: ' + query + '. NUR JSON, keine Backticks: {'
-    + '"geschmack":"Geschmacksprofil 2-3 Saetze",'
-    + '"aroma":"Aromacharakter 1-2 Saetze",'
-    + '"saison":"Saison/Verfuegbarkeit",'
-    + '"herkunft":"Herkunft/Anbaugebiete 1-2 Saetze",'
-    + '"kueche":"Kulinarische Verwendung 2-3 Saetze",'
-    + '"lagerung":"Lagerung und Haltbarkeit 1-2 Saetze",'
-    + '"naehrwerte":{"kalorien":"X kcal/100g","protein":"Xg","kohlenhydrate":"Xg","fett":"Xg","besonderheiten":"wichtigste Mikronährstoffe 1 Satz"},'
-    + '"pro_tipp":"Profi-Tipp aus Kuechen-Sicht 2 Saetze"}';
+    + '"geschmack":"Geschmacksprofil 2-3 Sätze",'
+    + '"aroma":"Aromacharakter 1-2 Sätze",'
+    + '"saison":"Saison/Verfügbarkeit",'
+    + '"herkunft":"Herkunft/Anbaugebiete 1-2 Sätze",'
+    + '"küche":"Kulinarische Verwendung 2-3 Sätze",'
+    + '"lagerung":"Lagerung und Haltbarkeit 1-2 Sätze",'
+    + '"nährwerte":{"kalorien":"X kcal/100g","protein":"Xg","kohlenhydrate":"Xg","fett":"Xg","besonderheiten":"wichtigste Mikronährstoffe 1 Satz"},'
+    + '"pro_tipp":"Profi-Tipp aus Küchen-Sicht 2 Sätze"}';
 
   try {
     var d = await callClaude({
@@ -2192,8 +2192,8 @@ async function runWarenkunde() {
     }
 
     // Nährwerte
-    if (r.naehrwerte) {
-      var n = r.naehrwerte;
+    if (r.nährwerte) {
+      var n = r.nährwerte;
       html += '<div class="wk-card"><div class="wk-card-title">Nährwerte pro 100g</div><div class="wk-nwert">'
         + '<div class="wk-nwert-item"><div class="wk-nwert-val">' + (n.kalorien||'—') + '</div><div class="wk-nwert-label">Kalorien</div></div>'
         + '<div class="wk-nwert-item"><div class="wk-nwert-val">' + (n.protein||'—') + '</div><div class="wk-nwert-label">Protein</div></div>'
@@ -2204,7 +2204,7 @@ async function runWarenkunde() {
     }
 
     // Verwendung & Lagerung
-    if (r.kueche) html += '<div class="wk-card"><div class="wk-card-title">Kulinarische Verwendung</div><div class="wk-card-text">' + r.kueche + '</div></div>';
+    if (r.küche) html += '<div class="wk-card"><div class="wk-card-title">Kulinarische Verwendung</div><div class="wk-card-text">' + r.küche + '</div></div>';
     if (r.lagerung) html += '<div class="wk-card"><div class="wk-card-title">Lagerung</div><div class="wk-card-text">' + r.lagerung + '</div></div>';
 
     // Profi-Tipp
@@ -2244,7 +2244,7 @@ function pmBuildMindmap(query, r) {
   var all = [];
   (r.klassisch || []).forEach(function(n){ all.push({name: typeof n === 'string' ? n : n.name, desc: typeof n === 'object' ? n.desc : '', cat: 'Klassisch'}); });
   (r.modern || []).forEach(function(n){ all.push({name: typeof n === 'string' ? n : n.name, desc: typeof n === 'object' ? n.desc : '', cat: 'Modern'}); });
-  var ue = r.ueberraschend || r['überraschend'] || [];
+  var ue = r.überraschend || r['überraschend'] || [];
   ue.forEach(function(n){ all.push({name: typeof n === 'string' ? n : n.name, desc: typeof n === 'object' ? n.desc : '', cat: 'Mutig'}); });
 
   // Organische kollisionsfreie Anordnung
@@ -2420,7 +2420,7 @@ function pmFillRecipe(r) {
       document.getElementById('pm-profil-aroma').textContent = r.profil.aroma || '';
       document.getElementById('pm-profil-geschmack').textContent = r.profil.geschmack || '';
       document.getElementById('pm-profil-saison').textContent = r.profil.saison || '';
-      document.getElementById('pm-profil-kueche').textContent = r.profil.kueche || '';
+      document.getElementById('pm-profil-küche').textContent = r.profil.küche || '';
     }
   }
 }
@@ -2429,7 +2429,7 @@ function pmFillList(r) {
   var cats = [
     {name: 'Klassisch', items: r.klassisch || [], color: '#2A3D2A', dot: '#5C7F5D'},
     {name: 'Modern & Kreativ', items: r.modern || [], color: '#3D2A0E', dot: '#EF9F27'},
-    {name: 'Überraschend & Mutig', items: r.ueberraschend || r['überraschend'] || [], color: '#3D1A1A', dot: '#F09595'},
+    {name: 'Überraschend & Mutig', items: r.überraschend || r['überraschend'] || [], color: '#3D1A1A', dot: '#F09595'},
   ];
   var listEl = document.getElementById('pm-list-view');
   var html = '';
@@ -3242,14 +3242,14 @@ const DEFAULT_CATS = [
   {id:'c3',name:'Suppen',emoji:'&#127836;',color:'#5C8A7A',sort_order:3},
   {id:'c4',name:'Fleisch',emoji:'&#129385;',color:'#8B4A3A',sort_order:4},
   {id:'c5',name:'Fisch',emoji:'&#128031;',color:'#3A6B8C',sort_order:5},
-  {id:'c6',name:'Gefluegel',emoji:'&#128020;',color:'#A0864A',sort_order:6},
-  {id:'c7',name:'Gemuese',emoji:'&#129382;',color:'#4A7A3D',sort_order:7},
+  {id:'c6',name:'Geflügel',emoji:'&#128020;',color:'#A0864A',sort_order:6},
+  {id:'c7',name:'Gemüse',emoji:'&#129382;',color:'#4A7A3D',sort_order:7},
   {id:'c8',name:'Vegetarisch',emoji:'&#127807;',color:'#5C7F5D',sort_order:8},
   {id:'c9',name:'Pasta & Risotto',emoji:'&#127837;',color:'#9E7A3A',sort_order:9},
   {id:'c10',name:'Backen & Patisserie',emoji:'&#127874;',color:'#7A5C3A',sort_order:10},
   {id:'c11',name:'Desserts',emoji:'&#127856;',color:'#8C4A6B',sort_order:11},
-  {id:'c12',name:'Fruehstueck',emoji:'&#129379;',color:'#C4954A',sort_order:12},
-  {id:'c13',name:'Getraenke & Cocktails',emoji:'&#127864;',color:'#4A6B8C',sort_order:13},
+  {id:'c12',name:'Frühstück',emoji:'&#129379;',color:'#C4954A',sort_order:12},
+  {id:'c13',name:'Getränke & Cocktails',emoji:'&#127864;',color:'#4A6B8C',sort_order:13},
   {id:'c14',name:'Saucen & Fonds',emoji:'&#129474;',color:'#6B7A3A',sort_order:14},
   {id:'c15',name:'Salate',emoji:'&#127825;',color:'#3D7A5A',sort_order:15},
   {id:'c16',name:'Hauptgang',emoji:'&#127869;',color:'#3D5A3E',sort_order:16}
@@ -3464,7 +3464,7 @@ async function init() {
   if (isOnline && typeof supabase !== 'undefined' && supabase.createClient) {
     try {
       db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
-    } catch(e) { console.warn('Supabase nicht verfuegbar:', e); db = null; }
+    } catch(e) { console.warn('Supabase nicht verfügbar:', e); db = null; }
   }
 
   // aInit zuerst — setzt _aUser, dann erst Sync
@@ -3669,7 +3669,7 @@ function openDetail(r) {
       return '<div class="allergen-section" id="allergen-pending" style="opacity:.4"><span class="allergen-section-label">Allergene werden erkannt...</span></div>';
     }())
     + (function(){
-      if (r.naehrwerte) return renderNaehrwerte(r.naehrwerte, r.portions);
+      if (r.nährwerte) return renderNährwerte(r.nährwerte, r.portions);
       return '<div class="wk-card" style="margin:16px 0 8px" id="nw-pending"><div class="wk-card-title">Nährwerte</div><div class="nw-pending">Werden berechnet...</div></div>';
     }())
     + (r.instructions ? '<span class="section-label">Zubereitung</span><div class="instructions-text">' + r.instructions + '</div>' : '')
@@ -3692,8 +3692,8 @@ function openDetail(r) {
     if (ingNames.length) detectAllergensWithClaude(r.id, ingNames);
   }
   // Nährwerte berechnen falls noch nicht vorhanden
-  if (!r.naehrwerte && !r.readonly) {
-    calcNaehrwerteWithClaude(r.id, r.ingredients || [], r.portions);
+  if (!r.nährwerte && !r.readonly) {
+    calcNährwerteWithClaude(r.id, r.ingredients || [], r.portions);
   }
 }
 
@@ -3796,7 +3796,7 @@ async function saveRecipe() {
         color: payload.color || '',
         favorite: payload.favorite || false,
         allergens: payload.allergens || [],
-        naehrwerte: payload.naehrwerte || null,
+        nährwerte: payload.nährwerte || null,
         rating: payload.rating || 0,
           user_id: (_aUser && _aUser.id) ? _aUser.id : null
       };
@@ -3824,7 +3824,7 @@ async function saveRecipe() {
           photo: null,
           favorite: payload.favorite || false,
           allergens: payload.allergens || [],
-          naehrwerte: payload.naehrwerte || null,
+          nährwerte: payload.nährwerte || null,
           rating: payload.rating || 0,
           user_id: _aUser.id
         };
@@ -3859,7 +3859,7 @@ async function saveRecipe() {
   }
   // Allergene und Nährwerte asynchron von Claude berechnen
   detectAllergensWithClaude(savedId, ingData.map(function(i){ return i.name; }));
-  calcNaehrwerteWithClaude(savedId, payload.ingredients, payload.portions);
+  calcNährwerteWithClaude(savedId, payload.ingredients, payload.portions);
   renderGrid(); showScreen('home');
 }
 
@@ -3939,7 +3939,7 @@ async function handleScan(input) {
     const base64 = e.target.result.split(',')[1];
     const mediaType = file.type || 'image/jpeg';
     try {
-      const _scanPrompt = 'Lies dieses Rezept-Foto und extrahiere alle Informationen. Antworte NUR mit JSON ohne Markdown: {"title":"...","category":"...","emoji":"...","portions":"...","time":"...","ingredients":"Zutat 1\nZutat 2","instructions":"Schritt 1.\nSchritt 2.","notes":""}. Kategorien: Snacks, Vorspeisen, Suppen, Fleisch, Fisch, Gefluegel, Gemuese, Vegetarisch, Pasta & Risotto, Backen & Patisserie, Desserts, Fruehstueck, Getraenke & Cocktails, Saucen & Fonds, Hauptgang';
+      const _scanPrompt = 'Lies dieses Rezept-Foto und extrahiere alle Informationen. Antworte NUR mit JSON ohne Markdown: {"title":"...","category":"...","emoji":"...","portions":"...","time":"...","ingredients":"Zutat 1\nZutat 2","instructions":"Schritt 1.\nSchritt 2.","notes":""}. Kategorien: Snacks, Vorspeisen, Suppen, Fleisch, Fisch, Geflügel, Gemüse, Vegetarisch, Pasta & Risotto, Backen & Patisserie, Desserts, Frühstück, Getränke & Cocktails, Saucen & Fonds, Hauptgang';
       const d = await callClaude({model:'claude-haiku-4-5-20251001',max_tokens:1500,messages:[{role:'user',content:[{type:'image',source:{type:'base64',media_type:mediaType,data:base64}},{type:'text',text:_scanPrompt}]}]});
       if (!d.content || !d.content[0]) throw new Error('Keine Antwort vom Server');
       const raw = d.content[0].text.replace(/```json|```/g, '').trim();
@@ -4024,7 +4024,7 @@ function handleFileImport(input) {
 async function extractWithClaude(text, source) {
   const prompt = 'Extrahiere aus folgendem Rezept-Text diese Felder auf Deutsch und antworte NUR mit JSON:\n'
     + '{"title":"...","category":"...","emoji":"...","portions":"...","time":"...","ingredients":"Zutat 1\\nZutat 2\\n...","instructions":"Schritt 1.\\nSchritt 2.","notes":""}\n\n'
-    + 'Kategorie: Snacks, Vorspeisen, Suppen, Fleisch, Fisch, Gefluegel, Gemuese, Vegetarisch, Pasta & Risotto, Backen & Patisserie, Desserts, Fruehstueck, Getraenke & Cocktails, Saucen & Fonds, Salate, Hauptgang\n\nText:\n'
+    + 'Kategorie: Snacks, Vorspeisen, Suppen, Fleisch, Fisch, Geflügel, Gemüse, Vegetarisch, Pasta & Risotto, Backen & Patisserie, Desserts, Frühstück, Getränke & Cocktails, Saucen & Fonds, Salate, Hauptgang\n\nText:\n'
     + text;
   try {
     const d = await callClaude({model:'claude-haiku-4-5-20251001',max_tokens:1000,messages:[{role:'user',content:prompt}]});
@@ -5230,7 +5230,7 @@ var PROTEIN_DATA={
       {name:'Meeresbrachse',supplier:'',season:''},
     ]},
   ],
-  gefluegel:[
+  geflügel:[
     {group:'Huhn & Poularde',items:[
       {name:'Pouletbrust',supplier:'',season:''},
       {name:'Poulardenbrust',supplier:'',season:''},
@@ -5355,7 +5355,7 @@ function initProfiPages(){
   try { renderSeasonPage(); } catch(e){ console.warn('renderSeasonPage:', e); }
   try { renderProteinPage('fleisch'); } catch(e){ console.warn('renderProteinPage fleisch:', e); }
   try { renderProteinPage('fisch'); } catch(e){ console.warn('renderProteinPage fisch:', e); }
-  try { renderProteinPage('gefluegel'); } catch(e){ console.warn('renderProteinPage gefluegel:', e); }
+  try { renderProteinPage('geflügel'); } catch(e){ console.warn('renderProteinPage geflügel:', e); }
   try { renderProteinPage('meeresfruchte'); } catch(e){ console.warn('renderProteinPage meeresfruchte:', e); }
 }
 
@@ -6244,7 +6244,7 @@ function addSeasonDetailToShop() {
   var existing = shopItems.find(function(i){ return i.name.toLowerCase()===name.toLowerCase(); });
   if (existing) { showToast(name + ' bereits in Einkaufsliste',''); return; }
   var supplier = document.getElementById('season-detail-supplier').value.trim();
-  shopItems.push({id:Date.now(),name:name,amount:'',cat:'gemuese',
+  shopItems.push({id:Date.now(),name:name,amount:'',cat:'gemüse',
     sources:[supplier||'Saisonkalender'],done:false,merged:false});
   saveShopList();
   showToast(name + ' zur Einkaufsliste hinzugefügt','success');
@@ -6559,7 +6559,7 @@ function applyRoleUI() {
     <button class="pill active" onclick="setShopFilter('alle')" data-filter="alle">Alle</button>
     <button class="pill" onclick="setShopFilter('proteine')" data-filter="proteine">Proteine</button>
     <button class="pill" onclick="setShopFilter('milch')" data-filter="milch">Milchprodukte</button>
-    <button class="pill" onclick="setShopFilter('gemuese')" data-filter="gemuese">Gemüse & Kräuter</button>
+    <button class="pill" onclick="setShopFilter('gemüse')" data-filter="gemüse">Gemüse & Kräuter</button>
     <button class="pill" onclick="setShopFilter('kolonial')" data-filter="kolonial">Kolonialwaren</button>
     <button class="pill" onclick="setShopFilter('fisch')" data-filter="fisch">Fisch & Meeresfrüchte</button>
     <button class="pill" onclick="setShopFilter('sonstiges')" data-filter="sonstiges">Sonstiges</button>
@@ -6829,7 +6829,7 @@ function applyRoleUI() {
   <div class="cat-scroll" style="padding:8px 16px;border-bottom:1px solid var(--border)">
     <button class="pill active" onclick="katalogSetFilter('fleisch',this)">Fleisch</button>
     <button class="pill" onclick="katalogSetFilter('fisch',this)">Fisch</button>
-    <button class="pill" onclick="katalogSetFilter('gefluegel',this)">Geflügel</button>
+    <button class="pill" onclick="katalogSetFilter('geflügel',this)">Geflügel</button>
     <button class="pill" onclick="katalogSetFilter('meeresfruchte',this)">Meeresfrüchte</button>
     <button class="pill" onclick="katalogSetFilter('wild',this)">Wild</button>
     <button class="pill" onclick="katalogSetFilter('charcuterie',this)">Charcuterie</button>
@@ -6949,7 +6949,7 @@ function applyRoleUI() {
       </div>
       <div class="pairing-profil-item">
         <span class="pairing-profil-label">Küche</span>
-        <span class="pairing-profil-value" id="pm-profil-kueche"></span>
+        <span class="pairing-profil-value" id="pm-profil-küche"></span>
       </div>
     </div>
     <div class="cook-tabs" style="flex-shrink:0;margin-top:10px">
