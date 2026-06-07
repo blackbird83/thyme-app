@@ -3326,6 +3326,7 @@ async function syncToCloud() {
       }
       // Bestehende lokale IDs
       var localIds = recipes.map(function(r){ return String(r.id); });
+      console.log('Cloud hat:', rRes.data.length, 'Lokal:', localIds.length);
       // Neue Rezepte von Cloud die lokal fehlen hinzufügen
       var added = 0;
       rRes.data.forEach(function(cr) {
@@ -3333,9 +3334,11 @@ async function syncToCloud() {
           var photo = cr.photo || photoMap[String(cr.id)] || null;
           recipes.push(Object.assign({}, cr, {photo: photo}));
           added++;
+          console.log('Neu von Cloud:', cr.title);
         }
       });
-      if (added > 0) { localSave(); console.log('Von Cloud hinzugefügt:', added); }
+      console.log('Hinzugefügt:', added);
+      localSave();
     }
     var cRes = await db.from('categories').select('*').order('sort_order');
     if (cRes.data && cRes.data.length > 0) categories = cRes.data;
@@ -3400,8 +3403,12 @@ async function diagnosSync() {
       msg.push('Supabase mit user_id: ' + (r2.data ? r2.data.length : 0) + (r2.error ? ' ERR:' + r2.error.message : ''));
       if (r2.data && r2.data.length > 0) {
         msg.push('Erstes Rezept: ' + r2.data[0].title);
+        msg.push('Letztes Rezept: ' + r2.data[r2.data.length-1].title);
       }
     }
+    // Lokale IDs zeigen
+    var localOnlyIds = recipes.filter(function(r){ return !String(r.id).startsWith('local-'); }).length;
+    msg.push('Lokale echte IDs: ' + localOnlyIds);
   } catch(e) {
     msg.push('Exception: ' + e.message);
   }
