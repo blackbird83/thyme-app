@@ -761,7 +761,7 @@ html,body{overflow-y:auto;-webkit-overflow-scrolling:touch;height:auto}
 .a-lbl{font-size:16px;letter-spacing:2px;text-transform:uppercase;color:#B8973A;display:block;margin-bottom:5px}
 .a-inp{width:100%;background:var(--parchment);border:1px solid var(--border);border-radius:10px;padding:12px 14px;font-size:17px;color:var(--bark);font-family:'DM Sans',sans-serif;box-sizing:border-box}
 .a-btn{width:100%;max-width:360px;padding:13px;background:#3D5A3E;border:none;border-radius:12px;color:#F0E8D8;font-family:'DM Sans',sans-serif;font-size:17px;font-weight:500;cursor:pointer;margin-top:6px;margin-bottom:14px}
-.a-skip{text-align:center;font-size:17px;color:var(--smoke);cursor:pointer;text-decoration:underline}
+.a-skip{display:none}
 .a-err{width:100%;max-width:360px;border-radius:8px;padding:10px 14px;font-size:17px;margin-bottom:10px;display:none;background:#FBEAE8;border:1px solid #E8A09A;color:#8B2018}
 .a-ok{width:100%;max-width:360px;border-radius:8px;padding:10px 14px;font-size:17px;margin-bottom:10px;display:none;background:#EAF3DE;border:1px solid #9FC76A;color:#2D5A0E}
 
@@ -1060,7 +1060,6 @@ html,body{overflow-y:auto;-webkit-overflow-scrolling:touch;height:auto}
     <input type="password" id="a-pw" class="a-inp" placeholder="Mindestens 6 Zeichen" autocomplete="current-password">
   </div>
   <button class="a-btn" id="a-btn" onclick="aSubmit()">Anmelden</button>
-  <div class="a-skip" onclick="aSkip()">Ohne Account fortfahren</div>
 </div>
 
 
@@ -3447,6 +3446,7 @@ async function init() {
   showSplash();
   obShow();
   localLoad();
+  localStorage.removeItem('thyme_skip_auth'); // Login Pflicht
   loadShopList();
   setTimeout(updateShopIndicator, 200);
   renderCatScroll(); renderGrid(); renderCatList(); renderCatPicker('');
@@ -3779,10 +3779,23 @@ async function saveRecipe() {
     savedId = editId;
     recipes = recipes.map(r => r.id === editId ? Object.assign({}, r, payload) : r);
     localSave();
-    if (db && isOnline) {
-      var updatePayload = Object.assign({}, payload);
-      if (_aUser && _aUser.id) updatePayload.user_id = _aUser.id;
-      db.from('recipes').update(updatePayload).eq('id', editId).select();
+    if (db && isOnline && _aUser && _aUser.id) {
+      var updatePayload = {
+        title: payload.title,
+        category: payload.category,
+        ingredients: payload.ingredients,
+        instructions: payload.instructions,
+        notes: payload.notes || '',
+        portions: payload.portions || '',
+        color: payload.color || '',
+        favorite: payload.favorite || false,
+        allergens: payload.allergens || [],
+        naehrwerte: payload.naehrwerte || null,
+        rating: payload.rating || 0,
+          user_id: (_aUser && _aUser.id) ? _aUser.id : null
+      };
+      if (payload.photo && payload.photo.startsWith('http')) updatePayload.photo = payload.photo;
+      db.from('recipes').update(updatePayload).eq('id', editId);
     }
   } else {
     savedId = 'local-' + Date.now();
@@ -6276,7 +6289,7 @@ async function aSubmit() {
   }
   btn.disabled=false; btn.textContent=_aMode==='login'?'Anmelden':'Registrieren';
 }
-function aSkip() { localStorage.setItem('thyme_skip_auth','1'); aClose(); }
+function aSkip() { /* Login Pflicht — kein Gast-Modus */ }
 function aClose() { document.getElementById('screen-auth').classList.remove('visible'); }
 function aOpen() { document.getElementById('screen-auth').classList.add('visible'); }
 function aUpdateUI() {
@@ -6298,7 +6311,7 @@ function aUpdateUI() {
   }
 }
 async function aInit() {
-  if (localStorage.getItem('thyme_skip_auth')) return;
+  // Login ist Pflicht — kein Skip mehr möglich
   var c = _aSC(); if (!c) return;
   try {
     var res = await c.auth.getSession();
