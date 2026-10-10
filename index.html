@@ -868,9 +868,9 @@ html,body{overflow-y:auto;-webkit-overflow-scrolling:touch;height:auto}
   .cook-timer-digits { font-size: 52px !important; }
   .sub-title { font-size: 20px !important; }
   .mep-task-name { font-size: 18px !important; }
-  .form-input { font-size: 18px !important; }
-  .form-label { font-size: 13px !important; }
-  .btn-save, .btn-cancel { font-size: 16px !important; }
+  
+  
+  
   .wk-nwert-val { font-size: 28px !important; }
   .wk-card-text { font-size: 17px !important; }
   .gr-title { font-size: 26px !important; }
@@ -1113,6 +1113,71 @@ body.light-mode{--g-bg:#2F4A35;--g-text:#FFFFFF;--g-muted:rgba(255,255,255,.80);
 .action-sheet{z-index:901 !important;padding-bottom:calc(12px + env(safe-area-inset-bottom,0px))}
 
 .action-sheet-item.danger,body.light-mode .action-sheet-item.danger{color:var(--danger)}
+
+/* ══ REDESIGN 2026 — Profil, Formulare, Listen ══════════════════════════ */
+.sub-header{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:56px;padding:4px 12px !important;background:var(--cream) !important;border-bottom:1px solid var(--border)}
+.sub-title{font-family:'DM Sans',sans-serif !important;font-size:17px !important;font-weight:600 !important;color:var(--bark) !important;letter-spacing:0 !important}
+.back-btn{min-width:44px;height:44px;display:flex;align-items:center;justify-content:center;background:none;border:none;font-size:24px !important;color:var(--thyme) !important;cursor:pointer}
+#screen-shopping .back-btn{visibility:hidden}
+.v2-headbtn{min-height:40px;padding:0 14px;border-radius:20px;border:1px solid var(--border);background:var(--parchment);color:var(--thyme);font:600 15px 'DM Sans',sans-serif;display:inline-flex;align-items:center;gap:6px;cursor:pointer}
+.v2-set{margin-top:22px}
+.v2-set h2{margin:0 0 8px 4px;font:600 15px 'DM Sans',sans-serif;color:var(--smoke)}
+.v2-card{background:var(--parchment);border:1px solid var(--border);border-radius:18px;padding:14px;display:flex;flex-direction:column;gap:10px}
+.v2-card.v2-rows{padding:4px 14px;gap:0}
+.v2-rows>*+*{border-top:1px solid var(--border)}
+.v2-settext{margin:0;font-size:16px;line-height:1.45;color:var(--smoke)}
+.v2-infobox{font-size:16px;color:var(--thyme);background:var(--tint);border-radius:12px;padding:10px 12px}
+.v2-authbadge{font-size:17px;line-height:1.45;color:var(--bark)}
+.v2-btn,.v2-btn-outline{min-height:50px;width:100%;border-radius:14px;font:600 17px 'DM Sans',sans-serif;display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;box-sizing:border-box;text-align:center}
+.v2-btn{border:none;background:var(--fill);color:var(--on-fill)}
+.v2-btn-outline{border:1px solid var(--border);background:var(--cream);color:var(--bark)}
+.v2-linkrow{width:100%;min-height:52px;display:flex;align-items:center;justify-content:space-between;gap:12px;border:none;background:none;color:var(--bark);font:17px 'DM Sans',sans-serif;text-align:left;cursor:pointer;padding:0}
+.v2-linkrow svg{color:var(--smoke);flex-shrink:0}
+.v2-card.v2-rows .v2-switchrow{min-height:52px}
+.v2-dev{margin-top:26px}
+.v2-dev summary{cursor:pointer;min-height:44px;display:flex;align-items:center;font:600 15px 'DM Sans',sans-serif;color:var(--smoke);padding-left:4px}
+.v2-dev .v2-card{margin-top:6px}
+.pill,body.light-mode .pill{min-height:44px;padding:0 16px;border-radius:22px;border:1px solid var(--border);background:var(--parchment);color:var(--bark);font:500 16px 'DM Sans',sans-serif;letter-spacing:0}
+.pill.active,body.light-mode .pill.active{background:var(--fill);border-color:var(--fill);color:var(--on-fill);font-weight:600}
+.cat-scroll{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none}
+.cat-scroll::-webkit-scrollbar{display:none}
+.form-body{padding:16px 20px 120px;max-width:680px;margin:0 auto}
+.form-group{margin-bottom:20px}
+.form-label{font:600 16px 'DM Sans',sans-serif;color:var(--bark);margin-bottom:8px;letter-spacing:0}
+.v2-hint{margin:-2px 0 8px;font-size:15px;line-height:1.4;color:var(--smoke)}
+.form-input,body.light-mode .form-input{background:var(--parchment);border:1px solid var(--border);border-radius:14px;padding:13px 14px;font-size:17px;color:var(--bark);box-shadow:none}
+.form-input:focus{border-color:var(--thyme)}
+textarea.form-input{line-height:1.5}
+#screen-add .ing-row,#screen-scan .ing-row{display:grid;grid-template-columns:72px 92px minmax(0,1fr) 44px;gap:8px;align-items:center;margin-bottom:8px}
+.ing-input,body.light-mode .ing-input,.ing-select,body.light-mode .ing-select{background:var(--parchment);border:1px solid var(--border);border-radius:12px;min-height:48px;padding:0 10px;font-size:17px;color:var(--bark)}
+.ing-del{width:44px;height:44px;color:var(--smoke) !important;font-size:24px}
+.add-ing-btn{min-height:48px;border-radius:14px;border:1px dashed var(--border);color:var(--thyme);font:600 16px 'DM Sans',sans-serif;margin-top:4px}
+.allergen-pill{min-height:44px;padding:0 16px;border-radius:22px;border:1px solid var(--border);background:var(--parchment);color:var(--bark);font:500 16px 'DM Sans',sans-serif;letter-spacing:0}
+.allergen-pill.active{background:var(--surface2);border-color:var(--bark);color:var(--bark);font-weight:600}
+.form-actions{position:sticky;bottom:calc(64px + env(safe-area-inset-bottom,0px));display:flex;gap:10px;margin-top:24px;padding:10px 0;background:var(--cream)}
+.btn-save{flex:2;min-height:54px;border-radius:16px;background:var(--fill);color:var(--on-fill);font:600 18px 'DM Sans',sans-serif}
+.btn-cancel{flex:1;min-height:54px;border-radius:16px;border:1px solid var(--border) !important;background:var(--parchment);color:var(--bark);font:600 17px 'DM Sans',sans-serif}
+.empty-icon{font-size:0;margin:0 auto 16px;opacity:1;color:var(--thyme-mid);display:flex;justify-content:center}
+.empty-icon svg{width:44px;height:44px}
+.empty-title{font-family:'Cormorant Garamond',Georgia,serif;font-size:28px;font-weight:600}
+.empty-sub{font-size:17px;max-width:300px}
+.mep-s-tab{min-height:40px;padding:0 16px;border-radius:20px;font-size:15px;color:var(--bark)}
+.mep-s-tab.active{background:var(--fill);border-color:var(--fill);color:var(--on-fill);font-weight:600}
+.mep-session-card{background:var(--parchment);border-radius:16px;padding:14px 16px}
+.mep-session-badge{background:var(--surface2) !important;border:none !important;color:var(--bark) !important;border-radius:12px !important;font-size:14px !important}
+#mep-new-big{margin-top:4px}
+.mep-bb{min-height:50px;border-radius:14px}
+.mep-bb.p{background:var(--fill) !important;color:var(--on-fill) !important}
+.mep-bb.s{background:var(--parchment) !important;border:1px solid var(--border) !important;color:var(--bark) !important}
+.shop-empty{padding:60px 30px;text-align:center;font-size:17px;line-height:1.5;color:var(--smoke)}
+.shop-footer{bottom:calc(57px + env(safe-area-inset-bottom,0px));box-shadow:none}
+.shop-footer-btn{min-height:50px;border-radius:14px;font:600 16px 'DM Sans',sans-serif}
+
+#screen-add .ing-row,#screen-scan .ing-row{grid-template-columns:64px 74px minmax(0,1fr) 40px;gap:6px}
+#screen-add .ing-input.ing-amount{padding:0 8px;font-size:16px}
+#screen-add .ing-select{padding:0 6px;font-size:16px}
+.mep-posten-name{font:600 17px 'DM Sans',sans-serif !important;color:var(--bark) !important;text-transform:none !important;letter-spacing:0 !important}
+.mep-task-name{font-size:17px !important}
 </style>
 </head>
 <body>
@@ -1616,7 +1681,7 @@ body.light-mode{--g-bg:#2F4A35;--g-text:#FFFFFF;--g-muted:rgba(255,255,255,.80);
   <div class="form-body">
     <div class="form-group">
       <label class="form-label">Titel</label>
-      <input class="form-input" id="f-title" placeholder="Rezeptname...">
+      <input class="form-input" id="f-title" placeholder="z. B. Gazpacho">
     </div>
     <div class="form-group">
       <label class="form-label">Kategorie</label>
@@ -1635,7 +1700,7 @@ body.light-mode{--g-bg:#2F4A35;--g-text:#FFFFFF;--g-muted:rgba(255,255,255,.80);
     <div class="form-group">
       <label class="form-label">Zutaten</label>
       <div id="f-ingredients-list"></div>
-      <button class="add-ing-btn" onclick="addIngredientRow()">+ Zutat hinzufügen</button>
+      <button class="add-ing-btn" onclick="addIngredientRow()">Zutat hinzufügen</button>
       <input type="hidden" id="f-ingredients">
     </div>
     <div class="form-group">
@@ -1643,12 +1708,13 @@ body.light-mode{--g-bg:#2F4A35;--g-text:#FFFFFF;--g-muted:rgba(255,255,255,.80);
       <div class="cat-picker" id="allergen-picker" style="gap:8px"></div>
     </div>
     <div class="form-group">
-      <label class="form-label">Zubereitung</label>
-      <textarea class="form-input" id="f-instructions" rows="7" placeholder="Schritt für Schritt..."></textarea>
+      <label class="form-label" for="f-instructions">Zubereitung</label>
+      <p class="v2-hint">Jede Zeile wird ein nummerierter Schritt. Zeitangaben wie „20 Min“ erhalten automatisch einen Timer.</p>
+      <textarea class="form-input" id="f-instructions" rows="7" placeholder="Zutaten grob schneiden.&#10;Mixen und passieren.&#10;2 Stunden kalt stellen."></textarea>
     </div>
     <div class="form-group">
       <label class="form-label">Notizen</label>
-      <textarea class="form-input" id="f-notes" rows="3" placeholder="Tipps, Variationen..."></textarea>
+      <textarea class="form-input" id="f-notes" rows="3" placeholder="Tipps, Varianten, Anrichten"></textarea>
     </div>
     <div class="form-actions">
       <button class="btn-cancel" id="form-cancel-btn">Abbrechen</button>
@@ -1769,84 +1835,75 @@ body.light-mode{--g-bg:#2F4A35;--g-text:#FFFFFF;--g-muted:rgba(255,255,255,.80);
 
 <!-- EINSTELLUNGEN -->
 <div id="screen-settings" class="screen">
-  <div class="sub-header" style="position:relative;top:auto;padding:20px 20px">
-    <button class="back-btn" onclick="showScreen('home')" style="font-size:20px;color:var(--thyme)">&#8592;</button>
-    <span class="sub-title">Einstellungen</span>
-    <div style="width:80px"></div>
+  <div class="v2-page">
+    <h1 class="v2-pagetitle">Profil</h1>
+
+    <section class="v2-set">
+      <h2>Konto</h2>
+      <div class="v2-card">
+        <div id="auth-badge" class="v2-authbadge" style="display:none"></div>
+        <button id="auth-lbtn" class="v2-btn" onclick="aOpen()">Anmelden oder registrieren</button>
+        <button id="auth-obtn" class="v2-btn-outline" onclick="aLogout()" style="display:none">Abmelden</button>
+      </div>
+    </section>
+
+    <section class="v2-set">
+      <h2>Outlet</h2>
+      <div class="v2-card">
+        <p class="v2-settext">Teile Rezepte mit deinem Team oder tritt einem Outlet bei.</p>
+        <div id="outlet-settings-info" class="v2-infobox" style="display:none"></div>
+        <button class="v2-btn-outline" onclick="outletOpen()">Outlet erstellen oder beitreten</button>
+        <button id="outlet-leave-btn" class="v2-btn-outline" onclick="outletLeave()" style="display:none">Outlet verlassen</button>
+      </div>
+    </section>
+
+    <section class="v2-set">
+      <h2>Darstellung</h2>
+      <div class="v2-card v2-rows">
+        <label class="v2-switchrow"><span>Dunkelmodus</span><input type="checkbox" id="set-dark" onchange="v2SetDark(this.checked)"></label>
+        <label class="v2-switchrow"><span>Begrüssung beim Start anzeigen</span><input type="checkbox" id="set-greeting" onchange="setGreetingPref(this.checked)"></label>
+        <button id="theme-toggle-btn" hidden></button>
+      </div>
+    </section>
+
+    <section class="v2-set">
+      <h2>Daten</h2>
+      <div class="v2-card">
+        <p class="v2-settext">Rezepte werden auf dem Gerät gespeichert und bei Internetverbindung mit der Cloud abgeglichen.</p>
+        <button class="v2-btn-outline" onclick="syncNow()">Jetzt synchronisieren</button>
+        <button class="v2-btn-outline" onclick="exportBackup()">Backup exportieren</button>
+        <label class="v2-btn-outline" style="display:flex">
+          <input type="file" accept=".json" onchange="importBackup(this.files[0])" style="display:none">
+          Backup importieren
+        </label>
+      </div>
+    </section>
+
+    <section class="v2-set">
+      <h2>Saisonkalender</h2>
+      <div class="v2-card v2-rows">
+        <button class="v2-linkrow" onclick="showScreen('season-editor');seRebuildSeasonData();seFilter='all';seRenderList();"><span>Produkte und Saisonzeiten bearbeiten</span><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
+      </div>
+    </section>
+
+    <section class="v2-set">
+      <h2>Als App installieren</h2>
+      <div class="v2-card">
+        <p class="v2-settext">In Safari das Teilen-Symbol antippen und „Zum Home-Bildschirm“ wählen.</p>
+      </div>
+    </section>
+
+    <details class="v2-dev">
+      <summary>Erweitert</summary>
+      <div class="v2-card">
+        <p class="v2-settext">Werkzeuge zur Fehlersuche.</p>
+        <div id="claude-key-status" class="v2-settext">Proxy aktiv</div>
+        <button class="v2-btn-outline" onclick="diagnosSync()">Sync-Diagnose</button>
+        <button class="v2-btn-outline" onclick="debugPhotoStorage()">Foto-Speicher prüfen</button>
+      </div>
+    </details>
   </div>
-  <div class="form-body">
-    <div class="settings-section">
-      <h3>Startseite</h3>
-      <label class="v2-switchrow"><span>Begrüssung beim Start anzeigen</span><input type="checkbox" id="set-greeting" onchange="setGreetingPref(this.checked)"></label>
-    </div>
-    <div class="settings-section">
-          <h3>&#128247; Debug Foto-Speicher</h3>
-          <button onclick="debugPhotoStorage()" style="width:100%;padding:12px;background:transparent;border:1px solid var(--border);border-radius:10px;color:var(--gold);font-family:'DM Sans',sans-serif;font-size:16px;cursor:pointer;margin-top:8px">
-            Foto-Speicher anzeigen
-          </button>
-        </div>
-    <div class="settings-section">
-      <h3>&#128272; Claude API (Proxy)</h3>
-      <p style="font-size:16px;color:#888;margin-bottom:10px">Scan und Import laufen über einen sicheren Proxy-Server. Kein API Key nötig.</p>
-      <div id="claude-key-status" class="key-status ok" style="margin-top:4px">&#10003; Proxy aktiv</div>
-    </div>
-    <div class="settings-section">
-      <h3>&#128100; Account</h3>
-      <div id="auth-badge" style="font-size:16px;color:var(--thyme);padding:6px 0 10px;display:none;line-height:1.5"></div>
-      <button id="auth-lbtn" onclick="aOpen()" style="width:100%;padding:12px;background:transparent;border:1px solid var(--thyme);border-radius:10px;color:var(--thyme);font-family:'DM Sans',sans-serif;font-size:16px;cursor:pointer;margin-bottom:8px">
-        &#128100; Anmelden / Registrieren
-      </button>
-      <button id="auth-obtn" onclick="aLogout()" style="width:100%;padding:12px;background:transparent;border:1px solid var(--border);border-radius:10px;color:var(--smoke);font-family:'DM Sans',sans-serif;font-size:16px;cursor:pointer;display:none">
-        Abmelden
-      </button>
-    </div>
-    <div class="settings-section">
-      <h3>&#127869; Outlet</h3>
-      <p style="font-size:17px;color:var(--smoke);margin-bottom:10px">Teile dein Rezeptarchiv mit deinem Team oder tritt einem Outlet bei.</p>
-      <div id="outlet-settings-info" style="display:none;font-size:17px;color:var(--thyme);padding:8px 12px;background:var(--parchment);border-radius:8px;margin-bottom:10px"></div>
-      <button onclick="outletOpen()" style="width:100%;padding:11px;background:transparent;border:1px solid var(--thyme);border-radius:10px;color:var(--thyme);font-family:'DM Sans',sans-serif;font-size:17px;cursor:pointer;margin-bottom:8px">
-        &#127869; Outlet erstellen / beitreten
-      </button>
-      <button id="outlet-leave-btn" onclick="outletLeave()" style="width:100%;padding:11px;background:transparent;border:1px solid var(--border);border-radius:10px;color:var(--smoke);font-family:'DM Sans',sans-serif;font-size:17px;cursor:pointer;display:none">
-        Outlet verlassen
-      </button>
-    </div>
-    <div class="settings-section">
-      <h3>&#128190; BACKUP</h3>
-      <p style="font-size:14px;color:var(--smoke);margin-bottom:12px;line-height:1.5">Alle Rezepte als JSON-Datei exportieren oder aus einem Backup wiederherstellen. Fotos werden eingebettet.</p>
-      <button onclick="exportBackup()" style="width:100%;padding:13px;background:var(--fill);border:none;border-radius:10px;color:#fff;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;margin-bottom:8px">
-        &#11015; Backup exportieren
-      </button>
-      <label style="width:100%;display:block">
-        <input type="file" accept=".json" onchange="importBackup(this.files[0])" style="display:none">
-        <span style="display:block;width:100%;padding:13px;background:transparent;border:1px solid var(--border);border-radius:10px;color:var(--smoke);font-family:'DM Sans',sans-serif;font-size:14px;cursor:pointer;text-align:center;box-sizing:border-box">
-          &#11014; Backup importieren
-        </span>
-      </label>
-    </div>
-    <div class="settings-section">
-      <h3>&#128260; Synchronisation</h3>
-      <p style="font-size:16px;color:#888;margin-bottom:10px">Daten werden lokal gespeichert und bei Internetverbindung mit der Cloud synchronisiert.</p>
-      <button class="btn-import" onclick="syncNow()">&#8635; Jetzt synchronisieren</button>
-      <button class="btn-import" onclick="diagnosSync()" style="background:transparent;border:1px solid var(--border);color:var(--gold);margin-top:8px">&#128269; Sync Diagnose</button>
-    </div>
-    <div class="settings-section">
-      <h3>&#127763; Darstellung</h3>
-      <button id="theme-toggle-btn" onclick="toggleTheme()" style="width:100%;background:transparent;border:1px solid var(--border);border-radius:10px;padding:12px;font-size:16px;color:var(--bark);cursor:pointer;font-family:'DM Sans',sans-serif;letter-spacing:0.2px;text-align:left">☀️ &nbsp;Hellmodus aktivieren</button>
-    </div>
-    
-        <div class="settings-section" style="margin-top:16px">
-          <h3>&#127807; Saisonkalender verwalten</h3>
-          <p style="font-size:16px;color:var(--smoke);margin:6px 0 12px">Produkte hinzufügen, bearbeiten und Saisonzeiten anpassen.</p>
-          <button onclick="showScreen('season-editor');seRebuildSeasonData();seFilter='all';seRenderList();" style="width:100%;padding:12px;background:transparent;border:1px solid var(--thyme);border-radius:10px;color:var(--thyme);font-family:'DM Sans',sans-serif;font-size:16px;letter-spacing:0.2px;cursor:pointer">
-            Saisonkalender öffnen &#8250;
-          </button>
-        </div>
-<div class="settings-section">
-      <h3>&#128241; Als App installieren (iPhone/iPad)</h3>
-      <p style="font-size:16px;color:#888">In Safari: Teilen-Button &#128085; antippen dann "Zum Home-Bildschirm" auswählen.</p>
-    </div>
-  </div>
+</div>
 </div>
 
 </div>
@@ -1954,7 +2011,7 @@ function renderShopList() {
   var body = document.getElementById('shop-body');
   if (!body) return;
   var filtered = shopFilter === 'alle' ? shopItems : shopItems.filter(function(i) { return i.cat === shopFilter; });
-  if (!filtered.length) { body.innerHTML = '<div class="shop-empty">Keine Artikel' + (shopFilter !== 'alle' ? ' in dieser Kategorie' : ' — Rezepte hinzufügen um zu starten') + '</div>'; return; }
+  if (!filtered.length) { body.innerHTML = '<div class="shop-empty">' + (shopFilter !== 'alle' ? 'Keine Artikel in dieser Kategorie.' : 'Die Einkaufsliste ist leer. Füge Zutaten über „Zur Einkaufsliste“ in einem Rezept hinzu.') + '</div>'; return; }
   var groups = {};
   filtered.forEach(function(item) { if (!groups[item.cat]) groups[item.cat] = []; groups[item.cat].push(item); });
   var catOrder = ['proteine','fisch','milch','gemüse','kolonial','sonstiges'];
@@ -2623,7 +2680,7 @@ function onSearchScreenInput() {
   if (clearBtn) clearBtn.style.display = q ? 'block' : 'none';
   var results = document.getElementById('search-screen-results');
   if (!q) {
-    results.innerHTML = '<div class="empty-state"><div class="empty-icon">🔍</div><div class="empty-title">Rezept suchen</div><div class="empty-sub">Gib einen Rezeptnamen oder eine Zutat ein</div></div>';
+    results.innerHTML = '<div class="empty-state"><div class="empty-icon">' + v2Svg('<circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/>', 44, 1.5) + '</div><div class="empty-title">Rezept suchen</div><div class="empty-sub">Gib einen Rezeptnamen oder eine Zutat ein</div></div>';
     return;
   }
   var matches = recipes.filter(function(r) {
@@ -2634,7 +2691,7 @@ function onSearchScreenInput() {
     return r.title && r.title.toLowerCase().indexOf(q) >= 0;
   });
   if (!matches.length && !archiveMatches.length) {
-    results.innerHTML = '<div class="empty-state"><div class="empty-icon">🌿</div><div class="empty-title">Kein Ergebnis</div><div class="empty-sub">Versuche einen anderen Suchbegriff</div></div>';
+    results.innerHTML = '<div class="empty-state"><div class="empty-icon">' + v2Svg('<circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/>', 44, 1.5) + '</div><div class="empty-title">Kein Ergebnis</div><div class="empty-sub">Versuche einen anderen Suchbegriff</div></div>';
     return;
   }
   var html = '';
@@ -2643,7 +2700,7 @@ function onSearchScreenInput() {
   matches.forEach(function(r) {
     var card = document.createElement('div');
     card.className = 'card';
-    card.innerHTML = '<div class="card-thumb-placeholder" style="border-left-color:' + (r.color || '#3D5A3E') + '"></div>'
+    card.innerHTML = ((r.photo && r.photo !== '__local__') ? '<img class="v2-thumb" src="' + r.photo + '" alt="">' : '<div class="v2-thumb v2-thumb-empty">' + v2_leaf() + '</div>')
       + '<div class="card-body"><div class="card-title">' + r.title + '</div>'
       + '<span class="badge">' + (r.category || '') + '</span></div>'
       + '<span class="card-arrow">&#8250;</span>';
@@ -2658,7 +2715,7 @@ function onSearchScreenInput() {
     archiveMatches.forEach(function(r) {
       var card = document.createElement('div');
       card.className = 'card';
-      card.innerHTML = '<div class="card-thumb-placeholder" style="border-left-color:var(--border)"></div>'
+      card.innerHTML = '<div class="v2-thumb v2-thumb-empty">' + v2_book() + '</div>'
         + '<div class="card-body"><div class="card-title">' + r.title + '</div>'
         + '<span class="badge">' + (r.subcategory || '') + '</span></div>'
         + '<span class="card-arrow">&#8250;</span>';
@@ -2760,7 +2817,7 @@ function openMeP() {
 function mepRenderOverview() {
   var list = document.getElementById('mep-sessions-list');
   if (!mepSessions.length) {
-    list.innerHTML = '<div class="empty-state"><div class="empty-icon">📋</div><div class="empty-title">Kein Service</div><div class="empty-sub">Erstelle deinen ersten Mise en Place Service</div></div>';
+    list.innerHTML = '<div class="empty-state"><div class="empty-icon">' + v2Svg('<rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4h6v3H9z"/><path d="M9 13.5l2 2 4-4"/>', 44, 1.5) + '</div><div class="empty-title">Noch kein Service geplant</div><div class="empty-sub">Lege einen Service an und plane Posten und Aufgaben für dein Team.</div></div>';
     return;
   }
   var days = ['So','Mo','Di','Mi','Do','Fr','Sa'];
@@ -2853,7 +2910,7 @@ function mepRenderBody(s) {
     }).join('');
     return '<div class="mep-posten">'
       + '<div class="mep-posten-hdr">'
-      + '<input class="mep-posten-name" value="' + (p.name||'') + '" placeholder="POSTEN" onblur="mepPostenName(' + pi + ',this.value)">'
+      + '<input class="mep-posten-name" value="' + (p.name||'') + '" placeholder="Postenname" onblur="mepPostenName(' + pi + ',this.value)">'
       + '<div class="mep-posten-line"></div>'
       + '<button class="mep-posten-del" onclick="mepDelPosten(' + pi + ')">✕</button>'
       + '</div>'
@@ -3984,8 +4041,8 @@ function renderGrid() {
   if (showCover) { el.innerHTML = ''; return; }
   if (!filtered.length) {
     var emptyMsg = showingFavs
-      ? '<div class="empty-state" style="padding-top:80px"><div class="empty-icon">★</div><div class="empty-title">Noch keine Favoriten</div><div class="empty-sub">Tippe ★ bei einem Rezept um es hier zu speichern</div></div>'
-      : '<div class="empty-state" style="padding-top:80px"><div class="empty-icon">🌿</div><div class="empty-title">Noch keine Rezepte</div><div class="empty-sub">Tippe + um dein erstes Rezept zu erstellen</div></div>';
+      ? '<div class="empty-state" style="padding-top:80px"><div class="empty-icon">' + v2_star() + '</div><div class="empty-title">Noch keine Favoriten</div><div class="empty-sub">Tippe in einem Rezept auf den Stern, um es hier zu sammeln.</div></div>'
+      : '<div class="empty-state" style="padding-top:80px"><div class="empty-icon">' + v2Svg('<path d="M12 21V7"/><path d="M12 12c-3 0-5-2-5-5 3 0 5 2 5 5z"/><path d="M12 9c3 0 5-2 5-5-3 0-5 2-5 5z"/><path d="M12 16.5c3 0 5-2 5-4.5-3 0-5 2-5 4.5z"/>', 44, 1.5) + '</div><div class="empty-title">Noch keine Rezepte</div><div class="empty-sub">Tippe oben auf + und lege dein erstes Rezept an.</div></div>';
     el.innerHTML = emptyMsg;
     return;
   }
@@ -4561,7 +4618,7 @@ function renderAllergenPicker(selectedIds) {
   picker.innerHTML = ALLERGENS.map(function(a) {
     var active = selectedIds.indexOf(a.id) >= 0 ? ' active' : '';
     return '<button type="button" class="allergen-pill' + active + '" data-id="' + a.id + '" onclick="toggleAllergenPill(this,\'' + a.id + '\')">'
-      + a.id + ' · ' + a.name + '</button>';
+      + a.name + '</button>';
   }).join('');
 }
 
@@ -4684,7 +4741,7 @@ function addIngredientRow(amount, unit, name) {
   row.innerHTML = '<input class="ing-input ing-amount" type="text" placeholder="Menge" value="' + (amount || '') + '" style="text-align:right">'
     + makeUnitsSelectWithClass(unit || '')
     + '<input class="ing-input ing-name" type="text" placeholder="Zutat" value="' + (name || '') + '">'
-    + '<button class="ing-del" onclick="this.parentNode.remove()">&#215;</button>';
+    + '<button class="ing-del" aria-label="Zutat entfernen" onclick="this.parentNode.remove()">&#215;</button>';
   list.appendChild(row);
 
 }
@@ -6051,7 +6108,7 @@ function renderArchive(filter) {
   list.forEach(function(r) {
     var card = document.createElement('div');
     card.className = 'card';
-    card.innerHTML = '<div class="card-thumb-placeholder" style="border-left-color:var(--border)"></div>'
+    card.innerHTML = '<div class="v2-thumb v2-thumb-empty">' + v2_book() + '</div>'
       + '<div class="card-body">'
       + '<div class="card-title">' + r.title + '</div>'
       + '<span class="badge">' + (r.subcategory || '') + '</span>'
@@ -6687,7 +6744,7 @@ function aUpdateUI() {
   if (!badge) return;
   if (_aUser) {
     var name = (_aUser.user_metadata && _aUser.user_metadata.name) || _aUser.email || '';
-    badge.innerHTML = '&#128100; <strong>' + name + '</strong><br>'
+    badge.innerHTML = '<strong>' + name + '</strong><br>'
       + '<span style="font-size:17px;color:var(--smoke)">' + _aUser.email + '</span>';
     badge.style.display = 'block';
     if (lbtn) lbtn.style.display = 'none';
@@ -7021,7 +7078,9 @@ function bnSync() {
   });
 }
 function v2CloseOverlays() {
-  ['closeArchiveSheet','closeCatSheet','closeActionSheet','closeAddSheet','closeFabMenu','closeNavInfo','closeSeasonDetail','closeKatalogDetail','closeAllergenPopup','v2ClosePhotoSheet'].forEach(function(fn) {
+  var addS = document.getElementById('add-sheet');
+  if (addS && addS.classList.contains('open')) { try { closeAddSheet(); } catch(e) {} }
+  ['closeArchiveSheet','closeCatSheet','closeActionSheet','closeFabMenu','closeNavInfo','closeSeasonDetail','closeKatalogDetail','closeAllergenPopup','v2ClosePhotoSheet'].forEach(function(fn) {
     try { if (typeof window[fn] === 'function') window[fn](); } catch(e) {}
   });
 }
@@ -7043,7 +7102,7 @@ showScreen = function(name) {
   if (name === 'home') { showAllList = false; showingFavs = false; var si = document.getElementById('search-input'); if (si) si.value = ''; }
   _v2BaseShowScreen(name);
   try { v2SyncCookbar(name); } catch(e) {}
-  if (name === 'settings') { var cb = document.getElementById('set-greeting'); if (cb) { try { cb.checked = localStorage.getItem('thyme_greeting_off') !== '1'; } catch(e) {} } }
+  if (name === 'settings') { try { v2SyncSettings(); } catch(e) {} var cb = document.getElementById('set-greeting'); if (cb) { try { cb.checked = localStorage.getItem('thyme_greeting_off') !== '1'; } catch(e) {} } }
   bnSync();
 };
 
@@ -7115,6 +7174,27 @@ function v2PickPhoto(capture) {
   };
   input.click();
 }
+
+// ─── REDESIGN 2026: Profil, Mise en Place ───────────────────────────────────
+function v2SetDark(on) {
+  var isLight = document.body.classList.contains('light-mode');
+  if (on === isLight) toggleTheme();          // dunkel an ⇔ Hellmodus aus
+}
+function v2SyncSettings() {
+  var d = document.getElementById('set-dark'); if (d) d.checked = !document.body.classList.contains('light-mode');
+}
+function v2MepHeader() {
+  var detail = document.getElementById('mep-detail');
+  var inDetail = detail && detail.style.display !== 'none';
+  var hasSessions = (typeof mepSessions !== 'undefined') && mepSessions.length > 0;
+  var back = document.getElementById('mep-back'); if (back) back.style.visibility = inDetail ? 'visible' : 'hidden';
+  var head = document.getElementById('mep-new-head'); if (head) head.style.visibility = (!inDetail && hasSessions) ? 'visible' : 'hidden';
+  var big = document.getElementById('mep-new-big'); if (big) big.style.display = hasSessions ? 'none' : '';
+}
+(function() {
+  var o1 = mepRenderOverview; mepRenderOverview = function() { o1.apply(this, arguments); v2MepHeader(); };
+  var o2 = mepOpenSession; mepOpenSession = function() { o2.apply(this, arguments); v2MepHeader(); };
+})();
 
 </script>
 
@@ -7641,16 +7721,16 @@ function v2PickPhoto(capture) {
 <!-- ── MISE EN PLACE SCREEN ─────────────────────────────────────────────── -->
 <div id="screen-mep" class="screen">
   <div class="sub-header" style="position:relative;top:auto;padding:18px 16px">
-    <button class="back-btn" onclick="showScreen('navigation')" style="font-size:18px;color:var(--thyme)">&#8592;</button>
+    <button class="back-btn" id="mep-back" onclick="openMeP()" aria-label="Zurück zur Übersicht">&#8592;</button>
     <span class="sub-title">Mise en Place</span>
-    <button onclick="mepNewSession()" style="background:#2A1F3D;border:1px solid #6B5B95;border-radius:99px;padding:5px 12px;font-size:17px;color:#C4B8E0;cursor:pointer;font-family:'DM Sans',sans-serif">+ Neu</button>
+    <button class="v2-headbtn" id="mep-new-head" onclick="mepNewSession()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Neu</button>
   </div>
 
   <!-- Übersicht oder Detail -->
   <div id="mep-overview" style="padding-bottom:80px">
     <div class="mep-sessions-list" id="mep-sessions-list"></div>
     <div style="padding:0 14px">
-      <button class="mep-add-posten" onclick="mepNewSession()" style="margin-top:0">+ Service erstellen</button>
+      <button class="v2-btn" id="mep-new-big" onclick="mepNewSession()">Service anlegen</button>
     </div>
   </div>
 
@@ -7664,7 +7744,7 @@ function v2PickPhoto(capture) {
     </div>
     <!-- Datum + Pax global -->
     <div class="mep-meta-bar">
-      <span style="font-size:17px;color:var(--smoke)">📅</span>
+      <span style="font-size:16px;color:var(--smoke)">Datum</span>
       <input class="mep-meta-input" id="mep-date-input" type="date" onchange="mepSave()" style="width:130px">
       <span style="font-size:17px;color:var(--smoke);margin-left:auto">Pax</span>
       <input class="mep-meta-input" id="mep-pax-input" type="number" value="10" min="1" max="999" onchange="mepSave()" style="width:52px">
@@ -7673,8 +7753,8 @@ function v2PickPhoto(capture) {
     <div class="mep-body" id="mep-body"></div>
     <!-- Bottom Buttons -->
     <div class="mep-bottom">
-      <button class="mep-bb s" onclick="mepToShopList()">🛒 Einkaufsliste</button>
-      <button class="mep-bb p" onclick="mepToCookMode()">▶ Koch-Modus</button>
+      <button class="mep-bb s" onclick="mepToShopList()">Einkaufsliste</button>
+      <button class="mep-bb p" onclick="mepToCookMode()">Kochmodus</button>
     </div>
   </div>
 </div>
@@ -7696,14 +7776,14 @@ function v2PickPhoto(capture) {
   <div class="action-sheet-panel">
     <div style="padding:16px 20px 8px;text-align:center;font-size:17px;text-transform:none;letter-spacing:0.2px;color:var(--smoke)">Rezept hinzufügen</div>
     <button class="action-sheet-item" onclick="closeAddSheet();openAdd()">
-      <span style="font-size:20px">✏️</span>
+      <span class="action-sheet-item-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M14 6l4 4"/></svg></span>
       <div>
         <div style="font-size:16px;color:var(--bark)">Manuell eingeben</div>
         <div style="font-size:16px;color:var(--smoke);margin-top:2px">Rezept selbst erfassen</div>
       </div>
     </button>
     <button class="action-sheet-item" onclick="closeAddSheet();showScreen('scan')">
-      <span style="font-size:20px">📷</span>
+      <span class="action-sheet-item-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8.5A1.5 1.5 0 0 1 5.5 7h2.2l1.6-2h5.4l1.6 2h2.2A1.5 1.5 0 0 1 20 8.5v9A1.5 1.5 0 0 1 18.5 19h-13A1.5 1.5 0 0 1 4 17.5z"/><circle cx="12" cy="13" r="3.5"/></svg></span>
       <div>
         <div style="font-size:16px;color:var(--bark)">Foto scannen</div>
         <div style="font-size:16px;color:var(--smoke);margin-top:2px">Rezept aus Foto oder Buch</div>
