@@ -1178,6 +1178,16 @@ textarea.form-input{line-height:1.5}
 #screen-add .ing-select{padding:0 6px;font-size:16px}
 .mep-posten-name{font:600 17px 'DM Sans',sans-serif !important;color:var(--bark) !important;text-transform:none !important;letter-spacing:0 !important}
 .mep-task-name{font-size:17px !important}
+
+/* Ebenen: Dialoge und Menüs liegen immer über unterer Leiste (500) und Kochmodus-Leiste (400) */
+#confirm-overlay{z-index:950 !important}
+#confirm-panel{padding-bottom:calc(24px + env(safe-area-inset-bottom,0px)) !important}
+#confirm-msg{font:600 18px 'DM Sans',sans-serif;color:var(--bark);text-align:center;margin-bottom:16px}
+#confirm-ok{min-height:52px;border-radius:14px !important;background:#A23B26 !important;color:#fff !important;font:600 17px 'DM Sans',sans-serif !important}
+#confirm-cancel{min-height:52px;border-radius:14px;border:1px solid var(--border);background:var(--parchment);color:var(--bark);font:600 17px 'DM Sans',sans-serif;cursor:pointer}
+.cat-sheet-overlay,.archive-sheet-overlay{z-index:900 !important}
+.cat-sheet,.archive-sheet{z-index:901 !important;padding-bottom:env(safe-area-inset-bottom,0px)}
+#toast{z-index:1000 !important}
 </style>
 </head>
 <body>
@@ -2132,8 +2142,9 @@ function closeConfirm() {
 }
 document.addEventListener('DOMContentLoaded', function() {
   document.getElementById('confirm-ok').addEventListener('click', function() {
+    var cb = _confirmCallback;   // merken, bevor closeConfirm() den Callback zurücksetzt
     closeConfirm();
-    if (_confirmCallback) _confirmCallback();
+    if (cb) cb();
   });
   document.getElementById('confirm-overlay').addEventListener('click', function(e) {
     if (e.target === this) closeConfirm();
@@ -3719,10 +3730,13 @@ async function cloudDeleteRecipe(id) {
     var p = getPendingDeletes(); if (p.indexOf(id) < 0) p.push(id); setPendingDeletes(p);
     return;
   }
-  var res = await db.from('recipes').delete().eq('id', id);
+  var res = await db.from('recipes').delete().eq('id', id).select('id');
   if (res.error) {
     var p2 = getPendingDeletes(); if (p2.indexOf(id) < 0) p2.push(id); setPendingDeletes(p2);
     syncErr('Löschen', res.error);
+  } else if (!res.data || !res.data.length) {
+    // Supabase meldet keinen Fehler, hat aber nichts gelöscht (z. B. fehlende Berechtigung)
+    syncErr('Löschen', { message: 'Rezept wurde in der Cloud nicht gelöscht (keine Berechtigung oder nicht gefunden)' });
   }
 }
 async function processPendingDeletes() {
