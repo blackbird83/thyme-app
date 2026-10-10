@@ -991,6 +991,81 @@ html,body{overflow-y:auto;-webkit-overflow-scrolling:touch;height:auto}
 .cook-start-icon svg{width:16px;height:16px;fill:#B8973A;margin-left:2px}
 
 
+
+/* ══ REDESIGN 2026 — Startseite, Listen, Navigation ═════════════════════ */
+:root{--g-bg:#22362A;--g-text:#ECE8DF;--g-muted:rgba(236,232,223,.78);--g-chip:rgba(236,232,223,.10);--g-hi:#9DBB9F;--g-hitext:#151714;--g-line:rgba(236,232,223,.14);--g-season:#D2B063}
+body.light-mode{--g-bg:#2F4A35;--g-text:#FFFFFF;--g-muted:rgba(255,255,255,.80);--g-chip:rgba(255,255,255,.14);--g-hi:#DCE6D8;--g-hitext:#22392A;--g-line:rgba(255,255,255,.18);--g-season:#E6CF8E}
+#book-cover,#book-cover-hint,#cat-open-btn,#rezeptverzeichnis-bar,#greeting-card,#recent-section,#cat-scroll{display:none !important}
+.v2-add{width:44px;height:44px;border-radius:22px;border:none;background:var(--fill);color:var(--on-fill);display:flex;align-items:center;justify-content:center;cursor:pointer}
+#home-index{padding:6px 20px 120px}
+.v2-greet{background:var(--g-bg);color:var(--g-text);border-radius:20px;padding:16px 18px 12px;margin-bottom:12px}
+.v2-gtop{display:flex;justify-content:space-between;align-items:center;min-height:28px}
+.v2-gmeta{display:flex;align-items:center;gap:10px;font-size:15px;color:var(--g-muted)}
+.v2-gseason{display:inline-flex;align-items:center;gap:6px;color:var(--g-season);font-weight:600;font-size:15px}
+.v2-gclose{width:44px;height:44px;margin:-10px -12px -10px 0;border:none;background:none;color:var(--g-muted);display:flex;align-items:center;justify-content:center;border-radius:22px;cursor:pointer}
+.v2-gtitle{margin:8px 0 4px;font-family:'Cormorant Garamond',Georgia,serif;font-size:30px;font-weight:600;line-height:1.15;color:var(--g-text)}
+.v2-gsub{margin:0 0 10px;font-size:16px;font-weight:500;color:var(--g-muted)}
+.v2-gchips{display:flex;flex-wrap:wrap;gap:8px}
+.v2-gchip{min-height:40px;padding:0 15px;border-radius:20px;border:none;background:var(--g-chip);color:var(--g-text);font:500 16px 'DM Sans',sans-serif;cursor:pointer}
+.v2-gchip.hi{background:var(--g-hi);color:var(--g-hitext);font-weight:600}
+.v2-glines{display:flex;flex-direction:column;gap:2px;margin-top:10px}
+.v2-gline{display:block;width:100%;min-height:30px;padding:3px 0;border:none;background:none;text-align:left;font:16px/1.35 'DM Sans',sans-serif;color:var(--g-text);cursor:pointer}
+.v2-glab{color:var(--g-season);font-weight:600}
+.v2-gfoot{display:flex;align-items:center;justify-content:space-between;margin-top:8px;padding-top:4px;border-top:1px solid var(--g-line);font-size:16px;color:var(--g-muted)}
+.v2-gbtn{min-height:44px;border:none;background:none;color:var(--g-text);font:600 16px 'DM Sans',sans-serif;display:flex;align-items:center;gap:4px;padding:0;cursor:pointer}
+.v2-gbar{display:none;align-items:center;gap:10px;width:100%;height:52px;padding:0 8px 0 16px;margin-bottom:12px;border:none;border-radius:16px;background:var(--g-bg);color:var(--g-text);font:16px 'DM Sans',sans-serif;text-align:left;cursor:pointer}
+.v2-gbartext{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.v2-gbardown{width:44px;height:44px;display:flex;align-items:center;justify-content:center;color:var(--g-muted)}
+#home-index.greet-collapsed .v2-greet{display:none}
+#home-index.greet-collapsed .v2-gbar{display:flex}
+.v2-search{width:100%;height:50px;border-radius:14px;border:1px solid var(--border);background:var(--parchment);display:flex;align-items:center;gap:10px;padding:0 14px;color:var(--smoke);font:17px 'DM Sans',sans-serif;cursor:pointer;text-align:left}
+.v2-sechead{display:flex;align-items:center;justify-content:space-between;margin:18px 0 8px}
+.v2-sechead h2{margin:0;font:600 18px 'DM Sans',sans-serif;color:var(--bark)}
+.v2-textbtn{min-height:44px;border:none;background:none;color:var(--thyme);font:600 15px 'DM Sans',sans-serif;cursor:pointer;padding:0 2px}
+.v2-ctiles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+@media (min-width:640px){.v2-ctiles{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.v2-ctile{min-height:56px;padding:10px 14px;border-radius:14px;background:var(--parchment);border:1px solid var(--border);display:flex;align-items:center;gap:10px;color:var(--bark);font:600 16px/1.25 'DM Sans',sans-serif;text-align:left;cursor:pointer}
+.v2-ctile:active{opacity:.75}
+.v2-ctile.feat{background:var(--tint);border-color:transparent}
+.v2-ctname{flex:1;min-width:0}
+.v2-ctcount{font-size:15px;font-weight:500;color:var(--smoke);font-variant-numeric:tabular-nums}
+.v2-cic{display:flex;color:var(--thyme-mid)}.v2-cic.fav{color:var(--gold)}
+#cat-active-bar{padding:4px 12px 0}
+.v2-back{min-height:44px;display:flex;align-items:center;gap:2px;padding:0 8px;border:none;background:none;color:var(--thyme);font:500 17px 'DM Sans',sans-serif;cursor:pointer}
+.v2-listhead{display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding:4px 8px 0}
+.v2-listhead h1{margin:0;font-family:'Cormorant Garamond',Georgia,serif;font-size:34px;font-weight:600;line-height:1.1;color:var(--bark)}
+#cat-active-count{font-size:15px;color:var(--smoke);white-space:nowrap}
+.v2-chips{display:flex;gap:8px;overflow-x:auto;padding:12px 8px 2px;scrollbar-width:none}
+.v2-chips::-webkit-scrollbar{display:none}
+.v2-chip{flex-shrink:0;min-height:44px;padding:0 18px;border-radius:22px;border:1px solid var(--border);background:var(--parchment);color:var(--bark);font:500 16px 'DM Sans',sans-serif;cursor:pointer;white-space:nowrap}
+.v2-chip.on{background:var(--fill);border-color:var(--fill);color:var(--on-fill)}
+.search-wrap,body.light-mode .search-wrap{margin:10px 20px 6px;height:50px;border:1px solid var(--border);border-radius:14px;background:var(--parchment);padding:0 14px}
+.search-wrap:focus-within{border-color:var(--thyme)}
+.search-input,body.light-mode .search-input{font-family:'DM Sans',sans-serif;font-size:17px;font-weight:400;padding:0;letter-spacing:0}
+.search-input::placeholder{font-size:17px;color:var(--smoke);opacity:1}
+.card,body.light-mode .card{background:transparent;padding:12px 20px;gap:14px;min-height:76px}
+.v2-thumb{width:52px;height:52px;border-radius:12px;flex-shrink:0;object-fit:cover;display:block}
+.v2-thumb-empty{background:var(--tint);color:var(--thyme-mid);display:flex;align-items:center;justify-content:center}
+#bottom-nav{background:var(--cream);box-shadow:none}
+#bottom-nav .bn-tab{color:var(--smoke);padding:8px 2px 8px;min-height:56px;gap:4px}
+#bottom-nav .bn-tab.active{color:var(--thyme)}
+#bottom-nav .bn-tab svg{stroke:currentColor;width:24px;height:24px}
+#bottom-nav .bn-tab span{font-size:11px;color:inherit;white-space:nowrap;letter-spacing:0}
+#bottom-nav .bn-tab.active span{font-weight:600}
+.bn-ico{position:relative;display:flex}
+.bn-ico .shop-indicator-dot{top:-2px;right:-4px}
+.v2-page{padding:24px 20px 120px}
+.v2-pagetitle{margin:0 0 16px;font-family:'Cormorant Garamond',Georgia,serif;font-size:36px;font-weight:600;line-height:1.1;color:var(--bark)}
+.v2-group{border-radius:18px;background:var(--parchment);border:1px solid var(--border);overflow:hidden}
+.v2-area{width:100%;display:flex;align-items:center;gap:14px;min-height:78px;padding:0 14px 0 16px;border:none;background:none;color:var(--bark);text-align:left;cursor:pointer}
+.v2-area+.v2-area{border-top:1px solid var(--border)}
+.v2-area>svg{color:var(--smoke);flex-shrink:0}
+.v2-areaicon{width:44px;height:44px;flex-shrink:0;border-radius:12px;background:var(--tint);color:var(--thyme-mid);display:flex;align-items:center;justify-content:center}
+.v2-areatext{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+.v2-areatitle{font:600 18px 'DM Sans',sans-serif}
+.v2-areasub{font:15px/1.35 'DM Sans',sans-serif;color:var(--smoke)}
+.v2-switchrow{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:44px;font-size:17px;color:var(--bark);cursor:pointer}
+.v2-switchrow input{width:24px;height:24px;accent-color:var(--fill);-webkit-appearance:auto;appearance:auto}
 </style>
 </head>
 <body>
@@ -1289,17 +1364,30 @@ html,body{overflow-y:auto;-webkit-overflow-scrolling:touch;height:auto}
       </svg>
     </div>
     <div class="header-right">
-      <div class="shop-indicator">
-        <button onclick="openShopList()" style="background:none;border:none;cursor:pointer;padding:4px 8px;display:flex;align-items:center;gap:4px;color:var(--bark)">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
-        </button>
-        <div class="shop-indicator-dot" id="shop-indicator-dot"></div>
-      </div>
+      <button class="v2-add" onclick="openAddSheet()" aria-label="Neues Rezept"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
       <div id="mode-badge" class="mode-badge online" style="display:none"><span class="mode-dot"></span><span id="mode-label">Online</span></div>
     </div>
   </div>
 <div id="guest-info-bar">&#128100; Gast-Modus — nur Lesen</div>
 <div id="screen-home" class="screen active">
+  <div id="home-index">
+    <section id="v2-greet" class="v2-greet" aria-label="Tagesgruss">
+      <div class="v2-gtop"><div class="v2-gmeta"><span class="v2-gseason"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 19c0-8 5-13 14-14-1 9-6 14-14 14z"/><path d="M5 19l7-7"/></svg><span id="v2-gseason-name"></span></span><span id="v2-gdate"></span></div>
+        <button class="v2-gclose" onclick="greetToggle()" aria-label="Begrüssung ausblenden"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+      <h2 class="v2-gtitle" id="v2-gtitle"></h2>
+      <p class="v2-gsub">Jetzt in Hochsaison</p>
+      <div class="v2-gchips" id="v2-gchips"></div>
+      <div class="v2-glines">
+        <button class="v2-gline" onclick="openSaisonStandalone()"><span class="v2-glab">Neu:</span> <span id="v2-gnew"></span></button>
+        <button class="v2-gline" onclick="openSaisonStandalone()"><span class="v2-glab">Endet bald:</span> <span id="v2-gend"></span></button>
+      </div>
+      <div class="v2-gfoot"><span id="v2-gpair-text"></span><button class="v2-gbtn" onclick="greetingPairing()">Analysieren<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button></div>
+    </section>
+    <button id="v2-gbar" class="v2-gbar" onclick="greetToggle()" aria-label="Begrüssung einblenden"><span class="v2-gseason"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 19c0-8 5-13 14-14-1 9-6 14-14 14z"/><path d="M5 19l7-7"/></svg><span id="v2-gbar-season"></span></span><span class="v2-gbartext" id="v2-gbar-text"></span><span class="v2-gbardown"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></span></button>
+    <button class="v2-search" onclick="openSearchScreen()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><span>Rezepte, Zutaten, Notizen</span></button>
+    <div class="v2-sechead"><h2>Kategorien</h2><button class="v2-textbtn" onclick="showScreen('cats')">Bearbeiten</button></div>
+    <div class="v2-ctiles" id="v2-ctiles"></div>
+  </div>
 
   <!-- Zeile 2: REZEPTVERZEICHNIS Titel -->
   <div id="rezeptverzeichnis-bar" style="padding:10px 20px 8px;border-bottom:1px solid var(--border);text-align:center">
@@ -1307,10 +1395,10 @@ html,body{overflow-y:auto;-webkit-overflow-scrolling:touch;height:auto}
   </div>
 
   <!-- Zeile 3: Pfeil | Kategorie | thyme (nur wenn Kategorie aktiv) -->
-  <div id="cat-active-bar" style="display:none;align-items:center;justify-content:space-between;padding:10px 20px;border-bottom:1px solid var(--border)">
-    <button onclick="openCatSheet()" style="background:none;border:none;cursor:pointer;font-size:20px;color:var(--thyme)">&#8592;</button>
-    <span id="cat-active-name" style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:500;color:var(--bark);letter-spacing:0.2px"></span>
-<div style="width:80px"></div>
+  <div id="cat-active-bar" style="display:none">
+    <button class="v2-back" onclick="homeIndex()"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>Rezepte</button>
+    <div class="v2-listhead"><h1 id="cat-active-name"></h1><span id="cat-active-count"></span></div>
+    <div class="v2-chips" id="v2-catchips"></div>
   </div>
 
   <!-- Suchleiste (versteckt — wird über Such-Screen aufgerufen) -->
@@ -1637,6 +1725,10 @@ html,body{overflow-y:auto;-webkit-overflow-scrolling:touch;height:auto}
     <div style="width:80px"></div>
   </div>
   <div class="form-body">
+    <div class="settings-section">
+      <h3>Startseite</h3>
+      <label class="v2-switchrow"><span>Begrüssung beim Start anzeigen</span><input type="checkbox" id="set-greeting" onchange="setGreetingPref(this.checked)"></label>
+    </div>
     <div class="settings-section">
           <h3>&#128247; Debug Foto-Speicher</h3>
           <button onclick="debugPhotoStorage()" style="width:100%;padding:12px;background:transparent;border:1px solid var(--border);border-radius:10px;color:var(--gold);font-family:'DM Sans',sans-serif;font-size:16px;cursor:pointer;margin-top:8px">
@@ -2962,7 +3054,7 @@ function closeNavInfo() {
 }
 
 // ── BOTTOM NAV ─────────────────────────────────────────────────────────────
-function bnGo(tab) {
+function _bnGoLegacy(tab) {
   // Alle Tabs deaktivieren
   ['home','search','favs','settings'].forEach(function(t) {
     var el = document.getElementById('bn-' + t);
@@ -3810,7 +3902,10 @@ function renderGrid() {
   const el = document.getElementById('recipe-grid');
   const cover = document.getElementById('book-cover');
   // Buchcover: sichtbar wenn keine Kategorie + keine Suche + keine Favoriten-Ansicht
-  const showCover = activeCat === 'all' && !search && !showingFavs;
+  const showCover = activeCat === 'all' && !search && !showingFavs && !showAllList;
+  var hi = document.getElementById('home-index'); if (hi) hi.style.display = showCover ? 'block' : 'none';
+  if (showCover) { try { renderHomeIndex(); } catch(e){ console.warn('Startseite:', e); } }
+  var sw = document.getElementById('search-wrap'); if (sw) sw.style.display = showCover ? 'none' : 'flex';
   if (cover) cover.style.display = showCover ? 'flex' : 'none';
   var rvBar = document.getElementById('rezeptverzeichnis-bar');
   if (rvBar) rvBar.style.display = showCover ? 'none' : 'block';
@@ -3818,15 +3913,19 @@ function renderGrid() {
   if (hint) hint.style.display = showCover ? 'flex' : 'none';
   var catBtn = document.getElementById('cat-open-btn');
   if (catBtn) catBtn.style.display = showCover ? 'block' : 'none';
-  if (showCover) { renderRecent(); try { initGreeting(); } catch(e){} } else { var rs = document.getElementById('recent-section'); if (rs) rs.style.display = 'none'; var gc2 = document.getElementById('greeting-card'); if(gc2) gc2.style.display = 'none'; }
+  if (showCover) { /* Startseite v2 übernimmt Begrüssung */ } else { var rs = document.getElementById('recent-section'); if (rs) rs.style.display = 'none'; var gc2 = document.getElementById('greeting-card'); if(gc2) gc2.style.display = 'none'; }
   // Cat active bar
   var catBar = document.getElementById('cat-active-bar');
   var catBarName = document.getElementById('cat-active-name');
   if (catBar) {
     if (!showCover) {
-      catBar.style.display = 'flex';
+      catBar.style.display = 'block';
       var activeCatObj = categories.find(function(c) { return c.id === activeCat; });
-      if (catBarName) catBarName.textContent = activeCatObj ? activeCatObj.name : (search ? 'Suche' : '');
+      var listName = showingFavs ? 'Favoriten' : (activeCatObj ? activeCatObj.name : (showAllList ? 'Alle Rezepte' : 'Suche'));
+      if (catBarName) catBarName.textContent = listName;
+      var cnt = document.getElementById('cat-active-count'); if (cnt) cnt.textContent = filtered.length + (filtered.length === 1 ? ' Rezept' : ' Rezepte');
+      var si = document.getElementById('search-input'); if (si) si.placeholder = 'In ' + listName + ' suchen';
+      renderCatChips();
     } else {
       catBar.style.display = 'none';
     }
@@ -3846,22 +3945,23 @@ function renderGrid() {
     card.className = 'card';
     card.dataset.color = r.color || '#3D5A3E';
     var isFav = r.favorite ? true : false;
-    var search2 = (document.getElementById('search-input').value || '').trim();
-    var showPhoto = r.photo && activeCat === 'all' && !search2;
-    var thumbHtml = showPhoto
-      ? '<img class="card-thumb" src="' + r.photo + '" alt="">'
-      : '<div class="card-thumb-placeholder" style="border-left-color:' + (r.color || '#3D5A3E') + '"></div>';
+    var hasPhoto = r.photo && r.photo !== '__local__';
+    var thumbHtml = hasPhoto
+      ? '<img class="v2-thumb" src="' + r.photo + '" alt="">'
+      : '<div class="v2-thumb v2-thumb-empty">' + v2_leaf() + '</div>';
+    var meta = (activeCat === 'all') ? (r.category || '') : (r.time || r.portions || '');
     card.innerHTML = thumbHtml
       + '<div class="card-body">'
       + '<div class="card-title">' + r.title + (r.rating ? ' ' + leafMiniHTML(r.rating) : '') + '</div>'
-      + '<span class="badge">' + (r.category || '') + '</span>'
+      + (meta ? '<span class="badge">' + meta + '</span>' : '')
       + '</div>'
-      + '<button class="fav-btn ' + (isFav ? 'active' : 'inactive') + '" data-id="' + r.id + '" onclick="event.stopPropagation();toggleFavorite(this,&quot;' + r.id + '&quot;)">' + (isFav ? '&#9733;' : '&#9734;') + '</button>'
+      + '<button class="fav-btn ' + (isFav ? 'active' : 'inactive') + '" data-id="' + r.id + '" aria-label="Favorit" onclick="event.stopPropagation();toggleFavorite(this,&quot;' + r.id + '&quot;)">' + (isFav ? '&#9733;' : '&#9734;') + '</button>'
       + '<span class="card-arrow">›</span>';
     (function(recipe, cat) {
       card.addEventListener('click', function() {
         haptic('light');
         _prevCat = cat;
+        window._prevList = { all: showAllList, favs: showingFavs };
         openDetail(recipe);
       });
     })(r, activeCat);
@@ -4283,11 +4383,7 @@ function showSplash() {
 function logoTap() {
   try {
     var home = document.getElementById('screen-home');
-    if (home && home.classList.contains('active')) {
-      showScreen('navigation');
-    } else {
-      showScreen('home');
-    }
+    homeIndex();
   } catch(e) { console.warn('logoTap:', e); }
 }
 
@@ -5050,18 +5146,13 @@ function goBack() {
       updateModeBadge();
     } else {
       activeCat = 'all';
+      var pl = window._prevList || {};
+      showAllList = !!pl.all; showingFavs = !!pl.favs;
       renderGrid();
       updateModeBadge();
-      setTimeout(function() { openCatSheet(); }, 150);
     }
-  } else if (currentId === 'screen-home' && activeCat !== 'all') {
-    // Aus Rezeptliste → zurück zum Kategorie-Sheet
-    activeCat = 'all';
-    _prevCat = null;
-    renderCatScroll();
-    renderGrid();
-    updateModeBadge();
-    setTimeout(function() { openCatSheet(); }, 150);
+  } else if (currentId === 'screen-home' && (activeCat !== 'all' || showAllList || showingFavs)) {
+    homeIndex();
   } else {
     showScreen('home');
   }
@@ -6733,6 +6824,160 @@ function applyRoleUI() {
   if (guestBar) guestBar.style.display = role === 'guest' ? 'block' : 'none';
 }
 
+// ─── REDESIGN 2026: Startseite, Listen, Navigation ─────────────────────────
+var showAllList = false;
+function v2_leaf() { return '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21V7"/><path d="M12 12c-3 0-5-2-5-5 3 0 5 2 5 5z"/><path d="M12 9c3 0 5-2 5-5-3 0-5 2-5 5z"/><path d="M12 16.5c3 0 5-2 5-4.5-3 0-5 2-5 4.5z"/></svg>'; }
+function v2_book() { return '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H11v16H5.5A1.5 1.5 0 0 1 4 18.5z"/><path d="M20 5.5A1.5 1.5 0 0 0 18.5 4H13v16h5.5a1.5 1.5 0 0 0 1.5-1.5z"/></svg>'; }
+function v2_star() { return '<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.6l2.6 5.3 5.8.8-4.2 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.2-4.1 5.8-.8z"/></svg>'; }
+var _greetCollapsed = (function(){ try { return localStorage.getItem('thyme_greeting_off') === '1'; } catch(e) { return false; } })();
+
+function v2Esc(t) { return String(t == null ? '' : t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function homeIndex() {
+  showingFavs = false; showAllList = false;
+  var si = document.getElementById('search-input'); if (si) si.value = '';
+  showScreen('home');
+}
+function openAllRecipes() { showingFavs = false; showAllList = true; selectCatFromSheet('all'); bnSync(); }
+function openFavList()    { showAllList = false; showingFavs = true; selectCatFromSheet('all'); bnSync(); }
+function openCategory(id) { showAllList = false; showingFavs = false; var si = document.getElementById('search-input'); if (si) si.value = ''; selectCatFromSheet(id); bnSync(); }
+
+function v2SortedCats() {
+  return categories.slice().sort(function(a, b) { return String(a.name).localeCompare(String(b.name), 'de'); });
+}
+
+function renderCatChips() {
+  var el = document.getElementById('v2-catchips'); if (!el) return;
+  if (activeCat === 'all') { el.style.display = 'none'; el.innerHTML = ''; return; }
+  el.style.display = 'flex';
+  el.innerHTML = v2SortedCats().map(function(c) {
+    return '<button class="v2-chip' + (c.id === activeCat ? ' on' : '') + '" data-cat="' + v2Esc(c.id) + '">' + v2Esc(c.name) + '</button>';
+  }).join('');
+  el.querySelectorAll('.v2-chip').forEach(function(b) {
+    b.addEventListener('click', function() { openCategory(isNaN(b.dataset.cat) ? b.dataset.cat : (categories.find(function(c){ return String(c.id) === b.dataset.cat; }) || {}).id); });
+  });
+  var on = el.querySelector('.on'); if (on) el.scrollLeft = Math.max(0, on.offsetLeft - 20);
+}
+
+function renderHomeIndex() {
+  var el = document.getElementById('v2-ctiles');
+  if (el) {
+    var favCount = recipes.filter(function(r) { return r.favorite; }).length;
+    var out = '<button class="v2-ctile feat" data-act="all"><span class="v2-cic">' + v2_book() + '</span><span class="v2-ctname">Alle Rezepte</span><span class="v2-ctcount">' + recipes.length + '</span></button>'
+            + '<button class="v2-ctile feat" data-act="favs"><span class="v2-cic fav">' + v2_star() + '</span><span class="v2-ctname">Favoriten</span><span class="v2-ctcount">' + favCount + '</span></button>';
+    v2SortedCats().forEach(function(c) {
+      var n = recipes.filter(function(r) { return r.category === c.name; }).length;
+      out += '<button class="v2-ctile" data-cat="' + v2Esc(c.id) + '"><span class="v2-ctname">' + v2Esc(c.name) + '</span><span class="v2-ctcount">' + n + '</span></button>';
+    });
+    el.innerHTML = out;
+    el.querySelectorAll('.v2-ctile').forEach(function(b) {
+      b.addEventListener('click', function() {
+        haptic('light');
+        if (b.dataset.act === 'all') return openAllRecipes();
+        if (b.dataset.act === 'favs') return openFavList();
+        var c = categories.find(function(x) { return String(x.id) === b.dataset.cat; });
+        if (c) openCategory(c.id);
+      });
+    });
+  }
+  renderGreeting();
+}
+
+// Saison-Update direkt aus dem Saisonkalender (SEASON_DATA): Hochsaison, neu, endet bald
+function v2SeasonInfo(date) {
+  var m = date.getMonth(), prev = (m + 11) % 12, next = (m + 1) % 12;
+  var clean = function(n) { n = String(n).replace(/\s*\(.*?\)\s*/g, '').trim(); if (n === 'Monatserdbeer.') n = 'Monatserdbeeren'; return n.replace(/\.$/, ''); };
+  var uniq = function(arr) { var seen = {}; return arr.filter(function(x) { if (!x || seen[x]) return false; seen[x] = 1; return true; }); };
+  var data = (typeof SEASON_DATA !== 'undefined' && Array.isArray(SEASON_DATA)) ? SEASON_DATA : [];
+  var has = function(arr, v) { return Array.isArray(arr) && arr.indexOf(v) >= 0; };
+  var peak = uniq(data.filter(function(p) { return has(p.peak, m); }).map(function(p) { return clean(p.name); }));
+  var neu  = uniq(data.filter(function(p) { return has(p.season, m) && !has(p.season, prev); }).map(function(p) { return clean(p.name); }));
+  var ende = uniq(data.filter(function(p) { return has(p.season, m) && !has(p.season, next); }).map(function(p) { return clean(p.name); }));
+  var sd = (typeof GREETING_SEASON_DATA !== 'undefined' && GREETING_SEASON_DATA[m]) || { season: '', products: [] };
+  if (!peak.length) peak = (sd.products || []).slice();
+  var week = Math.floor((date - new Date(date.getFullYear(), 0, 1)) / 604800000);
+  var rot = function(arr, n) { if (!arr.length) return []; var o = (week * n) % arr.length; return arr.slice(o).concat(arr.slice(0, o)).slice(0, n); };
+  return { season: sd.season || '', peak: rot(peak, 3), neu: rot(neu, 3), ende: rot(ende, 2) };
+}
+
+function v2FirstName() {
+  if (!_aUser) return '';
+  var md = _aUser.user_metadata || {};
+  var n = String(md.name || '').trim().split(/\s+/)[0] || '';
+  if (!n || /[._@\d]/.test(n)) return '';           // keine E-Mail-Kürzel als Anrede
+  return n.charAt(0).toUpperCase() + n.slice(1);
+}
+
+function renderGreeting() {
+  var now = new Date(), info = v2SeasonInfo(now);
+  var days = ['Sonntag','Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag'];
+  var months = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+  var set = function(id, t) { var e = document.getElementById(id); if (e) e.textContent = t; };
+  set('v2-gdate', days[now.getDay()] + ', ' + now.getDate() + '. ' + months[now.getMonth()]);
+  set('v2-gseason-name', info.season); set('v2-gbar-season', info.season);
+  var h = now.getHours(), greet = h < 12 ? 'Guten Morgen' : h < 17 ? 'Guten Tag' : 'Guten Abend';
+  var name = v2FirstName();
+  set('v2-gtitle', greet + (name ? ', ' + name : ''));
+  var chips = document.getElementById('v2-gchips');
+  if (chips) {
+    chips.innerHTML = info.peak.map(function(p, i) { return '<button class="v2-gchip' + (i < 2 ? ' hi' : '') + '" data-p="' + v2Esc(p) + '">' + v2Esc(p) + '</button>'; }).join('');
+    chips.querySelectorAll('.v2-gchip').forEach(function(b) { b.addEventListener('click', function() { greetingPairingProduct(b.dataset.p); }); });
+  }
+  set('v2-gnew', info.neu.join(', ')); set('v2-gend', info.ende.join(', '));
+  var ln = document.getElementById('v2-gnew'); if (ln) ln.parentNode.style.display = info.neu.length ? '' : 'none';
+  var le = document.getElementById('v2-gend'); if (le) le.parentNode.style.display = info.ende.length ? '' : 'none';
+  _greetingProduct = info.peak[0] || '';
+  set('v2-gpair-text', _greetingProduct ? 'Foodpairing für ' + _greetingProduct : 'Foodpairing');
+  set('v2-gbar-text', info.peak.join(', '));
+  var hi = document.getElementById('home-index'); if (hi) hi.classList.toggle('greet-collapsed', _greetCollapsed);
+}
+function greetToggle() {
+  _greetCollapsed = !_greetCollapsed;
+  var hi = document.getElementById('home-index'); if (hi) hi.classList.toggle('greet-collapsed', _greetCollapsed);
+  haptic('light');
+}
+function setGreetingPref(show) {
+  try { localStorage.setItem('thyme_greeting_off', show ? '0' : '1'); } catch(e) {}
+  _greetCollapsed = !show;
+}
+
+// Untere Leiste
+var BN_MAP = { home:'home', detail:'home', cats:'home', search:'home', add:'home', scan:'home', 'import':'home', cook:'home',
+  mep:'mep', shopping:'shop', wissen:'wissen', navigation:'wissen', archive:'wissen', 'saison-standalone':'wissen',
+  katalog:'wissen', pairing:'wissen', warenkunde:'wissen', 'season-editor':'wissen', settings:'settings' };
+function bnSync() {
+  var a = document.querySelector('.screen.active');
+  var tab = BN_MAP[a ? a.id.replace('screen-', '') : 'home'] || 'home';
+  ['home','mep','shop','wissen','settings'].forEach(function(t) {
+    var el = document.getElementById('bn-' + t); if (el) el.classList.toggle('active', t === tab);
+  });
+}
+function v2CloseOverlays() {
+  ['closeArchiveSheet','closeCatSheet','closeActionSheet','closeAddSheet','closeFabMenu','closeNavInfo','closeSeasonDetail','closeKatalogDetail','closeAllergenPopup'].forEach(function(fn) {
+    try { if (typeof window[fn] === 'function') window[fn](); } catch(e) {}
+  });
+}
+function bnGo(tab) {
+  v2CloseOverlays();
+  if (tab === 'home') homeIndex();
+  else if (tab === 'mep') openMeP();
+  else if (tab === 'shop') openShopList();
+  else if (tab === 'wissen') showScreen('wissen');
+  else if (tab === 'settings') showScreen('settings');
+  else if (tab === 'search') openSearchScreen();
+  else if (tab === 'add') openAddSheet();
+  else if (tab === 'favs') openFavList();
+  bnSync();
+}
+var _v2BaseShowScreen = showScreen;
+showScreen = function(name) {
+  if (name === 'navigation') name = 'wissen';
+  if (name === 'home') { showAllList = false; showingFavs = false; var si = document.getElementById('search-input'); if (si) si.value = ''; }
+  _v2BaseShowScreen(name);
+  if (name === 'settings') { var cb = document.getElementById('set-greeting'); if (cb) { try { cb.checked = localStorage.getItem('thyme_greeting_off') !== '1'; } catch(e) {} } }
+  bnSync();
+};
+
 </script>
 
 <!-- SCREEN: EINKAUFSLISTE -->
@@ -6850,6 +7095,10 @@ function applyRoleUI() {
 
 
 <!-- SCREEN: NAVIGATION -->
+<div id="screen-wissen" class="screen">
+  <div class="v2-page"><h1 class="v2-pagetitle">Wissen</h1><div class="v2-group"><button class="v2-area" onclick="openArchive()"><span class="v2-areaicon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H11v16H5.5A1.5 1.5 0 0 1 4 18.5z"/><path d="M20 5.5A1.5 1.5 0 0 0 18.5 4H13v16h5.5a1.5 1.5 0 0 0 1.5-1.5z"/></svg></span><span class="v2-areatext"><span class="v2-areatitle">Rezeptarchiv</span><span class="v2-areasub">100 Grundrezepte, Klassiker und Referenzen</span></span><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button><button class="v2-area" onclick="openSaisonStandalone()"><span class="v2-areaicon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/></svg></span><span class="v2-areatext"><span class="v2-areatitle">Saisonkalender</span><span class="v2-areasub">Gemüse, Obst, Kräuter und Pilze nach Monat</span></span><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button><button class="v2-area" onclick="openKatalog()"><span class="v2-areaicon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h10"/></svg></span><span class="v2-areatext"><span class="v2-areatitle">Produktkatalog</span><span class="v2-areasub">Fleisch, Fisch, Geflügel, Wild, Charcuterie</span></span><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button><button class="v2-area" onclick="openWarenkunde()"><span class="v2-areaicon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20v-8"/><path d="M12 12c0-4-3-6-7-6 0 4 3 6 7 6z"/><path d="M12 12c0-3 2-5 6-5 0 3-2 5-6 5z"/></svg></span><span class="v2-areatext"><span class="v2-areatitle">Warenkunde</span><span class="v2-areasub">Geschmack, Nährwerte, Saison, Aromenchemie</span></span><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button><button class="v2-area" onclick="openPairingScreen(null)"><span class="v2-areaicon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="12" r="5"/><circle cx="15" cy="12" r="5"/></svg></span><span class="v2-areatext"><span class="v2-areatitle">Foodpairing</span><span class="v2-areasub">Aromen, Kombinationen, Rezeptideen</span></span><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button></div></div>
+</div>
+
 <div id="screen-navigation" class="screen">
   <div class="sub-header" style="position:relative;top:auto;padding:20px 20px">
     <button class="back-btn" onclick="goBack()" style="font-size:18px;color:var(--thyme)">&#8592;</button>
@@ -7315,28 +7564,13 @@ function applyRoleUI() {
 </div>
 
 <!-- ── BOTTOM NAV ───────────────────────────────────────────────────────── -->
-<nav id="bottom-nav">
-  <button class="bn-tab active" id="bn-home" onclick="bnGo('home')">
-    <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg>
-    <span>Home</span>
-  </button>
-  <button class="bn-tab" id="bn-search" onclick="bnGo('search')">
-    <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-    <span>Suche</span>
-  </button>
-  <button class="bn-center" onclick="bnGo('add')">
-    <div class="bn-center-circle">
-      <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-    </div>
-  </button>
-  <button class="bn-tab" id="bn-favs" onclick="bnGo('favs')">
-    <svg viewBox="0 0 24 24"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/></svg>
-    <span>Favoriten</span>
-  </button>
-  <button class="bn-tab" id="bn-settings" onclick="bnGo('settings')">
-    <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 1 0-16 0"/></svg>
-    <span>Profil</span>
-  </button>
+<nav id="bottom-nav" aria-label="Hauptnavigation">
+  <button class="bn-tab active" id="bn-home" onclick="bnGo('home')"><span class="bn-ico"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H11v16H5.5A1.5 1.5 0 0 1 4 18.5z"/><path d="M20 5.5A1.5 1.5 0 0 0 18.5 4H13v16h5.5a1.5 1.5 0 0 0 1.5-1.5z"/></svg></span><span>Rezepte</span></button>
+  <button class="bn-tab" id="bn-mep" onclick="bnGo('mep')"><span class="bn-ico"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4h6v3H9z"/><path d="M9 13.5l2 2 4-4"/></svg></span><span>Mise en Place</span></button>
+  <button class="bn-tab" id="bn-shop" onclick="bnGo('shop')"><span class="bn-ico"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9h16l-1.6 10.2a1 1 0 0 1-1 .8H6.6a1 1 0 0 1-1-.8z"/><path d="M8.5 9L12 4l3.5 5"/></svg><span class="shop-indicator-dot" id="shop-indicator-dot"></span></span><span>Einkauf</span></button>
+  <button class="bn-tab" id="bn-wissen" onclick="bnGo('wissen')"><span class="bn-ico"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20v-8"/><path d="M12 12c0-4-3-6-7-6 0 4 3 6 7 6z"/><path d="M12 12c0-3 2-5 6-5 0 3-2 5-6 5z"/></svg></span><span>Wissen</span></button>
+  <button class="bn-tab" id="bn-settings" onclick="bnGo('settings')"><span class="bn-ico"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg></span><span>Profil</span></button>
+  <span id="bn-search" hidden></span><span id="bn-favs" hidden></span>
 </nav>
 </body>
 </html>
