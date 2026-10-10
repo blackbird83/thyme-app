@@ -1066,6 +1066,53 @@ body.light-mode{--g-bg:#2F4A35;--g-text:#FFFFFF;--g-muted:rgba(255,255,255,.80);
 .v2-areasub{font:15px/1.35 'DM Sans',sans-serif;color:var(--smoke)}
 .v2-switchrow{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:44px;font-size:17px;color:var(--bark);cursor:pointer}
 .v2-switchrow input{width:24px;height:24px;accent-color:var(--fill);-webkit-appearance:auto;appearance:auto}
+
+/* ══ REDESIGN 2026 — Rezeptseite ════════════════════════════════════════ */
+#action-photo-add,#action-photo-edit,#action-photo-delete{display:none !important}
+.v2-detailbar{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-content:space-between;padding:4px 10px 4px 4px;background:var(--cream)}
+.v2-detailactions{display:flex;align-items:center;gap:2px}
+.v2-detailbar .fav-btn{width:44px;height:44px;font-size:26px;padding:0;display:flex;align-items:center;justify-content:center}
+.v2-iconbtn{width:44px;height:44px;border:none;background:none;color:var(--bark);display:flex;align-items:center;justify-content:center;cursor:pointer;border-radius:22px}
+.detail-body{padding:6px 20px 220px;max-width:680px;margin:0 auto}
+.v2-photo{position:relative;margin:4px 0 18px}
+.v2-photo .recipe-hero{width:100%;margin:0;height:230px;border-radius:20px;object-fit:cover;display:block}
+.v2-photo .recipe-hero-placeholder{width:100%;margin:0;height:150px;border-radius:20px;border:1.5px dashed var(--border);background:var(--tint);color:var(--thyme-mid);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;cursor:pointer;font:600 16px 'DM Sans',sans-serif}
+.v2-photo .recipe-hero-placeholder span{font:600 16px 'DM Sans',sans-serif;color:var(--thyme-mid)}
+.v2-photoedit{display:none;position:absolute;right:10px;bottom:10px;width:44px;height:44px;border-radius:22px;border:none;background:rgba(21,23,20,.62);color:#fff;align-items:center;justify-content:center;cursor:pointer}
+.v2-photo:has(img) .v2-photoedit{display:flex}
+.v2-meta{display:flex;flex-wrap:wrap;align-items:center;gap:16px;font-size:16px;color:var(--smoke);margin:2px 0 4px}
+.v2-mi{display:inline-flex;align-items:center;gap:6px}
+.allergen-section.v2-allerg{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:10px 0 2px}
+.v2-muted{font-size:15px;color:var(--smoke)}
+.v2-pill{min-height:30px;padding:0 12px;border-radius:15px;display:inline-flex;align-items:center;font-size:15px;font-weight:500;background:var(--surface2);color:var(--bark)}
+.v2-portions{margin:18px 0 0;padding:8px 8px 8px 16px;border-radius:16px;background:var(--parchment);border:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;font-size:17px;font-weight:500;color:var(--bark)}
+.v2-stepper{display:flex;align-items:center;gap:4px}
+.v2-stepper button{width:44px;height:44px;border-radius:22px;border:none;background:var(--surface2);color:var(--bark);display:flex;align-items:center;justify-content:center;cursor:pointer}
+.v2-stepper b{min-width:48px;text-align:center;font-size:22px;font-weight:600;font-variant-numeric:tabular-nums;color:var(--bark)}
+.v2-sechead2{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:26px 0 6px}
+.v2-sechead2 .section-label{margin:0}
+.v2-sechead2 .v2-textbtn{display:inline-flex;align-items:center;gap:6px}
+.ingredient{display:flex;align-items:baseline;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)}
+.ingredient .ingredient-amount{min-width:58px}
+.ingredient .ingredient-unit{min-width:32px}
+.v2-steps{list-style:none;margin:8px 0 0;padding:0;display:flex;flex-direction:column;gap:18px}
+.v2-steps li{display:flex;gap:14px;align-items:flex-start}
+.v2-num{width:34px;height:34px;flex-shrink:0;border-radius:17px;background:var(--tint);color:var(--thyme-mid);display:flex;align-items:center;justify-content:center;font:600 16px 'DM Sans',sans-serif;font-variant-numeric:tabular-nums}
+.v2-stext{flex:1;display:flex;flex-direction:column;gap:10px;padding-top:4px;font-size:19px;line-height:1.5;color:var(--bark)}
+.v2-timer{align-self:flex-start;min-height:44px;padding:0 16px;border-radius:22px;border:1px solid var(--border);background:var(--parchment);color:var(--thyme);font:600 16px 'DM Sans',sans-serif;display:inline-flex;align-items:center;gap:8px;cursor:pointer}
+.notes-text{font-size:17px;line-height:1.5;color:var(--bark);font-style:normal}
+.v2-more{display:flex;flex-direction:column;gap:10px;margin-top:30px}
+.v2-outline{min-height:52px;border-radius:16px;border:1px solid var(--border);background:var(--parchment);color:var(--bark);font:600 17px 'DM Sans',sans-serif;display:flex;align-items:center;justify-content:center;gap:10px;cursor:pointer}
+.v2-cookbar{position:fixed;left:0;right:0;bottom:calc(56px + env(safe-area-inset-bottom,0px));max-width:900px;margin:0 auto;padding:10px 20px;background:var(--cream);border-top:1px solid var(--border);z-index:400}
+.v2-cookbtn{width:100%;height:56px;border-radius:16px;border:none;background:var(--fill);color:var(--on-fill);font:600 18px 'DM Sans',sans-serif;display:flex;align-items:center;justify-content:center;gap:10px;cursor:pointer}
+.v2-sheettitle{font-size:15px;font-weight:600;color:var(--smoke);text-align:center;padding:10px 0 4px}
+.action-sheet-item-icon{display:inline-flex;align-items:center;justify-content:center;width:28px}
+
+/* Menüs liegen über Kochmodus-Leiste und unterer Leiste */
+.action-sheet-overlay{z-index:900 !important}
+.action-sheet{z-index:901 !important;padding-bottom:calc(12px + env(safe-area-inset-bottom,0px))}
+
+.action-sheet-item.danger,body.light-mode .action-sheet-item.danger{color:var(--danger)}
 </style>
 </head>
 <body>
@@ -1548,10 +1595,13 @@ body.light-mode{--g-bg:#2F4A35;--g-text:#FFFFFF;--g-muted:rgba(255,255,255,.80);
 
 <!-- DETAIL -->
 <div id="screen-detail" class="screen">
-  <div class="sub-header">
-    <button class="back-btn" onclick="goBack()" style="font-size:20px;color:var(--thyme)">&#8592;</button>
-    <span class="sub-title" id="detail-header-title"></span>
-    <div style="width:80px"></div>
+  <div class="v2-detailbar">
+    <button class="v2-back" onclick="goBack()"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg><span id="v2-detail-back">Rezepte</span></button>
+    <span id="detail-header-title" hidden></span>
+    <div class="v2-detailactions">
+      <button class="fav-btn inactive" id="detail-fav-btn" aria-label="Favorit">&#9734;</button>
+      <button class="v2-iconbtn" id="v2-detail-more" onclick="openActionSheet()" aria-label="Weitere Aktionen"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="19" cy="12" r="1.8"/></svg></button>
+    </div>
   </div>
   <div class="detail-body" id="detail-body"></div>
 </div>
@@ -3990,59 +4040,85 @@ function openDetail(r) {
   window._baseIngredients = r.ingredients || [];
 
   var hasIngredients = (r.ingredients && r.ingredients.length > 0);
-  let chips = '<div class="meta-chips">';
-  chips += '<div class="portions-wrap">'
-    + '<span class="portions-label">Portionen</span>'
-    + '<div class="portions-ctrl">'
-    + '<button class="portions-btn" onclick="changePortions(-1)" style="font-size:20px">&#8722;</button>'
-    + '<div class="portions-divider"></div>'
-    + '<div class="portions-center">'
-    + '<span class="portions-num" id="portions-display">' + basePortions + '</span>'
-    + '</div>'
-    + '<div class="portions-divider"></div>'
-    + '<button class="portions-btn" onclick="changePortions(1)" style="font-size:20px">&#43;</button>'
-    + '</div>'
-    + '</div>';
-  if (r.time) chips += '<div class="portions-wrap"><span class="portions-label">Zeit</span><span class="meta-chip" style="border-radius:12px;height:48px;display:flex;align-items:center">&#9201; ' + r.time + '</span></div>';
-  chips += '</div>';
-  var photoHtml = '';
-  if (currentRecipe && currentRecipe.photo) {
-    photoHtml = '<img class="recipe-hero" id="recipe-photo-el" src="' + currentRecipe.photo + '">';
-  } else {
-    photoHtml = '<div class="recipe-hero-placeholder" id="recipe-photo-placeholder" onclick="addPhotoToRecipe()">' +
-      '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--smoke)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>' +
-      '<span>Foto hinzufügen</span>' +
-      '</div>';
+  var isGuest = (typeof _outlet !== 'undefined' && _outlet && _outlet.role === 'guest');
+  var canEdit = !r.readonly && !isGuest;
+  // Kopfzeile: Zurück-Ziel, Favorit, Aktionen
+  var pl = window._prevList || {};
+  var prevCatObj = categories.find(function(c) { return c.id === _prevCat; });
+  var backLabel = r.readonly ? 'Archiv' : (pl.favs ? 'Favoriten' : (pl.all ? 'Alle Rezepte' : (prevCatObj ? prevCatObj.name : 'Rezepte')));
+  var bl = document.getElementById('v2-detail-back'); if (bl) bl.textContent = backLabel;
+  var fb = document.getElementById('detail-fav-btn');
+  if (fb) {
+    fb.style.display = r.readonly ? 'none' : '';
+    fb.className = 'fav-btn ' + (r.favorite ? 'active' : 'inactive');
+    fb.innerHTML = r.favorite ? '&#9733;' : '&#9734;';
+    fb.onclick = function() { toggleFavorite(fb, r.id); };
   }
+  var mb = document.getElementById('v2-detail-more'); if (mb) mb.style.display = r.readonly ? 'none' : '';
+  // Foto
+  var photoHtml = '';
+  var hasPhoto = r.photo && r.photo !== '__local__';
+  if (hasPhoto || canEdit) {
+    photoHtml = '<div class="v2-photo" id="v2-photo">'
+      + (hasPhoto
+          ? '<img class="recipe-hero" id="recipe-photo-el" src="' + r.photo + '" alt="">'
+          : '<button class="recipe-hero-placeholder" id="recipe-photo-placeholder" onclick="addPhotoToRecipe()">' + v2_cam(26) + '<span>Foto hinzufügen</span></button>')
+      + (canEdit ? '<button class="v2-photoedit" onclick="v2OpenPhotoSheet()" aria-label="Foto bearbeiten">' + v2_cam(20) + '</button>' : '')
+      + '</div>';
+  }
+  // Meta
+  var meta = [];
+  if (r.category) meta.push('<span>' + r.category + '</span>');
+  if (r.time) meta.push('<span class="v2-mi">' + v2_clock() + r.time + '</span>');
+  var allergenHtml = (function(){
+    var allergenIds = aggregateAllergens(r.ingredients, r.allergens);
+    if (allergenIds.length) return renderAllergenBadges(allergenIds);
+    if (!hasIngredients) return '';
+    if (r.readonly) return '';
+    return '<div class="allergen-section v2-allerg" id="allergen-pending"><span class="v2-muted">Allergene werden erkannt …</span></div>';
+  }());
+  var portionsHtml = hasIngredients
+    ? '<div class="v2-portions"><span>Portionen</span><div class="v2-stepper">'
+      + '<button onclick="changePortions(-1)" aria-label="Weniger Portionen"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14"/></svg></button>'
+      + '<b id="portions-display">' + basePortions + '</b>'
+      + '<button onclick="changePortions(1)" aria-label="Mehr Portionen"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>'
+      + '</div></div>'
+    : '';
+  // Zubereitung als nummerierte Schritte
+  var steps = r.instructions ? parseSteps(r.instructions) : [];
+  var stepsHtml = steps.length
+    ? '<div class="v2-sechead2"><h2 class="section-label">Zubereitung</h2><span class="v2-muted">' + steps.length + (steps.length === 1 ? ' Schritt' : ' Schritte') + '</span></div>'
+      + '<ol class="v2-steps">' + steps.map(function(t, i) {
+          var sec = 0; try { sec = parseTimer(t) || 0; } catch(e) {}
+          return '<li><span class="v2-num">' + (i + 1) + '</span><div class="v2-stext"><span>' + t + '</span>'
+            + (sec ? '<button class="v2-timer" onclick="v2CookAt(' + i + ')">' + v2_timer() + 'Timer ' + v2FmtDur(sec) + '</button>' : '')
+            + '</div></li>';
+        }).join('') + '</ol>'
+    : '';
   document.getElementById('detail-body').innerHTML =
-    photoHtml + '<div class="detail-title">' + r.title + '</div>'
-    + '<div class="detail-meta" style="display:flex;align-items:center;gap:10px">'
-    + '<span>' + (r.category || '') + ' &middot; ' + (r.source || '') + '</span>'
-    + '<button class="fav-btn ' + (r.favorite ? 'active' : 'inactive') + '" id="detail-fav-btn" onclick="toggleFavorite(this,&quot;' + r.id + '&quot;)" style="font-size:20px;padding:0">' + (r.favorite ? '&#9733;' : '&#9734;') + '</button>'
-    + '</div>'
-    + renderRatingWidget(r.id, 22)
-    + chips
-    + (ings ? '<span class="section-label">Zutaten</span><div id="ingredients-list">' + ings + '</div>' : '')
-    + (function(){
-      var allergenIds = aggregateAllergens(r.ingredients, r.allergens);
-      if (allergenIds.length) return renderAllergenBadges(allergenIds);
-      return '<div class="allergen-section" id="allergen-pending" style="opacity:.4"><span class="allergen-section-label">Allergene werden erkannt...</span></div>';
-    }())
+    photoHtml
+    + '<h1 class="detail-title">' + r.title + '</h1>'
+    + (meta.length ? '<div class="v2-meta">' + meta.join('') + '</div>' : '')
+    + allergenHtml
+    + (r.readonly ? '' : renderRatingWidget(r.id, 22))
+    + portionsHtml
+    + (ings ? '<div class="v2-sechead2"><h2 class="section-label">Zutaten</h2>'
+        + (r.readonly ? '' : '<button class="v2-textbtn" onclick="addCurrentRecipeToShop()">' + v2_basket() + 'Zur Einkaufsliste</button>')
+        + '</div><div id="ingredients-list">' + ings + '</div>' : '')
     + (function(){
       if (r.nährwerte) return renderNährwerte(r.nährwerte, r.portions);
-      return '<div class="wk-card" style="margin:16px 0 8px" id="nw-pending"><div class="wk-card-title">Nährwerte</div><div class="nw-pending">Werden berechnet...</div></div>';
+      if (r.readonly || !hasIngredients) return '';
+      return '<div class="wk-card" style="margin:16px 0 8px" id="nw-pending"><div class="wk-card-title">Nährwerte</div><div class="nw-pending">Werden berechnet …</div></div>';
     }())
-    + (r.instructions ? '<span class="section-label">Zubereitung</span><div class="instructions-text">' + r.instructions + '</div>' : '')
-    + (r.notes ? '<span class="section-label">Notizen</span><div class="notes-text">' + r.notes + '</div>' : '')
-    + '<div class="detail-actions">'
-    + (r.readonly ? '<button class="detail-actions-btn" onclick="copyArchiveRecipe(currentRecipe)" style="color:var(--gold);letter-spacing:0.2px;font-size:17px;border-color:var(--border)">&#10010; &nbsp; Als eigenes Rezept kopieren</button>' : '<button class="detail-actions-btn" onclick="addCurrentRecipeToShop()" style="background:#1A2E1A;border-color:var(--fill);color:#FFFFFF;letter-spacing:0.2px;font-size:17px">&#43; &nbsp; Einkaufsliste</button>')
-    + (r.readonly ? '' : '<button class="detail-actions-btn" id="detail-menu-btn" style="color:#FFFFFF;letter-spacing:0.2px;font-size:17px">&#8943; &nbsp; Aktionen</button>')
-    + (r.instructions ? '<button class="cook-start-btn" onclick="openCookMode()"><div class="cook-start-icon"><svg viewBox="0 0 16 16"><polygon points="4,2 14,8 4,14"/></svg></div><span>Kochmodus starten</span></button>' : '')
-    + '<button class="pairing-inline-btn" onclick="openPairingScreen(currentRecipe)">&#10022;&nbsp; Flavour Pairing</button>'
-    + '</div>';
-
-  var menuBtn = document.getElementById('detail-menu-btn');
-  if (menuBtn) menuBtn.addEventListener('click', function() { openActionSheet(); });
+    + stepsHtml
+    + (r.notes ? '<div class="v2-sechead2"><h2 class="section-label">Notizen</h2></div><div class="notes-text">' + r.notes + '</div>' : '')
+    + '<div class="v2-more">'
+    + (r.readonly ? '<button class="v2-outline" onclick="copyArchiveRecipe(currentRecipe)">' + v2_copy() + 'Als eigenes Rezept kopieren</button>' : '')
+    + '<button class="v2-outline" onclick="openPairingScreen(currentRecipe)">' + v2_pair() + 'Foodpairing</button>'
+    + '</div>'
+    ;
+  window._v2HasSteps = steps.length > 0;
+  v2SyncCookbar('detail');
   showScreen('detail');
   // Allergene erkennen falls noch nicht vorhanden
   if (!r.allergens || !r.allergens.length) {
@@ -4586,17 +4662,9 @@ function aggregateAllergens(ingredients, recipeAllergens) {
 
 function renderAllergenBadges(allergenIds) {
   if (!allergenIds || !allergenIds.length) return '';
-  return '<div class="allergen-section">'
-    + '<span class="allergen-section-label">Allergene</span>'
-    + '<div class="allergen-row">'
-    + allergenIds.map(function(id) {
-        var a = allergenById(id);
-        return '<div class="allergen-tile">'
-          + '<div class="allergen-tile-icon">' + a.id + '</div>'
-          + '<div class="allergen-tile-name">' + a.name + '</div>'
-          + '</div>';
-      }).join('')
-    + '</div></div>';
+  return '<div class="allergen-section v2-allerg"><span class="v2-muted">Allergene</span>'
+    + allergenIds.map(function(id) { return '<span class="v2-pill">' + allergenById(id).name + '</span>'; }).join('')
+    + '</div>';
 }
 
 
@@ -6953,7 +7021,7 @@ function bnSync() {
   });
 }
 function v2CloseOverlays() {
-  ['closeArchiveSheet','closeCatSheet','closeActionSheet','closeAddSheet','closeFabMenu','closeNavInfo','closeSeasonDetail','closeKatalogDetail','closeAllergenPopup'].forEach(function(fn) {
+  ['closeArchiveSheet','closeCatSheet','closeActionSheet','closeAddSheet','closeFabMenu','closeNavInfo','closeSeasonDetail','closeKatalogDetail','closeAllergenPopup','v2ClosePhotoSheet'].forEach(function(fn) {
     try { if (typeof window[fn] === 'function') window[fn](); } catch(e) {}
   });
 }
@@ -6974,9 +7042,79 @@ showScreen = function(name) {
   if (name === 'navigation') name = 'wissen';
   if (name === 'home') { showAllList = false; showingFavs = false; var si = document.getElementById('search-input'); if (si) si.value = ''; }
   _v2BaseShowScreen(name);
+  try { v2SyncCookbar(name); } catch(e) {}
   if (name === 'settings') { var cb = document.getElementById('set-greeting'); if (cb) { try { cb.checked = localStorage.getItem('thyme_greeting_off') !== '1'; } catch(e) {} } }
   bnSync();
 };
+
+// ─── REDESIGN 2026: Rezeptseite ─────────────────────────────────────────────
+function v2Svg(inner, size, sw) { return '<svg width="' + (size||20) + '" height="' + (size||20) + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="' + (sw||1.8) + '" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + inner + '</svg>'; }
+function v2_cam(size) { return v2Svg('<path d="M4 8.5A1.5 1.5 0 0 1 5.5 7h2.2l1.6-2h5.4l1.6 2h2.2A1.5 1.5 0 0 1 20 8.5v9A1.5 1.5 0 0 1 18.5 19h-13A1.5 1.5 0 0 1 4 17.5z"/><circle cx="12" cy="13" r="3.5"/>', size || 22); }
+function v2_clock() { return v2Svg('<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>', 18); }
+function v2_basket() { return v2Svg('<path d="M4 9h16l-1.6 10.2a1 1 0 0 1-1 .8H6.6a1 1 0 0 1-1-.8z"/><path d="M8.5 9L12 4l3.5 5"/>', 18); }
+function v2_timer() { return v2Svg('<circle cx="12" cy="13" r="7.5"/><path d="M12 9.5V13l2.5 1.5"/><path d="M10 3h4"/>', 18, 1.9); }
+function v2_pot() { return v2Svg('<path d="M5 11h14v5a4 4 0 0 1-4 4H9a4 4 0 0 1-4-4z"/><path d="M3 11h2M19 11h2"/><path d="M9 7.5c0-1 .8-1.2.8-2.2M12.2 7.5c0-1 .8-1.2.8-2.2M15.4 7.5c0-1 .8-1.2.8-2.2"/>', 22, 1.9); }
+function v2_pair() { return v2Svg('<circle cx="9" cy="12" r="5"/><circle cx="15" cy="12" r="5"/>', 20); }
+function v2_copy() { return v2Svg('<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/>', 20); }
+function v2FmtDur(sec) {
+  if (sec >= 3600) { var h = Math.round(sec / 360) / 10; return String(h).replace('.', ',') + ' Std'; }
+  return Math.max(1, Math.round(sec / 60)) + ' Min';
+}
+function v2SyncCookbar() {
+  var bar = document.getElementById('v2-cookbar'); if (!bar) return;
+  var det = document.getElementById('screen-detail');
+  var show = !!(det && det.classList.contains('active') && window._v2HasSteps);
+  bar.style.display = show ? 'block' : 'none';
+  var btn = document.getElementById('v2-cookbtn');
+  if (btn && !btn.dataset.ready) { btn.innerHTML = v2_pot() + 'Kochmodus starten'; btn.dataset.ready = '1'; }
+}
+// Kochmodus-Leiste folgt automatisch der Sichtbarkeit der Rezeptseite (auch bei direkten Klassenwechseln)
+(function() {
+  var start = function() {
+    var det = document.getElementById('screen-detail');
+    if (det && window.MutationObserver) new MutationObserver(function() { v2SyncCookbar(); }).observe(det, { attributes: true, attributeFilter: ['class'] });
+  };
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
+})();
+function v2CookAt(i) {
+  openCookMode();
+  if (typeof cookSteps !== 'undefined' && cookSteps.length > i) { cookStep = i; cookRenderStep(); }
+}
+function v2OpenPhotoSheet() {
+  var has = currentRecipe && currentRecipe.photo && currentRecipe.photo !== '__local__';
+  var del = document.getElementById('v2-photo-del'); if (del) del.style.display = has ? '' : 'none';
+  var ic = function(id, html) { var e = document.getElementById(id); if (e && !e.innerHTML) e.innerHTML = html; };
+  ic('v2-ps-cam', v2_cam(22));
+  ic('v2-ps-lib', v2Svg('<rect x="4" y="5" width="16" height="14" rx="2"/><circle cx="9" cy="10" r="1.6"/><path d="M20 16l-5-5-8 8"/>', 22));
+  ic('v2-ps-del', v2Svg('<path d="M5 7h14M10 7V5h4v2M7 7l1 12h8l1-12"/>', 22));
+  document.getElementById('v2-photo-sheet').classList.add('open');
+  document.getElementById('v2-photo-overlay').classList.add('open');
+}
+function v2ClosePhotoSheet() {
+  var a = document.getElementById('v2-photo-sheet'); if (a) a.classList.remove('open');
+  var b = document.getElementById('v2-photo-overlay'); if (b) b.classList.remove('open');
+}
+function v2PickPhoto(capture) {
+  v2ClosePhotoSheet();
+  if (!currentRecipe) return;
+  var hadPhoto = currentRecipe.photo && currentRecipe.photo !== '__local__';
+  if (!capture) { return hadPhoto ? editPhotoOfRecipe() : addPhotoToRecipe(); }
+  var oldPhoto = currentRecipe.photo;
+  var input = document.createElement('input');
+  input.type = 'file'; input.accept = 'image/*'; input.setAttribute('capture', 'environment');
+  input.onchange = function(e) {
+    var file = e.target.files[0]; if (!file || !currentRecipe) return;
+    var rd = new FileReader();
+    rd.onload = function(ev) {
+      compressPhoto(ev.target.result, function(compressed) {
+        savePhotoToRecipe(compressed);
+        if (hadPhoto && String(oldPhoto).indexOf('supabase') >= 0) { try { deletePhotoFromSupabase(oldPhoto); } catch(err) {} }
+      });
+    };
+    rd.readAsDataURL(file);
+  };
+  input.click();
+}
 
 </script>
 
@@ -7324,19 +7462,31 @@ showScreen = function(name) {
       <span class="action-sheet-item-icon">&#128465;&#65039;</span> Foto löschen
     </button>
     <button class="action-sheet-item" onclick="closeActionSheet();openEdit(currentRecipe)">
-      <span class="action-sheet-item-icon">&#9999;&#65039;</span> Bearbeiten
+      <span class="action-sheet-item-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M14 6l4 4"/></svg></span> Bearbeiten
     </button>
     <button class="action-sheet-item" onclick="closeActionSheet();shareRecipe(currentRecipe)">
-      <span class="action-sheet-item-icon">&#8599;</span> Teilen
+      <span class="action-sheet-item-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V4M8 8l4-4 4 4"/><path d="M5 12v7a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-7"/></svg></span> Teilen
     </button>
     <button class="action-sheet-item" onclick="closeActionSheet();printRecipe(currentRecipe)">
-      <span class="action-sheet-item-icon">&#9113;</span> Drucken
+      <span class="action-sheet-item-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 9V4h10v5"/><rect x="4" y="9" width="16" height="7" rx="1.5"/><path d="M7 14h10v6H7z"/></svg></span> Drucken
     </button>
     <button class="action-sheet-item danger" onclick="closeActionSheet();deleteRecipe(currentRecipe.id)">
-      <span class="action-sheet-item-icon">&#128465;&#65039;</span> Löschen
+      <span class="action-sheet-item-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 7h14M10 7V5h4v2M7 7l1 12h8l1-12"/></svg></span> Rezept löschen
     </button>
   </div>
   <button class="action-sheet-cancel" onclick="closeActionSheet()">Abbrechen</button>
+</div>
+
+<!-- FOTO-MENÜ -->
+<div class="action-sheet-overlay" id="v2-photo-overlay" onclick="v2ClosePhotoSheet()"></div>
+<div class="action-sheet" id="v2-photo-sheet">
+  <div class="action-sheet-panel">
+    <div class="v2-sheettitle">Foto</div>
+    <button class="action-sheet-item" onclick="v2PickPhoto(true)"><span class="action-sheet-item-icon" id="v2-ps-cam"></span> Neues Foto aufnehmen</button>
+    <button class="action-sheet-item" onclick="v2PickPhoto(false)"><span class="action-sheet-item-icon" id="v2-ps-lib"></span> Aus Mediathek wählen</button>
+    <button class="action-sheet-item danger" id="v2-photo-del" onclick="v2ClosePhotoSheet();deletePhotoFromRecipe()"><span class="action-sheet-item-icon" id="v2-ps-del"></span> Foto entfernen</button>
+  </div>
+  <button class="action-sheet-cancel" onclick="v2ClosePhotoSheet()">Abbrechen</button>
 </div>
 
 <div id="toast"></div>
@@ -7562,6 +7712,8 @@ showScreen = function(name) {
   </div>
   <button class="action-sheet-cancel" onclick="closeAddSheet()">Abbrechen</button>
 </div>
+
+<div class="v2-cookbar" id="v2-cookbar" style="display:none"><button class="v2-cookbtn" onclick="openCookMode()" id="v2-cookbtn">Kochmodus starten</button></div>
 
 <!-- ── BOTTOM NAV ───────────────────────────────────────────────────────── -->
 <nav id="bottom-nav" aria-label="Hauptnavigation">
