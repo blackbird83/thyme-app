@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<meta name="build" content="20260505102348">
+<meta name="build" content="20260927010000">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -223,11 +223,11 @@ body.light-mode .fav-btn.inactive{color:rgba(0,0,0,0.2)}
 .fab-overlay.open{display:block}
 .detail-body{padding:28px 28px 100px;max-width:680px}
 .recipe-hero{width:calc(100% + 40px);margin:-24px -20px 20px;height:240px;object-fit:cover;display:block}
-.recipe-hero-placeholder{width:calc(100% + 40px);margin:-24px -20px 20px;height:120px;background:#0A0805;display:flex;align-items:center;justify-content:center;cursor:pointer;border-bottom:1px solid var(--border)}
-.recipe-hero-placeholder span{font-size:17px;color:var(--smoke);letter-spacing:2px;text-transform:uppercase}
+.recipe-hero-placeholder{width:calc(100% + 40px);margin:-24px -20px 20px;height:180px;background:var(--parchment);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;border:2px dashed var(--border);border-radius:0;gap:10px}
+.recipe-hero-placeholder span{font-size:15px;color:var(--smoke);letter-spacing:2px;text-transform:uppercase;font-family:'DM Sans',sans-serif}
 .recipe-photo{width:100%;height:240px;object-fit:cover;border-radius:0;margin-bottom:16px;display:block}
-.recipe-photo-placeholder{width:100%;height:120px;background:#0A0805;border-radius:0;margin-bottom:16px;display:flex;align-items:center;justify-content:center;cursor:pointer;border-bottom:1px solid var(--border)}
-.recipe-photo-placeholder span{font-size:17px;color:var(--smoke);letter-spacing:2px;text-transform:uppercase}
+.recipe-photo-placeholder{width:100%;height:180px;background:var(--parchment);border-radius:12px;margin-bottom:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;border:2px dashed var(--border);gap:10px}
+.recipe-photo-placeholder span{font-size:15px;color:var(--smoke);letter-spacing:2px;text-transform:uppercase;font-family:'DM Sans',sans-serif}
 .detail-stripe{height:3px;width:100%;margin-bottom:24px;display:block}
 .detail-emoji{font-size:63px;margin-bottom:10px;display:block}
 .detail-title{font-family:'Cormorant Garamond',serif;font-size:34px;font-weight:300;color:var(--bark);margin-bottom:6px;line-height:1.2}
@@ -2123,12 +2123,13 @@ async function calcNährwerteWithClaude(recipeId, ingredients, portions) {
     var nw = JSON.parse(d.content[0].text.replace(/```json|```/g,'').trim());
 
     // In Rezept speichern
+    recipeId = resolveRecipeId(recipeId);
     recipes = recipes.map(function(r) {
       if (r.id === recipeId) return Object.assign({}, r, {nährwerte: nw});
       return r;
     });
     localSave();
-    if (db && isOnline) db.from('recipes').update({nährwerte: nw}).eq('id', recipeId);
+    cloudSaveRecipe(recipeId);
 
     // Detail-Ansicht live aktualisieren
     if (currentRecipe && currentRecipe.id === recipeId) {
@@ -3312,48 +3313,313 @@ function localSave() {
   }
 }
 
-// ─── CLOUD SYNC ────────────────────────────────────────────────────────────
+// ─── CLOUD SYNC v2 ─────────────────────────────────────────────────────────
+// Lokale Rezepte behalten ihren Stand in localStorage. Jede Änderung wird mit
+// updated_at + _dirty markiert und hochgeladen. Beim Sync gilt: neuerer Stand gewinnt.
+var SYNC_MIGRATION_TS = Date.parse('2026-09-26T22:00:00Z'); // Zeitpunkt der DB-Umstellung
+var _syncRunning = false, _syncQueued = false;
+var _pushLocks = {};
+var _idMap = {};          // local-ID → Cloud-UUID (nach erfolgreichem Insert)
+var _lastSyncErrToast = 0;
+
+function isCloudId(id) {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(String(id || ''));
+}
+function resolveRecipeId(id) {
+  var cur = id, n = 0;
+  while (cur != null && _idMap[String(cur)] && n < 5) { cur = _idMap[String(cur)]; n++; }
+  return cur;
+}
+function findRecipe(id) {
+  id = resolveRecipeId(id);
+  return recipes.find(function(r) { return String(r.id) === String(id); });
+}
+function patchRecipe(id, patch) {
+  recipes = recipes.map(function(r) { return String(r.id) === String(id) ? Object.assign({}, r, patch) : r; });
+  if (currentRecipe && String(currentRecipe.id) === String(id)) currentRecipe = Object.assign({}, currentRecipe, patch);
+}
+function isForeignRecipe(r) {
+  return !!(r && r.user_id && _aUser && r.user_id !== _aUser.id);
+}
+function isSyncable(r) {
+  return !!(r && !r.readonly && String(r.id).indexOf('arch-') !== 0 && !isForeignRecipe(r));
+}
+function syncErr(what, e) {
+  var msg = (e && (e.message || e.error_description)) || String(e);
+  console.warn('[Sync] ' + what + ':', msg, e);
+  if (Date.now() - _lastSyncErrToast > 8000) {
+    _lastSyncErrToast = Date.now();
+    showToast('Cloud-Sync Fehler: ' + msg, 'error');
+  }
+}
+
+// Stabiler Vergleich (jsonb sortiert Objekt-Schlüssel um)
+function stableStr(v) {
+  if (v === null || v === undefined) return '';
+  if (Array.isArray(v)) return '[' + v.map(stableStr).join(',') + ']';
+  if (typeof v === 'object') {
+    return '{' + Object.keys(v).sort().map(function(k) { return k + ':' + stableStr(v[k]); }).join(',') + '}';
+  }
+  return String(v).trim();
+}
+function normVal(v) {
+  if (v === null || v === undefined || v === '' || v === false || v === 0 || v === '0') return '';
+  if (Array.isArray(v) && v.length === 0) return '';
+  return stableStr(v);
+}
+
+// Lokales Rezept → Datenbank-Zeile (nur Spalten, die es in Supabase gibt)
+function recipeToDb(r) {
+  var row = {
+    title: r.title || 'Unbenannt',
+    category: r.category || '',
+    emoji: r.emoji || '',
+    color: r.color || '',
+    source: r.source || 'Manuell',
+    ingredients: r.ingredients || [],
+    instructions: r.instructions || '',
+    notes: r.notes || '',
+    portions: (r.portions != null) ? String(r.portions) : '',
+    time: (r.time != null) ? String(r.time) : '',
+    favorite: !!r.favorite,
+    allergens: r.allergens || [],
+    naehrwerte: r['nährwerte'] || r.naehrwerte || null,
+    rating: Number(r.rating) || getRecipeRating(r.id) || 0,
+    outlet_id: r.outlet_id || null,
+    updated_at: r.updated_at || new Date().toISOString()
+  };
+  // Fotos: nur Cloud-URLs in die DB, Base64 bleibt lokal bis zum Upload
+  if (r.photo && String(r.photo).indexOf('http') === 0) row.photo = r.photo;
+  else if (!r.photo) row.photo = null;
+  return row;
+}
+
+// Datenbank-Zeile → lokales Rezept
+function recipeFromDb(cr, localR) {
+  var r = Object.assign({}, cr);
+  r['nährwerte'] = cr.naehrwerte || null;
+  delete r.naehrwerte;
+  var localPhoto = localR && localR.photo;
+  if (!r.photo) r.photo = localPhoto || localStorage.getItem('thyme_photo_' + cr.id) || null;
+  r._dirty = false;
+  if (cr.rating) { try { localStorage.setItem('thyme_rating_' + cr.id, String(cr.rating)); } catch(e) {} }
+  return r;
+}
+
+function recipeContentDiffers(lr, cr) {
+  var fields = ['title','category','ingredients','instructions','notes','portions','time','favorite','allergens','rating'];
+  for (var i = 0; i < fields.length; i++) {
+    var f = fields[i];
+    var lv = (f === 'rating') ? (Number(lr.rating) || getRecipeRating(lr.id) || 0) : lr[f];
+    if (normVal(lv) !== normVal(cr[f])) return true;
+  }
+  if (normVal(lr['nährwerte']) !== normVal(cr.naehrwerte)) return true;
+  var lp = lr.photo ? String(lr.photo) : '';
+  var cp = cr.photo ? String(cr.photo) : '';
+  if (lp.indexOf('http') === 0 && lp !== cp) return true;
+  if (lp && lp.indexOf('http') !== 0 && !cp) return true;   // lokales Foto, Cloud hat keins
+  return false;
+}
+
+// Nach erfolgreichem Insert: alle lokalen Verweise auf die neue ID umstellen
+function onRecipeIdChanged(oldId, newId) {
+  _idMap[String(oldId)] = newId;
+  ['thyme_photo_', 'thyme_rating_'].forEach(function(prefix) {
+    var v = localStorage.getItem(prefix + oldId);
+    if (v !== null) {
+      try { localStorage.setItem(prefix + newId, v); localStorage.removeItem(prefix + oldId); } catch(e) {}
+    }
+  });
+  ['thyme_recent', 'thyme_mep'].forEach(function(key) {
+    var v = localStorage.getItem(key);
+    if (v && v.indexOf('"' + oldId + '"') >= 0) {
+      try { localStorage.setItem(key, v.split('"' + oldId + '"').join('"' + newId + '"')); } catch(e) {}
+    }
+  });
+  if (typeof mepLoad === 'function') { try { mepLoad(); } catch(e) {} }
+}
+
+// Ein Rezept hochladen (Insert für neue, Upsert für bestehende). Gibt die (neue) ID zurück.
+async function pushRecipe(id) {
+  if (!db || !isOnline || !_aUser) return id;
+  var r = findRecipe(id);
+  if (!r) return id;
+  id = r.id;
+  if (!isSyncable(r)) {
+    if (r._dirty) { patchRecipe(id, {_dirty: false}); localSave(); }
+    return id;
+  }
+  try {
+    // Foto: Base64 zuerst in den Storage laden
+    var photo = r.photo;
+    if (photo === '__local__') photo = localStorage.getItem('thyme_photo_' + id);
+    if (photo && String(photo).indexOf('data:') === 0) {
+      var url = await uploadPhotoToStorage(photo, id);
+      if (url) { patchRecipe(id, {photo: url}); r = findRecipe(id); }
+    }
+    var row = recipeToDb(r);
+    row.user_id = _aUser.id;
+    if (!isCloudId(id)) {
+      if (r.created_at) row.created_at = r.created_at;
+      var ins = await db.from('recipes').insert([row]).select().single();
+      if (ins.error) throw ins.error;
+      var newId = ins.data.id;
+      var stillNew = findRecipe(id);
+      var changedMeanwhile = stillNew && stillNew.updated_at !== r.updated_at;
+      var idPatch = {id: newId, user_id: ins.data.user_id, created_at: ins.data.created_at};
+      if (!changedMeanwhile) { idPatch.updated_at = ins.data.updated_at; idPatch._dirty = false; }
+      patchRecipe(id, idPatch);
+      onRecipeIdChanged(id, newId);
+      localSave();
+      console.log('[Sync] Neu hochgeladen:', r.title);
+      return newId;
+    } else {
+      row.id = id;
+      var up = await db.from('recipes').upsert(row).select('id, updated_at').single();
+      if (up.error) throw up.error;
+      var still = findRecipe(id);
+      // Nur als sauber markieren, wenn seit dem Push nichts Neues passiert ist
+      if (still && still.updated_at === r.updated_at) patchRecipe(id, {_dirty: false, updated_at: up.data.updated_at});
+      localSave();
+      return id;
+    }
+  } catch(e) {
+    syncErr('Speichern "' + (r.title || id) + '"', e);
+    return id;
+  }
+}
+
+// Pro Rezept nur ein Upload gleichzeitig (verhindert doppelte Inserts)
+function pushWithLock(id) {
+  id = resolveRecipeId(id);
+  var key = String(id);
+  if (_pushLocks[key]) { _pushLocks[key].again = true; return _pushLocks[key].p; }
+  var lock = {again: false};
+  lock.p = (async function() {
+    var newId = await pushRecipe(id);
+    delete _pushLocks[key];
+    if (lock.again) return pushWithLock(newId || id);
+    return newId || id;
+  })();
+  _pushLocks[key] = lock;
+  return lock.p;
+}
+
+// Zentrale Funktion: nach jeder lokalen Änderung aufrufen
+function cloudSaveRecipe(id) {
+  id = resolveRecipeId(id);
+  var r = findRecipe(id);
+  if (!r || !isSyncable(r)) return;
+  patchRecipe(r.id, {updated_at: new Date().toISOString(), _dirty: true});
+  localSave();
+  if (db && isOnline && _aUser) pushWithLock(r.id);
+}
+
+// Löschen — offline oder bei Fehler vormerken
+function getPendingDeletes() {
+  try { return JSON.parse(localStorage.getItem('thyme_pending_deletes') || '[]'); } catch(e) { return []; }
+}
+function setPendingDeletes(list) {
+  try { localStorage.setItem('thyme_pending_deletes', JSON.stringify(list)); } catch(e) {}
+}
+async function cloudDeleteRecipe(id) {
+  id = resolveRecipeId(id);
+  if (!isCloudId(id)) return;
+  if (!db || !isOnline || !_aUser) {
+    var p = getPendingDeletes(); if (p.indexOf(id) < 0) p.push(id); setPendingDeletes(p);
+    return;
+  }
+  var res = await db.from('recipes').delete().eq('id', id);
+  if (res.error) {
+    var p2 = getPendingDeletes(); if (p2.indexOf(id) < 0) p2.push(id); setPendingDeletes(p2);
+    syncErr('Löschen', res.error);
+  }
+}
+async function processPendingDeletes() {
+  var list = getPendingDeletes();
+  if (!list.length) return;
+  var rest = [];
+  for (var i = 0; i < list.length; i++) {
+    var res = await db.from('recipes').delete().eq('id', list[i]);
+    if (res.error) rest.push(list[i]);
+  }
+  setPendingDeletes(rest);
+}
+
 async function syncToCloud() {
   if (!db || !isOnline || !_aUser) return;
+  if (_syncRunning) { _syncQueued = true; return; }
+  _syncRunning = true;
   try {
-    // Nur von Supabase laden — lokale Daten werden NICHT überschrieben
-    var rRes = await db.from('recipes').select('*').eq('user_id', _aUser.id).order('created_at', {ascending: false});
-    if (rRes.error) { showToast('Sync Fehler: ' + rRes.error.message, 'error'); return; }
+    // 1) Offene Löschungen nachholen
+    await processPendingDeletes();
 
-    if (rRes.data && rRes.data.length > 0) {
-      // Lokale Fotos aus localStorage
-      var photoMap = {};
-      for (var k = 0; k < localStorage.length; k++) {
-        var lkey = localStorage.key(k);
-        if (lkey && lkey.startsWith('thyme_photo_')) {
-          photoMap[lkey.replace('thyme_photo_', '')] = localStorage.getItem(lkey);
+    // 2) Neue lokale Rezepte (local-IDs) hochladen
+    var newOnes = recipes.filter(function(r) { return isSyncable(r) && !isCloudId(r.id); });
+    for (var i = 0; i < newOnes.length; i++) await pushWithLock(newOnes[i].id);
+
+    // 3) Cloud laden — RLS liefert eigene + Outlet-Rezepte
+    var rRes = await db.from('recipes').select('*');
+    if (rRes.error) throw rRes.error;
+    var cloud = rRes.data || [];
+    var cloudById = {};
+    cloud.forEach(function(cr) { cloudById[String(cr.id)] = cr; });
+    var pendingDel = getPendingDeletes();
+
+    // 4) Abgleich: neuerer Stand gewinnt
+    var toPush = [], pulled = 0, added = 0;
+    recipes = recipes.map(function(lr) {
+      var cr = cloudById[String(lr.id)];
+      if (!cr) return lr;
+      lr = Object.assign({}, lr, {user_id: cr.user_id});   // Besitzer kommt immer aus der Cloud
+      var cloudTs = Date.parse(cr.updated_at || cr.created_at || '') || 0;
+      if (!lr.updated_at) {
+        // Altbestand ohne Zeitstempel (vor Sync v2)
+        if (cloudTs > SYNC_MIGRATION_TS) { pulled++; return recipeFromDb(cr, lr); }   // anderes Gerät war schneller
+        if (isSyncable(lr) && recipeContentDiffers(lr, cr)) {                          // lokale Änderungen, die nie ankamen
+          toPush.push(lr.id);
+          return Object.assign({}, lr, {updated_at: new Date().toISOString(), _dirty: true});
         }
+        return Object.assign({}, lr, {updated_at: cr.updated_at});
       }
-      // Bestehende lokale IDs
-      var localIds = recipes.map(function(r){ return String(r.id); });
-      console.log('Cloud hat:', rRes.data.length, 'Lokal:', localIds.length);
-      // Neue Rezepte von Cloud die lokal fehlen hinzufügen
-      var added = 0;
-      rRes.data.forEach(function(cr) {
-        if (localIds.indexOf(String(cr.id)) < 0) {
-          var photo = cr.photo || photoMap[String(cr.id)] || null;
-          recipes.push(Object.assign({}, cr, {photo: photo}));
-          added++;
-          console.log('Neu von Cloud:', cr.title);
-        }
-      });
-      console.log('Hinzugefügt:', added);
-      localSave();
-    }
+      var localTs = Date.parse(lr.updated_at) || 0;
+      if (cloudTs > localTs) { pulled++; return recipeFromDb(cr, lr); }
+      if (isSyncable(lr) && (lr._dirty || localTs > cloudTs)) toPush.push(lr.id);
+      return lr;
+    });
+
+    // 5) Rezepte, die nur in der Cloud existieren, lokal hinzufügen
+    var localIds = {};
+    recipes.forEach(function(r) { localIds[String(r.id)] = true; });
+    cloud.forEach(function(cr) {
+      if (!localIds[String(cr.id)] && pendingDel.indexOf(cr.id) < 0) {
+        recipes.push(recipeFromDb(cr, null));
+        added++;
+      }
+    });
+
+    // 6) Fremde Outlet-Rezepte entfernen, die nicht mehr geteilt sind
+    recipes = recipes.filter(function(r) { return !(isForeignRecipe(r) && !cloudById[String(r.id)]); });
+    localSave();
+
+    // 7) Lokal neuere Stände hochladen
+    for (var j = 0; j < toPush.length; j++) await pushWithLock(toPush[j]);
+
+    console.log('[Sync] Cloud:', cloud.length, '| neu lokal:', added, '| aktualisiert:', pulled, '| hochgeladen:', toPush.length + newOnes.length);
+
     var cRes = await db.from('categories').select('*').order('sort_order');
     if (cRes.data && cRes.data.length > 0) categories = cRes.data;
     var savedCat = activeCat;
     renderCatScroll(); activeCat = savedCat;
     renderGrid(); renderCatList(); renderCatPicker('');
-    showToast('Sync: ' + recipes.length + ' Rezepte', 'success');
+    var open = recipes.filter(function(r) { return r._dirty || (isSyncable(r) && !isCloudId(r.id)); }).length;
+    if (open > 0) showToast('Sync: ' + open + ' Rezept(e) noch nicht in der Cloud', 'error');
+    else showToast('Sync: ' + recipes.length + ' Rezepte', 'success');
   } catch(e) {
-    console.warn('Sync Fehler:', e.message);
-    showToast('Sync Fehler: ' + e.message, 'error');
+    syncErr('Sync', e);
+  } finally {
+    _syncRunning = false;
+    if (_syncQueued) { _syncQueued = false; setTimeout(syncToCloud, 1000); }
   }
 }
 
@@ -3463,7 +3729,7 @@ async function init() {
 
   if (isOnline && typeof supabase !== 'undefined' && supabase.createClient) {
     try {
-      db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+      db = _aSC(); // gleicher Client wie Login — teilt die Session
     } catch(e) { console.warn('Supabase nicht verfügbar:', e); db = null; }
   }
 
@@ -3652,7 +3918,10 @@ function openDetail(r) {
   if (currentRecipe && currentRecipe.photo) {
     photoHtml = '<img class="recipe-hero" id="recipe-photo-el" src="' + currentRecipe.photo + '">';
   } else {
-    photoHtml = '<div class="recipe-hero-placeholder" id="recipe-photo-placeholder" onclick="addPhotoToRecipe()"><span>+ Foto hinzufügen</span></div>';
+    photoHtml = '<div class="recipe-hero-placeholder" id="recipe-photo-placeholder" onclick="addPhotoToRecipe()">' +
+      '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--smoke)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>' +
+      '<span>FOTO HINZUFÜGEN</span>' +
+      '</div>';
   }
   document.getElementById('detail-body').innerHTML =
     photoHtml + '<div class="detail-title">' + r.title + '</div>'
@@ -3785,77 +4054,13 @@ async function saveRecipe() {
     savedId = editId;
     recipes = recipes.map(r => r.id === editId ? Object.assign({}, r, payload) : r);
     localSave();
-    if (db && isOnline && _aUser && _aUser.id) {
-      var updatePayload = {
-        title: payload.title,
-        category: payload.category,
-        ingredients: payload.ingredients,
-        instructions: payload.instructions,
-        notes: payload.notes || '',
-        portions: payload.portions || '',
-        color: payload.color || '',
-        favorite: payload.favorite || false,
-        allergens: payload.allergens || [],
-        nährwerte: payload.nährwerte || null,
-        rating: payload.rating || 0,
-          user_id: (_aUser && _aUser.id) ? _aUser.id : null
-      };
-      if (payload.photo && payload.photo.startsWith('http')) updatePayload.photo = payload.photo;
-      db.from('recipes').update(updatePayload).eq('id', editId);
-    }
+    cloudSaveRecipe(editId);
   } else {
     savedId = 'local-' + Date.now();
     const newR = Object.assign({id: savedId, created_at: new Date().toISOString()}, payload);
     recipes = [newR, ...recipes];
     localSave();
-    if (db && isOnline && _aUser) {
-      (async function() {
-        // Nur Felder die in der DB existieren
-        var insertPayload = {
-          title: payload.title || 'Unbenannt',
-          category: payload.category || '',
-          emoji: payload.emoji || '',
-          ingredients: payload.ingredients || [],
-          instructions: payload.instructions || '',
-          notes: payload.notes || '',
-          portions: payload.portions || '',
-          time: payload.time || '',
-          color: payload.color || '',
-          photo: null,
-          favorite: payload.favorite || false,
-          allergens: payload.allergens || [],
-          nährwerte: payload.nährwerte || null,
-          rating: payload.rating || 0,
-          user_id: _aUser.id
-        };
-        insertPayload.user_id = _aUser.id;
-        // user_id gesetzt
-        // Foto in Supabase Storage hochladen
-        if (insertPayload.photo && insertPayload.photo.startsWith('data:')) {
-          var photoUrl = await uploadPhotoToStorage(insertPayload.photo, savedId);
-          if (photoUrl) {
-            insertPayload.photo = photoUrl;
-            // Auch lokal updaten
-            recipes = recipes.map(function(r){ return r.id === savedId ? Object.assign({}, r, {photo: photoUrl}) : r; });
-            localSave();
-          } else {
-            // Foto lokal separat speichern als Fallback
-            try { localStorage.setItem('thyme_photo_' + savedId, insertPayload.photo); } catch(e) {}
-            insertPayload.photo = null;
-          }
-        }
-        var res = await db.from('recipes').insert([insertPayload]).select();
-        if (res.data && res.data[0]) {
-          var dbId = res.data[0].id;
-          var photo = insertPayload.photo || (recipes.find(function(r){ return r.id === savedId; }) || {}).photo;
-          recipes = recipes.map(function(r){ return r.id === savedId ? Object.assign({}, res.data[0], {photo: photo}) : r; });
-          // localStorage Foto-Key auf neue ID umschreiben
-          var oldPhoto = localStorage.getItem('thyme_photo_' + savedId);
-          if (oldPhoto) { localStorage.setItem('thyme_photo_' + dbId, oldPhoto); localStorage.removeItem('thyme_photo_' + savedId); }
-          localSave();
-        }
-      })();
-    }
+    cloudSaveRecipe(savedId);
   }
   // Allergene und Nährwerte asynchron von Claude berechnen
   detectAllergensWithClaude(savedId, ingData.map(function(i){ return i.name; }));
@@ -3877,14 +4082,14 @@ async function detectAllergensWithClaude(recipeId, ingredientNames) {
     var ids = JSON.parse(d.content[0].text.replace(/```json|```/g,'').trim());
     if (!Array.isArray(ids)) return;
     // Allergene in das Rezept speichern
-    var targetId = recipeId || (recipes[0] && recipes[0].id);
+    var targetId = resolveRecipeId(recipeId) || (recipes[0] && recipes[0].id);
     if (!targetId) return;
     recipes = recipes.map(function(r) {
       if (r.id === targetId) return Object.assign({}, r, {allergens: ids});
       return r;
     });
     localSave();
-    if (db && isOnline) db.from('recipes').update({allergens: ids}).eq('id', targetId);
+    cloudSaveRecipe(targetId);
     // Picker im Formular aktualisieren falls offen
     renderAllergenPicker(ids);
     // UI aktualisieren falls Detailansicht offen
@@ -3910,7 +4115,7 @@ async function detectAllergensWithClaude(recipeId, ingredientNames) {
 
 async function deleteRecipe(id) {
   if (!checkCanEdit()) return;
-  showConfirm('Rezept wirklich löschen?', 'Löschen', function() { recipes = recipes.filter(r => r.id !== id); localSave(); if (db && isOnline) db.from('recipes').delete().eq('id', id); renderGrid(); showScreen('home'); });
+  showConfirm('Rezept wirklich löschen?', 'Löschen', function() { recipes = recipes.filter(r => r.id !== id); localSave(); cloudDeleteRecipe(id); renderGrid(); showScreen('home'); });
 }
 
 // ─── SCAN MIT CLAUDE (direktes Bild-Upload) ────────────────────────────────
@@ -3982,14 +4187,7 @@ async function saveScan() {
   const tempId = 'local-' + Date.now();
   recipes = [Object.assign({id: tempId, created_at: new Date().toISOString()}, payload), ...recipes];
   localSave();
-  if (db && isOnline) {
-    db.from('recipes').insert([payload]).select().then(res => {
-      if (res.data && res.data[0]) {
-        recipes = recipes.map(r => r.id === tempId ? res.data[0] : r);
-        localSave();
-      }
-    });
-  }
+  cloudSaveRecipe(tempId);
   renderGrid(); showScreen('home');
 }
 
@@ -4583,6 +4781,7 @@ async function savePhotoToRecipe(photoData) {
     return r.id === currentRecipe.id ? Object.assign({}, r, {photo: photoUrl}) : r;
   });
   localSave();
+  cloudSaveRecipe(currentRecipe.id);
 
   // DOM aktualisieren
   var existing = document.getElementById('recipe-photo-el');
@@ -4629,9 +4828,7 @@ function deletePhotoFromRecipe() {
     return r.id === id ? Object.assign({}, r, {photo: null}) : r;
   });
   localSave();
-  if (db && isOnline) {
-    db.from('recipes').update({photo: null}).eq('id', id).then(function(){});
-  }
+  cloudSaveRecipe(id);
   // Supabase Storage aufräumen
   if (oldPhoto && oldPhoto.includes('supabase')) {
     deletePhotoFromSupabase(oldPhoto);
@@ -4675,9 +4872,7 @@ async function editPhotoOfRecipe() {
           showToast('Speicher voll — Foto zu gross', 'error');
           return;
         }
-        if (db && isOnline) {
-          db.from('recipes').update({photo: photoData}).eq('id', id).then(function(){});
-        }
+        cloudSaveRecipe(id);
         var existing = document.getElementById('recipe-photo-el');
         if (existing) {
           existing.src = photoData;
@@ -4901,7 +5096,7 @@ function toggleFavorite(btn, id) {
     detBtn.textContent = r.favorite ? '★' : '☆';
   }
   localSave();
-  if (db && isOnline) db.from('recipes').update({favorite: r.favorite}).eq('id', id);
+  cloudSaveRecipe(id);
   // Favoritenliste aktualisieren wenn aktiv
   if (showingFavs) renderGrid();
 }
@@ -5953,6 +6148,7 @@ function rateRecipe(recipeId, rating) {
       return r.id == recipeId ? Object.assign({}, r, {rating: rating}) : r;
     });
     localSave();
+    cloudSaveRecipe(recipeId);
   }
   if (rating > 0) {
     showToast(rating + ' von 5 Blättern', 'success');
