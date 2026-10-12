@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<meta name="build" content="20261012233000">
+<meta name="build" content="20261013000000">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -1233,6 +1233,27 @@ textarea.form-input{line-height:1.5}
 .v2-share input{width:24px;height:24px;flex-shrink:0;accent-color:var(--fill);-webkit-appearance:auto;appearance:auto}
 .v2-code{font-size:20px;letter-spacing:2px;color:var(--bark)}
 .outlet-mode-bar{font-family:'DM Sans',sans-serif}
+
+/* QR-Einladung: immer hell, damit jede Kamera sicher scannt */
+#v2-qr{display:none;position:fixed;inset:0;z-index:3000;background:#FFFFFF;overflow-y:auto}
+#v2-qr.open{display:block}
+.v2-qr-inner{min-height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:calc(24px + env(safe-area-inset-top,0px)) 24px calc(24px + env(safe-area-inset-bottom,0px));text-align:center;color:#22261F}
+.v2-qr-inner h2{margin:0;font-family:'Cormorant Garamond',Georgia,serif;font-size:32px;font-weight:600;color:#22261F}
+.v2-qr-name{margin:0 0 6px;font:600 18px 'DM Sans',sans-serif;color:#2F4A35}
+.v2-qr-box{width:min(84vw,380px);aspect-ratio:1;display:flex;align-items:center;justify-content:center}
+.v2-qr-box svg{width:100%;height:100%;display:block}
+.v2-qr-loading{font-size:16px;color:#5E655B;padding:20px;line-height:1.45}
+.v2-qr-hint{margin:4px 0 0;font:16px/1.4 'DM Sans',sans-serif;color:#5E655B;max-width:340px}
+.v2-qr-hint.small{font-size:15px}
+.v2-qr-code{font:600 28px 'DM Sans',sans-serif;letter-spacing:4px;color:#22261F;margin-top:4px}
+.v2-qr-btn{width:100%;max-width:380px;min-height:52px;border-radius:14px;border:1px solid #E2DDD2;background:#FFFFFF;color:#22261F;font:600 17px 'DM Sans',sans-serif;cursor:pointer}
+.v2-qr-btn.primary{background:#2F4A35;border-color:#2F4A35;color:#FFFFFF;margin-top:10px}
+a.action-sheet-item{display:flex;align-items:center;text-decoration:none;color:inherit}
+
+#v2-sharesheet-overlay{z-index:900 !important}
+#v2-sharesheet{z-index:901 !important}
+
+#confirm-ok.v2-safe{background:var(--fill) !important;color:var(--on-fill) !important}
 </style>
 </head>
 <body>
@@ -1262,8 +1283,9 @@ textarea.form-input{line-height:1.5}
     <!-- Ergebnis nach Erstellen -->
     <div id="outlet-result" style="display:none">
       <div class="outlet-code" id="outlet-result-code"></div>
-      <div class="outlet-info">Teile diesen Code mit deinen Mitarbeitern</div>
-      <button class="outlet-btn" onclick="outletClose()">Fertig</button>
+      <div class="outlet-info">Teile diesen Code mit deinen Mitarbeitern oder lass sie den QR-Code scannen.</div>
+      <button class="outlet-btn" onclick="outletClose();v2ShowQR()">QR-Code zeigen</button>
+      <button class="outlet-btn" style="margin-top:8px;background:transparent;border:1px solid var(--border);color:var(--bark)" onclick="outletClose()">Fertig</button>
     </div>
 
     <button class="outlet-cancel" onclick="outletClose()">Abbrechen</button>
@@ -1908,6 +1930,7 @@ textarea.form-input{line-height:1.5}
         <p class="v2-settext">Teile Rezepte mit deinem Team oder tritt einem Outlet bei.</p>
         <div id="outlet-settings-info" class="v2-infobox" style="display:none"></div>
         <button class="v2-btn-outline" id="outlet-open-btn" onclick="outletOpen()">Outlet erstellen oder beitreten</button>
+        <button id="outlet-qr-btn" class="v2-btn" onclick="v2ShowQR()" style="display:none">QR-Code zum Beitreten zeigen</button>
         <button id="outlet-share-all" class="v2-btn-outline" onclick="v2ShareAll()" style="display:none">Alle eigenen Rezepte im Outlet teilen</button>
         <button id="outlet-leave-btn" class="v2-btn-outline" onclick="outletLeave()" style="display:none">Outlet verlassen</button>
       </div>
@@ -2177,6 +2200,8 @@ function showToast(msg, type, duration) {
 }
 var _confirmCallback = null;
 function showConfirm(msg, okLabel, cb) {
+  var okEl = document.getElementById('confirm-ok');
+  if (okEl) okEl.classList.toggle('v2-safe', !/Löschen|Verlassen|Entfernen/i.test(okLabel || ''));
   document.getElementById('confirm-msg').textContent = msg;
   document.getElementById('confirm-ok').textContent = okLabel || 'Löschen';
   _confirmCallback = cb;
@@ -4968,49 +4993,26 @@ function changePortions(delta) {
 
 // TEILEN & DRUCKEN
 function shareRecipe(r) {
-  var text = r.title + '\n\n';
-  if (r.portions) text += 'Portionen: ' + r.portions + '\n';
-  if (r.time) text += 'Zeit: ' + r.time + '\n';
-  text += '\nZUTATEN\n';
-  (r.ingredients || []).forEach(function(ing) {
-    try {
-      var obj = JSON.parse(ing);
-      if (obj && obj.n) {
-        text += (obj.a ? obj.a + ' ' : '') + (obj.u ? obj.u + ' ' : '') + obj.n + '\n';
-        return;
-      }
-    } catch(e) {}
-    text += ing + '\n';
+  if (!r) return;
+  var lines = [r.title, ''];
+  var meta = [];
+  if (r.portions) meta.push('Portionen: ' + r.portions);
+  if (r.time) meta.push('Zeit: ' + r.time);
+  if (meta.length) lines.push(meta.join(' · '), '');
+  var ings = (r.ingredients || []).map(function(ing) {
+    try { var o = JSON.parse(ing); if (o && o.n) return '• ' + [o.a, o.u, o.n].filter(Boolean).join(' '); } catch(e) {}
+    return '• ' + ing;
   });
-  if (r.instructions) text += '\nZUBEREITUNG\n' + r.instructions + '\n';
-  if (r.notes) text += '\nNOTIZEN\n' + r.notes;
-
-  if (navigator.share && /iPhone|iPad|iPod/.test(navigator.userAgent)) {
-    // iOS — natives Share Sheet
-    navigator.share({ title: r.title, text: text }).catch(function() {});
-  } else {
-    // Mac/andere — in Zwischenablage kopieren
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(text).then(function() {
-        var btn = document.getElementById('share-btn');
-        if (btn) {
-          var orig = btn.innerHTML;
-          btn.innerHTML = '&#10003; Kopiert!';
-          btn.style.color = '#5C7F5D';
-          btn.style.borderColor = '#5C7F5D';
-          setTimeout(function() {
-            btn.innerHTML = orig;
-            btn.style.color = '';
-            btn.style.borderColor = '';
-          }, 2000);
-        }
-      }).catch(function() {
-        fallbackCopy(text);
-      });
-    } else {
-      fallbackCopy(text);
-    }
-  }
+  if (ings.length) lines.push('Zutaten', ings.join('\n'), '');
+  var steps = r.instructions ? parseSteps(r.instructions) : [];
+  if (steps.length) lines.push('Zubereitung', steps.map(function(t, i) { return (i + 1) + '. ' + t; }).join('\n'), '');
+  try {
+    var al = aggregateAllergens(r.ingredients, r.allergens);
+    if (al && al.length) lines.push('Allergene: ' + al.map(function(id) { return allergenById(id).name; }).join(', '), '');
+  } catch(e) {}
+  if (r.notes) lines.push('Notizen', r.notes, '');
+  lines.push('– geteilt aus thyme');
+  v2ShareText(r.title, lines.join('\n'), '');
 }
 
 function openActionSheet() {
@@ -6953,12 +6955,14 @@ function outletUpdateSettings() {
     info.style.display = 'block';
     if (leaveBtn) leaveBtn.style.display = host ? 'none' : '';
     if (shareAll) shareAll.style.display = host ? '' : 'none';
+    var qb = document.getElementById('outlet-qr-btn'); if (qb) qb.style.display = host ? '' : 'none';
     var ob = document.getElementById('outlet-open-btn'); if (ob) ob.style.display = 'none';
   } else {
     var ob2 = document.getElementById('outlet-open-btn'); if (ob2) ob2.style.display = '';
     info.style.display = 'none';
     if (leaveBtn) leaveBtn.style.display = 'none';
     if (shareAll) shareAll.style.display = 'none';
+    var qb2 = document.getElementById('outlet-qr-btn'); if (qb2) qb2.style.display = 'none';
   }
 }
 
@@ -7157,7 +7161,7 @@ function bnSync() {
 function v2CloseOverlays() {
   var addS = document.getElementById('add-sheet');
   if (addS && addS.classList.contains('open')) { try { closeAddSheet(); } catch(e) {} }
-  ['closeArchiveSheet','closeCatSheet','closeActionSheet','closeFabMenu','closeNavInfo','closeSeasonDetail','closeKatalogDetail','closeAllergenPopup','v2ClosePhotoSheet'].forEach(function(fn) {
+  ['closeArchiveSheet','closeCatSheet','closeActionSheet','closeFabMenu','closeNavInfo','closeSeasonDetail','closeKatalogDetail','closeAllergenPopup','v2ClosePhotoSheet','v2CloseShareSheet','v2CloseQR'].forEach(function(fn) {
     try { if (typeof window[fn] === 'function') window[fn](); } catch(e) {}
   });
 }
@@ -7371,6 +7375,7 @@ async function v2OutletRefresh() {
     localStorage.setItem('thyme_outlet', JSON.stringify(_outlet));
     outletUpdateBar(); outletUpdateSettings(); applyRoleUI();
   } catch(e) { console.warn('[Outlet]', e); }
+  finally { setTimeout(v2TryPendingJoin, 400); }
 }
 function v2ToggleShare(on) {
   if (!currentRecipe || !_outlet || _outlet.role !== 'host') return;
@@ -7389,6 +7394,99 @@ function v2ShareAll() {
     own.forEach(function(r) { patchRecipe(r.id, { outlet_id: _outlet.id }); cloudSaveRecipe(r.id); });
     renderGrid();
     showToast(own.length + ' Rezepte freigegeben', 'success');
+  });
+}
+
+// ─── TEILEN: nativer Dialog, sonst eigenes Menü ─────────────────────────────
+var _v2Share = { title: '', text: '', url: '' };
+function v2ShareText(title, text, url) {
+  _v2Share = { title: title || '', text: text || '', url: url || '' };
+  if (navigator.share) {
+    var data = { title: _v2Share.title, text: _v2Share.text };
+    if (_v2Share.url) data.url = _v2Share.url;
+    navigator.share(data).catch(function(err) {
+      if (err && err.name === 'AbortError') return;      // Nutzer hat abgebrochen
+      v2OpenShareSheet();
+    });
+    return;
+  }
+  v2OpenShareSheet();
+}
+function v2OpenShareSheet() {
+  var full = _v2Share.text + (_v2Share.url ? '\n' + _v2Share.url : '');
+  var enc = encodeURIComponent(full);
+  document.getElementById('v2-sharesheet-title').textContent = _v2Share.title ? '„' + _v2Share.title + '“ teilen' : 'Teilen';
+  document.getElementById('v2-share-wa').href = 'https://wa.me/?text=' + enc;
+  document.getElementById('v2-share-mail').href = 'mailto:?subject=' + encodeURIComponent(_v2Share.title) + '&body=' + enc;
+  document.getElementById('v2-share-sms').href = 'sms:?&body=' + enc;
+  ['v2-share-wa','v2-share-mail','v2-share-sms'].forEach(function(id) {
+    document.getElementById(id).onclick = function() { setTimeout(v2CloseShareSheet, 300); };
+  });
+  document.getElementById('v2-sharesheet').classList.add('open');
+  document.getElementById('v2-sharesheet-overlay').classList.add('open');
+}
+function v2CloseShareSheet() {
+  var a = document.getElementById('v2-sharesheet'); if (a) a.classList.remove('open');
+  var b = document.getElementById('v2-sharesheet-overlay'); if (b) b.classList.remove('open');
+}
+function v2CopyShare() {
+  var full = _v2Share.text + (_v2Share.url ? '\n' + _v2Share.url : '');
+  var done = function() { v2CloseShareSheet(); showToast('Text kopiert', 'success'); };
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(full).then(done).catch(function() { fallbackCopy(full); done(); });
+  else { fallbackCopy(full); done(); }
+}
+
+// ─── EINLADUNG PER QR-CODE ──────────────────────────────────────────────────
+var V2_QR_LIB = 'https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js';
+function v2JoinUrl(code) { return location.origin + location.pathname + '?join=' + encodeURIComponent(code); }
+function v2LoadScript(src) {
+  return new Promise(function(res, rej) {
+    if (typeof qrcode === 'function') return res();
+    var el = document.createElement('script'); el.src = src; el.onload = function() { res(); }; el.onerror = function() { rej(new Error('Laden fehlgeschlagen')); };
+    document.head.appendChild(el);
+  });
+}
+function v2QrSvg(text) {
+  var qr = qrcode(0, 'M'); qr.addData(text); qr.make();
+  var n = qr.getModuleCount(), q = 4, size = n + q * 2, d = '';
+  for (var r = 0; r < n; r++) for (var c = 0; c < n; c++) if (qr.isDark(r, c)) d += 'M' + (c + q) + ' ' + (r + q) + 'h1v1h-1z';
+  return '<svg viewBox="0 0 ' + size + ' ' + size + '" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges" role="img" aria-label="QR-Code"><rect width="' + size + '" height="' + size + '" fill="#fff"/><path d="' + d + '" fill="#111"/></svg>';
+}
+async function v2ShowQR() {
+  if (!_outlet || !_outlet.invite_code) { showToast('Kein Outlet-Code vorhanden', 'error'); return; }
+  document.getElementById('v2-qr-name').textContent = _outlet.name;
+  document.getElementById('v2-qr-code').textContent = _outlet.invite_code;
+  var box = document.getElementById('v2-qr-box');
+  box.innerHTML = '<div class="v2-qr-loading">QR-Code wird erstellt …</div>';
+  document.getElementById('v2-qr').classList.add('open');
+  try { await v2LoadScript(V2_QR_LIB); box.innerHTML = v2QrSvg(v2JoinUrl(_outlet.invite_code)); }
+  catch(e) { box.innerHTML = '<div class="v2-qr-loading">QR-Code braucht eine Internetverbindung. Der Code unten funktioniert immer.</div>'; }
+}
+function v2CloseQR() { var o = document.getElementById('v2-qr'); if (o) o.classList.remove('open'); }
+function v2ShareInvite() {
+  if (!_outlet) return;
+  v2ShareText('Einladung zu ' + _outlet.name,
+    'Tritt meinem Outlet „' + _outlet.name + '“ in thyme bei. Öffne den Link und melde dich an. Einladungscode: ' + _outlet.invite_code,
+    v2JoinUrl(_outlet.invite_code));
+}
+// Beitritt über den Link aus dem QR-Code: Code merken, nach dem Login nachfragen
+(function() {
+  try {
+    var m = /[?&]join=([A-Za-z0-9\-]+)/.exec(location.search);
+    if (m) { localStorage.setItem('thyme_pending_join', m[1].toUpperCase()); history.replaceState(null, '', location.pathname); }
+  } catch(e) {}
+})();
+var _v2JoinAsked = false;
+function v2TryPendingJoin() {
+  var code = null; try { code = localStorage.getItem('thyme_pending_join'); } catch(e) {}
+  if (!code || !_aUser || _v2JoinAsked) return;
+  _v2JoinAsked = true;
+  try { localStorage.removeItem('thyme_pending_join'); } catch(e) {}
+  if (_outlet && _outlet.invite_code && _outlet.invite_code.toUpperCase() === code) return;
+  showConfirm('Einladung erhalten: Dem Outlet mit dem Code ' + code + ' beitreten?', 'Beitreten', function() {
+    outletOpen(); outletTab('join');
+    document.getElementById('outlet-code-inp').value = code;
+    outletJoin();
   });
 }
 
@@ -7777,6 +7875,33 @@ function v2ShareAll() {
     <input type="password" id="v2-pw2" class="form-input" autocomplete="new-password">
     <button class="v2-btn" id="v2-newpw-btn" style="margin-top:20px" onclick="v2SaveNewPw()">Passwort speichern</button>
     <button class="v2-btn-outline" id="v2-newpw-close" style="margin-top:10px;display:none" onclick="v2CloseNewPw()">Schliessen</button>
+  </div>
+</div>
+
+<!-- TEILEN-MENÜ (wenn das Gerät keinen eigenen Teilen-Dialog hat) -->
+<div class="action-sheet-overlay" id="v2-sharesheet-overlay" onclick="v2CloseShareSheet()"></div>
+<div class="action-sheet" id="v2-sharesheet">
+  <div class="action-sheet-panel">
+    <div class="v2-sheettitle" id="v2-sharesheet-title">Teilen</div>
+    <a class="action-sheet-item" id="v2-share-wa" target="_blank" rel="noopener"><span class="action-sheet-item-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20l1.3-3.9A8 8 0 1 1 8 19z"/></svg></span> WhatsApp</a>
+    <a class="action-sheet-item" id="v2-share-mail"><span class="action-sheet-item-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5.5" width="17" height="13" rx="2"/><path d="M4 7l8 6 8-6"/></svg></span> E-Mail</a>
+    <a class="action-sheet-item" id="v2-share-sms"><span class="action-sheet-item-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 5h14a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H10l-4 3v-3H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z"/></svg></span> SMS</a>
+    <button class="action-sheet-item" onclick="v2CopyShare()"><span class="action-sheet-item-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/></svg></span> Text kopieren</button>
+  </div>
+  <button class="action-sheet-cancel" onclick="v2CloseShareSheet()">Abbrechen</button>
+</div>
+
+<!-- QR-CODE ZUM BEITRETEN -->
+<div id="v2-qr" role="dialog" aria-modal="true" aria-labelledby="v2-qr-title">
+  <div class="v2-qr-inner">
+    <h2 id="v2-qr-title">Outlet beitreten</h2>
+    <p class="v2-qr-name" id="v2-qr-name"></p>
+    <div class="v2-qr-box" id="v2-qr-box" aria-label="QR-Code zum Beitreten"></div>
+    <p class="v2-qr-hint">Mit der Handy-Kamera scannen, anmelden, fertig.</p>
+    <div class="v2-qr-code" id="v2-qr-code"></div>
+    <p class="v2-qr-hint small">Oder den Code in thyme unter Profil → Outlet → Beitreten eingeben.</p>
+    <button class="v2-qr-btn primary" onclick="v2ShareInvite()">Einladung teilen</button>
+    <button class="v2-qr-btn" onclick="v2CloseQR()">Schliessen</button>
   </div>
 </div>
 
