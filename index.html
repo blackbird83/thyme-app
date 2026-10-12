@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<meta name="build" content="20261010210000">
+<meta name="build" content="20261012190000">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -15,6 +15,11 @@
 // ─── CLAUDE API VIA PROXY ─────────────────────────────────────────────────
 // Trage hier deine Cloudflare Worker URL ein (nach dem Deployment):
 var CLAUDE_PROXY_URL = 'https://thyme-proxy.basti-der-rabe.workers.dev';
+
+// Claude-Modelle zentral: bei künftigen Modellwechseln nur hier anpassen
+// SMART: Foodpairing und Warenkunde · FAST: Allergene, Nährwerte, Scan, Import
+var CLAUDE_MODEL_SMART = 'claude-sonnet-5';
+var CLAUDE_MODEL_FAST  = 'claude-haiku-4-5-20251001';
 
 async function callClaude(payload) {
   if (!CLAUDE_PROXY_URL || CLAUDE_PROXY_URL.includes('DEIN-NAME')) {
@@ -2212,7 +2217,7 @@ async function runPairing() {
 
   try {
     var d = await callClaude({
-      model: 'claude-sonnet-4-20250514',
+      model: CLAUDE_MODEL_SMART,
       max_tokens: 1800,
       messages: [{role:'user', content: prompt}]
     });
@@ -2319,7 +2324,7 @@ async function calcNährwerteWithClaude(recipeId, ingredients, portions) {
     var prompt = 'Berechne Nährwerte für dieses Rezept (' + portCount + ' Portionen): ' + ingNames
       + '. NUR JSON: {"kalorien":"X","protein":"X","kohlenhydrate":"X","fett":"X","notiz":"kurze Anmerkung falls nötig"}. Werte pro Portion, gerundet.';
 
-    var d = await callClaude({model:'claude-haiku-4-5-20251001', max_tokens:200, messages:[{role:'user',content:prompt}]});
+    var d = await callClaude({model:CLAUDE_MODEL_FAST, max_tokens:200, messages:[{role:'user',content:prompt}]});
     if (!d.content || !d.content[0]) return;
     var nw = JSON.parse(d.content[0].text.replace(/```json|```/g,'').trim());
 
@@ -2372,7 +2377,7 @@ async function runWarenkunde() {
 
   try {
     var d = await callClaude({
-      model: 'claude-sonnet-4-20250514',
+      model: CLAUDE_MODEL_SMART,
       max_tokens: 1200,
       messages: [{role:'user', content: prompt}]
     });
@@ -4315,7 +4320,7 @@ async function detectAllergensWithClaude(recipeId, ingredientNames) {
       + 'Mögliche IDs: A=Gluten, B=Krebstiere, C=Eier, D=Fisch, E=Erdnüsse, F=Soja, G=Milch, H=Schalenfrüchte, I=Sellerie, J=Senf, K=Sesam, L=Sulphite, M=Lupinen, N=Weichtiere\n'
       + 'Beispiel: ["A","C","G"]\n'
       + 'Nur sicher enthaltene Allergene angeben. Leeres Array wenn keine vorhanden.';
-    var d = await callClaude({model:'claude-haiku-4-5-20251001',max_tokens:100,messages:[{role:'user',content:prompt}]});
+    var d = await callClaude({model:CLAUDE_MODEL_FAST,max_tokens:100,messages:[{role:'user',content:prompt}]});
     if (!d.content || !d.content[0]) return;
     var ids = JSON.parse(d.content[0].text.replace(/```json|```/g,'').trim());
     if (!Array.isArray(ids)) return;
@@ -4383,7 +4388,7 @@ async function handleScan(input) {
     const mediaType = file.type || 'image/jpeg';
     try {
       const _scanPrompt = 'Lies dieses Rezept-Foto und extrahiere alle Informationen. Antworte NUR mit JSON ohne Markdown: {"title":"...","category":"...","emoji":"...","portions":"...","time":"...","ingredients":"Zutat 1\nZutat 2","instructions":"Schritt 1.\nSchritt 2.","notes":""}. Kategorien: Snacks, Vorspeisen, Suppen, Fleisch, Fisch, Geflügel, Gemüse, Vegetarisch, Pasta & Risotto, Backen & Patisserie, Desserts, Frühstück, Getränke & Cocktails, Saucen & Fonds, Hauptgang';
-      const d = await callClaude({model:'claude-haiku-4-5-20251001',max_tokens:1500,messages:[{role:'user',content:[{type:'image',source:{type:'base64',media_type:mediaType,data:base64}},{type:'text',text:_scanPrompt}]}]});
+      const d = await callClaude({model:CLAUDE_MODEL_FAST,max_tokens:1500,messages:[{role:'user',content:[{type:'image',source:{type:'base64',media_type:mediaType,data:base64}},{type:'text',text:_scanPrompt}]}]});
       if (!d.content || !d.content[0]) throw new Error('Keine Antwort vom Server');
       const raw = d.content[0].text.replace(/```json|```/g, '').trim();
       const r = JSON.parse(raw);
@@ -4463,7 +4468,7 @@ async function extractWithClaude(text, source) {
     + 'Kategorie: Snacks, Vorspeisen, Suppen, Fleisch, Fisch, Geflügel, Gemüse, Vegetarisch, Pasta & Risotto, Backen & Patisserie, Desserts, Frühstück, Getränke & Cocktails, Saucen & Fonds, Salate, Hauptgang\n\nText:\n'
     + text;
   try {
-    const d = await callClaude({model:'claude-haiku-4-5-20251001',max_tokens:1000,messages:[{role:'user',content:prompt}]});
+    const d = await callClaude({model:CLAUDE_MODEL_FAST,max_tokens:1000,messages:[{role:'user',content:prompt}]});
     if (!d.content || !d.content[0]) throw new Error('Keine Antwort');
     const r = JSON.parse(d.content[0].text.replace(/```json|```/g, '').trim());
     editId = null;
