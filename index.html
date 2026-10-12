@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<meta name="build" content="20261012193000">
+<meta name="build" content="20261012224000">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -507,7 +507,7 @@ body.light-mode #bc-dark { display: none !important; }
 .ob-dots{display:flex;gap:8px;margin-bottom:24px;justify-content:center}
 .ob-dot{width:6px;height:6px;border-radius:50%;background:var(--parchment);transition:background .3s}
 .ob-dot.active{background:var(--fill)}
-.ob-btn-next{width:100%;padding:16px;background:var(--fill);border:none;border-radius:14px;color:var(--bark);font-family:'DM Sans',system-ui,sans-serif;font-size:18px;font-weight:500;letter-spacing:0.2px;cursor:pointer;margin-bottom:12px}
+.ob-btn-next{width:100%;padding:16px;background:var(--fill);border:none;border-radius:14px;color:var(--on-fill);font-family:'DM Sans',system-ui,sans-serif;font-size:18px;font-weight:500;letter-spacing:0.2px;cursor:pointer;margin-bottom:12px}
 .ob-btn-next.gold{background:var(--fill)}
 .ob-btn-skip{font-size:17px;color:var(--thyme);letter-spacing:0.2px;text-transform:none;background:none;border:none;cursor:pointer;padding:8px}
 body.light-mode #onboarding{background:var(--cream)}
@@ -522,7 +522,7 @@ body.light-mode .ob-btn-next{background:var(--fill)}
 .shop-filter-bar{display:flex;gap:8px;overflow-x:auto;padding:12px 20px;border-bottom:1px solid var(--border);scrollbar-width:none}
 .shop-filter-bar::-webkit-scrollbar{display:none}
 .shop-filter{font-size:17px;padding:5px 14px;border-radius:99px;border:1px solid var(--border);color:var(--smoke);white-space:nowrap;cursor:pointer;letter-spacing:0.2px;background:transparent;font-family:'DM Sans',sans-serif}
-.shop-filter.active{background:var(--fill);border-color:var(--fill);color:var(--bark)}
+.shop-filter.active{background:var(--fill);border-color:var(--fill);color:var(--on-fill)}
 .shop-body{padding:0 20px 160px;overflow-y:auto}
 .shop-cat-title{font-size:17px;letter-spacing:0.2px;text-transform:none;color:var(--gold);padding:16px 0 8px;display:flex;align-items:center;justify-content:space-between}
 .shop-cat-count{font-size:16px;color:var(--smoke);letter-spacing:0}
@@ -541,7 +541,7 @@ body.light-mode .ob-btn-next{background:var(--fill)}
 .shop-footer{position:fixed;bottom:calc(60px + env(safe-area-inset-bottom, 0px));left:0;right:0;background:var(--cream);border-top:1px solid var(--border);padding:12px 20px 16px;display:flex;gap:10px;max-width:900px;margin:0 auto;box-shadow:0 -2px 12px rgba(0,0,0,.06)}
 .shop-footer-btn{flex:1;padding:12px;border-radius:12px;font-size:16px;font-weight:500;font-family:'DM Sans',sans-serif;cursor:pointer;letter-spacing:0.2px}
 .shop-btn-clear{background:transparent;border:1px solid var(--border);color:var(--smoke)}
-.shop-btn-export{background:var(--fill);border:none;color:var(--bark)}
+.shop-btn-export{background:var(--fill);border:none;color:var(--on-fill)}
 .shop-add-btn{display:block;width:100%;padding:10px;background:transparent;border:1px dashed var(--border);border-radius:10px;color:var(--smoke);font-size:16px;letter-spacing:0.2px;cursor:pointer;margin-top:12px;font-family:'DM Sans',sans-serif}
 body.light-mode .shop-filter.active{background:var(--fill);color:#F5F0E8}
 body.light-mode .shop-footer{background:var(--cream)}
@@ -616,7 +616,7 @@ body.light-mode .protein-season-badge{background:#FFF3DC;color:var(--gold)}
 .season-no-recipe{font-size:16px;color:var(--smoke);padding:8px 0}
 .season-supplier-wrap{margin-top:8px}
 .season-supplier-input{width:100%;background:var(--parchment);border:1px solid var(--border);border-radius:10px;padding:10px 14px;font-size:17px;color:var(--bark);font-family:'DM Sans',sans-serif}
-.season-supplier-save{margin-top:8px;width:100%;padding:10px;background:var(--fill);border:none;border-radius:10px;color:var(--bark);font-family:'DM Sans',sans-serif;font-size:16px;cursor:pointer}
+.season-supplier-save{margin-top:8px;width:100%;padding:10px;background:var(--fill);border:none;border-radius:10px;color:var(--on-fill);font-family:'DM Sans',sans-serif;font-size:16px;cursor:pointer}
 
 
 /* ── SAISONKALENDER EDITOR ───────────────────────────────────────────────── */
@@ -642,10 +642,10 @@ body.light-mode .protein-season-badge{background:#FFF3DC;color:var(--gold)}
 .se-form-select{width:100%;background:var(--parchment);border:1px solid var(--border);border-radius:10px;padding:10px 14px;font-size:17px;color:var(--bark);font-family:'DM Sans',sans-serif;margin-bottom:16px;-webkit-appearance:none}
 .se-months-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin-bottom:8px}
 .se-month-btn{padding:8px 4px;border-radius:8px;border:1px solid var(--border);background:transparent;font-size:17px;color:var(--smoke);cursor:pointer;text-align:center;font-family:'DM Sans',sans-serif}
-.se-month-btn.season{background:var(--fill);border-color:var(--fill);color:var(--bark)}
-.se-month-btn.peak{background:var(--fill);border-color:var(--border);color:var(--bark)}
+.se-month-btn.season{background:var(--fill);border-color:var(--fill);color:var(--on-fill)}
+.se-month-btn.peak{background:var(--fill);border-color:var(--border);color:var(--on-fill)}
 .se-months-hint{font-size:16px;color:var(--smoke);margin-bottom:16px}
-.se-save-btn{width:100%;padding:14px;background:var(--fill);border:none;border-radius:12px;color:var(--bark);font-family:'DM Sans',sans-serif;font-size:18px;font-weight:500;cursor:pointer;margin-bottom:10px}
+.se-save-btn{width:100%;padding:14px;background:var(--fill);border:none;border-radius:12px;color:var(--on-fill);font-family:'DM Sans',sans-serif;font-size:18px;font-weight:500;cursor:pointer;margin-bottom:10px}
 .se-cancel-btn{width:100%;padding:12px;background:transparent;border:1px solid var(--border);border-radius:12px;color:var(--smoke);font-family:'DM Sans',sans-serif;font-size:17px;cursor:pointer}
 .se-legend{display:flex;gap:12px;margin-bottom:16px}
 .se-leg{display:flex;align-items:center;gap:5px;font-size:17px;color:var(--smoke)}
@@ -686,7 +686,7 @@ html,body{overflow-y:auto;-webkit-overflow-scrolling:touch;height:auto}
 .kd-section:first-child{margin-top:0}
 .kd-input{width:100%;background:var(--parchment);border:1px solid var(--border);border-radius:10px;padding:11px 14px;font-size:17px;color:var(--bark);font-family:'DM Sans',sans-serif;margin-bottom:8px}
 .kd-textarea{width:100%;background:var(--parchment);border:1px solid var(--border);border-radius:10px;padding:11px 14px;font-size:17px;color:var(--bark);font-family:'DM Sans',sans-serif;margin-bottom:8px;min-height:100px;resize:none}
-.kd-save-btn{width:100%;padding:13px;background:var(--fill);border:none;border-radius:12px;color:var(--bark);font-family:'DM Sans',sans-serif;font-size:17px;font-weight:500;cursor:pointer;margin-bottom:10px}
+.kd-save-btn{width:100%;padding:13px;background:var(--fill);border:none;border-radius:12px;color:var(--on-fill);font-family:'DM Sans',sans-serif;font-size:17px;font-weight:500;cursor:pointer;margin-bottom:10px}
 .kd-shop-btn{width:100%;padding:13px;background:transparent;border:1px solid var(--thyme);border-radius:12px;color:var(--thyme);font-family:'DM Sans',sans-serif;font-size:17px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px}
 .kd-info-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:0.5px solid var(--border);font-size:16px}
 .kd-info-label{color:var(--smoke)}
@@ -753,8 +753,8 @@ html,body{overflow-y:auto;-webkit-overflow-scrolling:touch;height:auto}
 .do-hint{font-size:17px;color:var(--smoke);margin-bottom:8px}
 .do-months{display:grid;grid-template-columns:repeat(6,1fr);gap:5px;margin-bottom:10px}
 .do-month{padding:7px 2px;border-radius:7px;border:1px solid var(--border);background:transparent;font-size:16px;color:var(--smoke);cursor:pointer;text-align:center;font-family:'DM Sans',sans-serif;transition:all .15s;-webkit-tap-highlight-color:rgba(0,0,0,0)}
-.do-month.season{background:var(--fill);border-color:var(--fill);color:var(--bark)}
-.do-month.peak{background:var(--fill);border-color:var(--border);color:var(--bark)}
+.do-month.season{background:var(--fill);border-color:var(--fill);color:var(--on-fill)}
+.do-month.peak{background:var(--fill);border-color:var(--border);color:var(--on-fill)}
 /* Jahresbalken */
 .do-yearbar{margin-bottom:14px}
 .do-yb-grid{display:grid;grid-template-columns:repeat(12,1fr);gap:2px;margin-bottom:3px}
@@ -772,7 +772,7 @@ html,body{overflow-y:auto;-webkit-overflow-scrolling:touch;height:auto}
 .do-input{width:100%;background:var(--parchment);border:1px solid var(--border);border-radius:10px;padding:11px 14px;font-size:16px;color:var(--bark);font-family:'DM Sans',sans-serif;margin-bottom:16px;box-sizing:border-box}
 .do-textarea{width:100%;background:var(--parchment);border:1px solid var(--border);border-radius:10px;padding:11px 14px;font-size:16px;color:var(--bark);font-family:'DM Sans',sans-serif;min-height:90px;resize:none;margin-bottom:16px;box-sizing:border-box}
 /* Buttons */
-.do-save{width:100%;padding:13px;background:var(--fill);border:none;border-radius:12px;color:var(--bark);font-family:'DM Sans',sans-serif;font-size:17px;font-weight:500;cursor:pointer;margin-bottom:10px}
+.do-save{width:100%;padding:13px;background:var(--fill);border:none;border-radius:12px;color:var(--on-fill);font-family:'DM Sans',sans-serif;font-size:17px;font-weight:500;cursor:pointer;margin-bottom:10px}
 .do-shop{width:100%;padding:13px;background:transparent;border:1px solid var(--thyme);border-radius:12px;color:var(--thyme);font-family:'DM Sans',sans-serif;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:20px}
 
 
@@ -783,17 +783,17 @@ html,body{overflow-y:auto;-webkit-overflow-scrolling:touch;height:auto}
 .a-tag{font-size:16px;letter-spacing:0.2px;color:var(--gold);text-transform:none;margin-bottom:40px}
 .a-tabs{display:flex;border-radius:12px;overflow:hidden;border:1px solid var(--border);margin-bottom:22px;width:100%;max-width:360px}
 .a-tab{flex:1;padding:11px;background:transparent;border:none;font-family:'DM Sans',sans-serif;font-size:16px;color:var(--smoke);cursor:pointer}
-.a-tab.on{background:var(--fill);color:var(--bark)}
+.a-tab.on{background:var(--fill);color:var(--on-fill)}
 .a-field{margin-bottom:12px;width:100%;max-width:360px}
 .a-lbl{font-size:16px;letter-spacing:0.2px;text-transform:none;color:var(--gold);display:block;margin-bottom:5px}
 .a-inp{width:100%;background:var(--parchment);border:1px solid var(--border);border-radius:10px;padding:12px 14px;font-size:17px;color:var(--bark);font-family:'DM Sans',sans-serif;box-sizing:border-box}
-.a-btn{width:100%;max-width:360px;padding:13px;background:var(--fill);border:none;border-radius:12px;color:var(--bark);font-family:'DM Sans',sans-serif;font-size:17px;font-weight:500;cursor:pointer;margin-top:6px;margin-bottom:14px}
+.a-btn{width:100%;max-width:360px;min-height:52px;padding:13px;background:var(--fill);border:none;border-radius:12px;color:var(--on-fill);font-family:'DM Sans',sans-serif;font-size:17px;font-weight:500;cursor:pointer;margin-top:6px;margin-bottom:14px}
 .a-skip{display:none}
 .a-err{width:100%;max-width:360px;border-radius:8px;padding:10px 14px;font-size:17px;margin-bottom:10px;display:none;background:#FBEAE8;border:1px solid #E8A09A;color:#8B2018}
 .a-ok{width:100%;max-width:360px;border-radius:8px;padding:10px 14px;font-size:17px;margin-bottom:10px;display:none;background:#EAF3DE;border:1px solid #9FC76A;color:#2D5A0E}
 
 /* OUTLET MODUS */
-.outlet-mode-bar{background:var(--fill);color:var(--bark);padding:6px 16px;font-size:17px;letter-spacing:0.2px;text-align:center;display:none}
+.outlet-mode-bar{background:var(--fill);color:var(--on-fill);padding:6px 16px;font-size:17px;letter-spacing:0.2px;text-align:center;display:none}
 .outlet-mode-bar.visible{display:block}
 .outlet-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:800;align-items:center;justify-content:center;padding:20px}
 .outlet-modal.open{display:flex}
@@ -801,9 +801,9 @@ html,body{overflow-y:auto;-webkit-overflow-scrolling:touch;height:auto}
 .outlet-box h3{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:500;color:var(--bark);margin-bottom:16px}
 .outlet-tab-wrap{display:flex;border-radius:10px;overflow:hidden;border:1px solid var(--border);margin-bottom:20px}
 .outlet-tab{flex:1;padding:10px;background:transparent;border:none;font-family:'DM Sans',sans-serif;font-size:17px;color:var(--smoke);cursor:pointer}
-.outlet-tab.on{background:var(--fill);color:var(--bark)}
+.outlet-tab.on{background:var(--fill);color:var(--on-fill)}
 .outlet-inp{width:100%;background:var(--parchment);border:1px solid var(--border);border-radius:10px;padding:11px 14px;font-size:16px;color:var(--bark);font-family:'DM Sans',sans-serif;margin-bottom:12px;box-sizing:border-box}
-.outlet-btn{width:100%;padding:12px;background:var(--fill);border:none;border-radius:10px;color:var(--bark);font-family:'DM Sans',sans-serif;font-size:16px;font-weight:500;cursor:pointer;margin-bottom:10px}
+.outlet-btn{width:100%;padding:12px;background:var(--fill);border:none;border-radius:10px;color:var(--on-fill);font-family:'DM Sans',sans-serif;font-size:16px;font-weight:500;cursor:pointer;margin-bottom:10px}
 .outlet-cancel{width:100%;padding:10px;background:transparent;border:1px solid var(--border);border-radius:10px;color:var(--smoke);font-family:'DM Sans',sans-serif;font-size:17px;cursor:pointer}
 .outlet-msg{font-size:17px;padding:8px 12px;border-radius:8px;margin-bottom:12px;display:none}
 .outlet-msg.err{background:#FBEAE8;color:#8B2018;border:1px solid #E8A09A}
@@ -1217,6 +1217,15 @@ textarea.form-input{line-height:1.5}
 .cat-sheet-overlay,.archive-sheet-overlay{z-index:900 !important}
 .cat-sheet,.archive-sheet{z-index:901 !important;padding-bottom:env(safe-area-inset-bottom,0px)}
 #toast{z-index:1000 !important}
+
+/* Neues Passwort */
+#v2-newpw{display:none;position:fixed;inset:0;z-index:10000;background:rgba(10,12,10,.55);align-items:flex-end;justify-content:center;padding:0}
+#v2-newpw.open{display:flex}
+.v2-newpw-card{width:100%;max-width:520px;background:var(--cream);border-radius:24px 24px 0 0;padding:26px 20px calc(26px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column}
+.v2-newpw-card h2{margin:0 0 8px;font-family:'Cormorant Garamond',Georgia,serif;font-size:30px;font-weight:600;color:var(--bark)}
+.v2-newpw-card .v2-settext{margin-bottom:16px}
+.v2-newpw-card .a-err{max-width:none}
+@media (min-width:600px){#v2-newpw{align-items:center}.v2-newpw-card{border-radius:24px}}
 </style>
 </head>
 <body>
@@ -6758,24 +6767,16 @@ async function aSubmit() {
   btn.disabled=false; btn.textContent=_aMode==='login'?'Anmelden':'Registrieren';
 }
 function aForgotPassword() {
-  var email = (document.getElementById('a-em') ? document.getElementById('a-em').value : '').trim();
-  if (!email) {
-    // Passwort-Reset Seite öffnen
-    window.open('https://blackbird83.github.io/thyme-app/reset-password.html', '_blank');
-    return;
-  }
-  // Email vorhanden — direkt Reset-Mail senden
-  var c = _aSC();
-  if (!c) return;
-  c.auth.resetPasswordForEmail(email, {
-    redirectTo: 'https://blackbird83.github.io/thyme-app/reset-password.html'
-  }).then(function(res) {
-    if (res.error) {
-      document.getElementById('a-error').textContent = 'Fehler: ' + res.error.message;
-    } else {
-      document.getElementById('a-error').style.color = '#4a7c59';
-      document.getElementById('a-error').textContent = 'Reset-Link wurde an ' + email + ' gesendet. Bitte prüfe dein Postfach.';
-    }
+  var err = document.getElementById('a-err'), ok = document.getElementById('a-ok');
+  var show = function(el, txt) { if (!el) return; el.textContent = txt; el.style.display = 'block'; };
+  if (err) err.style.display = 'none'; if (ok) ok.style.display = 'none';
+  var email = (document.getElementById('a-email') ? document.getElementById('a-email').value : '').trim();
+  if (!email) { show(err, 'Bitte zuerst oben deine E-Mail-Adresse eingeben, dann auf „Passwort vergessen?“ tippen.'); return; }
+  var c = _aSC(); if (!c) { show(err, 'Keine Verbindung zum Server.'); return; }
+  // Der Link führt zurück in die App, die dann das Formular „Neues Passwort“ zeigt
+  c.auth.resetPasswordForEmail(email, { redirectTo: 'https://blackbird83.github.io/thyme-app/?reset=1' }).then(function(res) {
+    if (res.error) show(err, 'Fehler: ' + res.error.message);
+    else show(ok, 'Wir haben dir einen Link an ' + email + ' geschickt. Öffne ihn auf diesem Gerät, um ein neues Passwort festzulegen.');
   });
 }
 
@@ -7241,6 +7242,84 @@ function v2MepHeader() {
   var o2 = mepOpenSession; mepOpenSession = function() { o2.apply(this, arguments); v2MepHeader(); };
 })();
 
+// ─── PASSWORT-RESET: Link aus der Mail führt in die App ─────────────────────
+function v2CleanAuthUrl() {
+  try { history.replaceState(null, '', location.pathname); } catch(e) {}
+}
+function v2ShowNewPw(errText) {
+  var o = document.getElementById('v2-newpw'); if (!o) return;
+  o.classList.add('open');
+  var err = document.getElementById('v2-newpw-err');
+  var inputs = [document.getElementById('v2-pw1'), document.getElementById('v2-pw2'), document.getElementById('v2-newpw-btn')];
+  if (errText) {
+    err.textContent = errText; err.style.display = 'block';
+    document.getElementById('v2-newpw-text').textContent = 'Fordere auf der Anmeldeseite über „Passwort vergessen?“ einen neuen Link an.';
+    inputs.forEach(function(el) { if (el) el.style.display = 'none'; });
+    document.querySelectorAll('#v2-newpw .form-label').forEach(function(l) { l.style.display = 'none'; });
+    document.getElementById('v2-newpw-close').style.display = '';
+  } else {
+    err.style.display = 'none';
+    setTimeout(function() { var f = document.getElementById('v2-pw1'); if (f) f.focus(); }, 300);
+  }
+}
+function v2CloseNewPw() {
+  var o = document.getElementById('v2-newpw'); if (o) o.classList.remove('open');
+  window._v2Recovery = false; v2CleanAuthUrl();
+}
+async function v2SaveNewPw() {
+  var p1 = document.getElementById('v2-pw1').value, p2 = document.getElementById('v2-pw2').value;
+  var err = document.getElementById('v2-newpw-err');
+  var fail = function(t) { err.textContent = t; err.style.display = 'block'; };
+  if (p1.length < 6) return fail('Das Passwort muss mindestens 6 Zeichen haben.');
+  if (p1 !== p2) return fail('Die beiden Passwörter stimmen nicht überein.');
+  var btn = document.getElementById('v2-newpw-btn'); btn.disabled = true; btn.textContent = 'Wird gespeichert …';
+  var c = _aSC();
+  var res = c ? await c.auth.updateUser({ password: p1 }) : { error: { message: 'Keine Verbindung zum Server.' } };
+  btn.disabled = false; btn.textContent = 'Passwort speichern';
+  if (res.error) return fail('Fehler: ' + res.error.message);
+  v2CloseNewPw();
+  showToast('Neues Passwort gespeichert', 'success');
+  try {
+    var sess = await c.auth.getSession();
+    if (sess.data && sess.data.session) {
+      _aUser = sess.data.session.user; aUpdateUI();
+      var as = document.getElementById('screen-auth'); if (as) as.classList.remove('visible');
+      setTimeout(syncToCloud, 500);
+    }
+  } catch(e) {}
+}
+function v2CheckRecovery() {
+  var q = location.search || '', h = location.hash || '';
+  var isRecovery = /[?&]reset=1/.test(q) || /type=recovery/.test(h);
+  // Fehler im Link (abgelaufen oder bereits verwendet)
+  var hp = new URLSearchParams(h.replace(/^#/, '')), qp = new URLSearchParams(q.replace(/^\?/, ''));
+  var errCode = hp.get('error_code') || qp.get('error_code');
+  if (isRecovery && errCode) {
+    window._v2Recovery = false;
+    v2ShowNewPw(errCode === 'otp_expired'
+      ? 'Der Link ist abgelaufen oder wurde schon verwendet.'
+      : 'Der Link konnte nicht verwendet werden (' + (hp.get('error_description') || qp.get('error_description') || errCode) + ').');
+    return;
+  }
+  var c = _aSC(); if (!c) return;
+  c.auth.onAuthStateChange(function(event, session) {
+    if (event === 'PASSWORD_RECOVERY') { window._v2Recovery = true; v2ShowNewPw(); }
+  });
+  if (!isRecovery) return;
+  window._v2Recovery = true;
+  c.auth.getSession().then(function(r) {
+    if (r.data && r.data.session) v2ShowNewPw();
+    else setTimeout(function() {
+      c.auth.getSession().then(function(r2) {
+        if (r2.data && r2.data.session) v2ShowNewPw();
+        else v2ShowNewPw('Der Link konnte nicht bestätigt werden.');
+      });
+    }, 1500);
+  });
+}
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function() { setTimeout(v2CheckRecovery, 50); });
+else setTimeout(v2CheckRecovery, 50);
+
 </script>
 
 <!-- SCREEN: EINKAUFSLISTE -->
@@ -7612,6 +7691,21 @@ function v2MepHeader() {
     <button class="action-sheet-item danger" id="v2-photo-del" onclick="v2ClosePhotoSheet();deletePhotoFromRecipe()"><span class="action-sheet-item-icon" id="v2-ps-del"></span> Foto entfernen</button>
   </div>
   <button class="action-sheet-cancel" onclick="v2ClosePhotoSheet()">Abbrechen</button>
+</div>
+
+<!-- NEUES PASSWORT (nach Klick auf den Reset-Link) -->
+<div id="v2-newpw" role="dialog" aria-modal="true" aria-labelledby="v2-newpw-title">
+  <div class="v2-newpw-card">
+    <h2 id="v2-newpw-title">Neues Passwort festlegen</h2>
+    <p class="v2-settext" id="v2-newpw-text">Wähle ein neues Passwort für dein thyme-Konto.</p>
+    <div class="a-err" id="v2-newpw-err"></div>
+    <label class="form-label" for="v2-pw1">Neues Passwort</label>
+    <input type="password" id="v2-pw1" class="form-input" autocomplete="new-password" placeholder="Mindestens 6 Zeichen">
+    <label class="form-label" for="v2-pw2" style="margin-top:14px">Passwort wiederholen</label>
+    <input type="password" id="v2-pw2" class="form-input" autocomplete="new-password">
+    <button class="v2-btn" id="v2-newpw-btn" style="margin-top:20px" onclick="v2SaveNewPw()">Passwort speichern</button>
+    <button class="v2-btn-outline" id="v2-newpw-close" style="margin-top:10px;display:none" onclick="v2CloseNewPw()">Schliessen</button>
+  </div>
 </div>
 
 <div id="toast"></div>
