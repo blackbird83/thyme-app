@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<meta name="build" content="20261012224000">
+<meta name="build" content="20261012233000">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -1226,6 +1226,13 @@ textarea.form-input{line-height:1.5}
 .v2-newpw-card .v2-settext{margin-bottom:16px}
 .v2-newpw-card .a-err{max-width:none}
 @media (min-width:600px){#v2-newpw{align-items:center}.v2-newpw-card{border-radius:24px}}
+
+.v2-share{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:14px 0 2px;padding:12px 14px;border-radius:16px;background:var(--tint);cursor:pointer}
+.v2-share-text{display:flex;flex-direction:column;gap:2px;font-size:15px;color:var(--smoke)}
+.v2-share-text b{font-size:17px;font-weight:600;color:var(--bark)}
+.v2-share input{width:24px;height:24px;flex-shrink:0;accent-color:var(--fill);-webkit-appearance:auto;appearance:auto}
+.v2-code{font-size:20px;letter-spacing:2px;color:var(--bark)}
+.outlet-mode-bar{font-family:'DM Sans',sans-serif}
 </style>
 </head>
 <body>
@@ -1900,7 +1907,8 @@ textarea.form-input{line-height:1.5}
       <div class="v2-card">
         <p class="v2-settext">Teile Rezepte mit deinem Team oder tritt einem Outlet bei.</p>
         <div id="outlet-settings-info" class="v2-infobox" style="display:none"></div>
-        <button class="v2-btn-outline" onclick="outletOpen()">Outlet erstellen oder beitreten</button>
+        <button class="v2-btn-outline" id="outlet-open-btn" onclick="outletOpen()">Outlet erstellen oder beitreten</button>
+        <button id="outlet-share-all" class="v2-btn-outline" onclick="v2ShareAll()" style="display:none">Alle eigenen Rezepte im Outlet teilen</button>
         <button id="outlet-leave-btn" class="v2-btn-outline" onclick="outletLeave()" style="display:none">Outlet verlassen</button>
       </div>
     </section>
@@ -3795,6 +3803,8 @@ async function syncToCloud() {
   if (_syncRunning) { _syncQueued = true; return; }
   _syncRunning = true;
   try {
+    // 0) Outlet-Zugehörigkeit aus der Datenbank
+    await v2OutletRefresh();
     // 1) Offene Löschungen nachholen
     await processPendingDeletes();
 
@@ -4111,6 +4121,7 @@ function renderGrid() {
       ? '<img class="v2-thumb" src="' + r.photo + '" alt="">'
       : '<div class="v2-thumb v2-thumb-empty">' + v2_leaf() + '</div>';
     var meta = (activeCat === 'all') ? (r.category || '') : (r.time || r.portions || '');
+    if (r.outlet_id && _outlet && r.outlet_id === _outlet.id && !isForeignRecipe(r)) meta = (meta ? meta + ' · ' : '') + 'Geteilt';
     card.innerHTML = thumbHtml
       + '<div class="card-body">'
       + '<div class="card-title">' + r.title + (r.rating ? ' ' + leafMiniHTML(r.rating) : '') + '</div>'
@@ -4188,6 +4199,14 @@ function openDetail(r) {
     if (r.readonly) return '';
     return '<div class="allergen-section v2-allerg" id="allergen-pending"><span class="v2-muted">Allergene werden erkannt …</span></div>';
   }());
+  var shareHtml = '';
+  if (canEdit && _outlet && _outlet.role === 'host' && !isForeignRecipe(r)) {
+    var shared = r.outlet_id === _outlet.id;
+    shareHtml = '<label class="v2-share"><span class="v2-share-text"><b>Im Outlet teilen</b><span id="v2-share-sub">' + v2Esc(_outlet.name) + (shared ? ': sichtbar für dein Team' : ': nur für dich') + '</span></span>'
+      + '<input type="checkbox" id="v2-share-cb"' + (shared ? ' checked' : '') + ' onchange="v2ToggleShare(this.checked)"></label>';
+  } else if (isForeignRecipe(r) && _outlet) {
+    shareHtml = '<div class="v2-muted" style="margin-top:10px">Freigegeben von ' + v2Esc(_outlet.name) + '</div>';
+  }
   var portionsHtml = hasIngredients
     ? '<div class="v2-portions"><span>Portionen</span><div class="v2-stepper">'
       + '<button onclick="changePortions(-1)" aria-label="Weniger Portionen"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14"/></svg></button>'
@@ -4211,6 +4230,7 @@ function openDetail(r) {
     + '<h1 class="detail-title">' + r.title + '</h1>'
     + (meta.length ? '<div class="v2-meta">' + meta.join('') + '</div>' : '')
     + allergenHtml
+    + shareHtml
     + (r.readonly ? '' : renderRatingWidget(r.id, 22))
     + portionsHtml
     + (ings ? '<div class="v2-sechead2"><h2 class="section-label">Zutaten</h2>'
@@ -6888,49 +6908,60 @@ async function outletJoin() {
   if (!code) { outletMsg('Bitte Code eingeben','err'); return; }
   var c = _aSC(); if (!c) { outletMsg('Verbindungsfehler','err'); return; }
   try {
-    // Outlet via Code suchen
-    var res = await c.from('outlets').select('*').eq('invite_code', code).single();
-    if (res.error || !res.data) throw new Error('Ungültiger Code');
-    // Mitglied werden
-    var mem = await c.from('outlet_members').upsert({
-      outlet_id: res.data.id,
-      user_id: _aUser.id,
-      role: 'guest'
-    });
-    if (mem.error) throw mem.error;
-    _outlet = {id: res.data.id, name: res.data.name, role: 'guest', invite_code: res.data.invite_code};
+    var res = await c.rpc('join_outlet', { p_code: code });
+    if (res.error) throw new Error(/Ungültig/i.test(res.error.message) ? 'Ungültiger Code' : res.error.message);
+    var o = res.data;
+    if (!o || !o.id) throw new Error('Ungültiger Code');
+    _outlet = { id: o.id, name: o.name, role: o.role || 'guest', invite_code: o.invite_code };
     localStorage.setItem('thyme_outlet', JSON.stringify(_outlet));
-    applyRoleUI();
-    outletMsg('Willkommen bei ' + res.data.name + '!','ok');
-    outletUpdateBar();
-    setTimeout(outletClose, 1500);
+    applyRoleUI(); outletUpdateBar(); outletUpdateSettings();
+    outletMsg('Willkommen bei ' + o.name + '!','ok');
+    setTimeout(function() { outletClose(); syncToCloud(); }, 1200);
   } catch(e) {
-    outletMsg(e.message||'Fehler beim Beitreten','err');
+    outletMsg(e.message || 'Fehler beim Beitreten','err');
   }
 }
 
 function outletLeave() {
-  _outlet = null;
-  localStorage.removeItem('thyme_outlet');
-  outletUpdateBar();
-  outletUpdateSettings();
-  applyRoleUI();
-  showToast('Outlet verlassen','success');
+  if (!_outlet) return;
+  var name = _outlet.name;
+  showConfirm('Outlet „' + name + '“ verlassen? Die geteilten Rezepte verschwinden von diesem Gerät.', 'Verlassen', async function() {
+    var c = _aSC();
+    if (_outlet && _outlet.role === 'guest' && c && _aUser) {
+      var del = await c.from('outlet_members').delete().eq('outlet_id', _outlet.id).eq('user_id', _aUser.id).select('outlet_id');
+      if (del.error) { showToast('Austritt fehlgeschlagen: ' + del.error.message, 'error'); return; }
+      recipes = recipes.filter(function(r) { return !isForeignRecipe(r); });
+      localSave(); renderGrid();
+    }
+    _outlet = null;
+    localStorage.removeItem('thyme_outlet');
+    outletUpdateBar(); outletUpdateSettings(); applyRoleUI();
+    showToast('Outlet verlassen', 'success');
+  });
 }
 
 function outletUpdateSettings() {
   var info = document.getElementById('outlet-settings-info');
   var leaveBtn = document.getElementById('outlet-leave-btn');
+  var shareAll = document.getElementById('outlet-share-all');
   if (!info) return;
   if (_outlet) {
-    info.textContent = (_outlet.role==='host'?'Host: ':'Mitglied: ') + _outlet.name + ' · Code: ' + _outlet.invite_code;
+    var host = _outlet.role === 'host';
+    info.innerHTML = host
+      ? 'Du bist Host von <b>' + v2Esc(_outlet.name) + '</b>.<br>Einladungscode für dein Team: <b class="v2-code">' + v2Esc(_outlet.invite_code || '') + '</b>'
+      : 'Mitglied von <b>' + v2Esc(_outlet.name) + '</b>. Du siehst die Rezepte, die der Host freigibt.';
     info.style.display = 'block';
-    if(leaveBtn) leaveBtn.style.display = 'block';
+    if (leaveBtn) leaveBtn.style.display = host ? 'none' : '';
+    if (shareAll) shareAll.style.display = host ? '' : 'none';
+    var ob = document.getElementById('outlet-open-btn'); if (ob) ob.style.display = 'none';
   } else {
+    var ob2 = document.getElementById('outlet-open-btn'); if (ob2) ob2.style.display = '';
     info.style.display = 'none';
-    if(leaveBtn) leaveBtn.style.display = 'none';
+    if (leaveBtn) leaveBtn.style.display = 'none';
+    if (shareAll) shareAll.style.display = 'none';
   }
 }
+
 function outletUpdateBar() {
   var bar = document.getElementById('outlet-bar');
   var barName = document.getElementById('outlet-bar-name');
@@ -6938,7 +6969,7 @@ function outletUpdateBar() {
   if (!bar) return;
   if (_outlet) {
     barName.textContent = _outlet.name;
-    barRole.textContent = _outlet.role === 'host' ? 'Host &#128081;' : 'Gast';
+    barRole.textContent = _outlet.role === 'host' ? 'Host' : 'Gast';
     bar.classList.add('visible');
   } else {
     bar.classList.remove('visible');
@@ -7319,6 +7350,47 @@ function v2CheckRecovery() {
 }
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function() { setTimeout(v2CheckRecovery, 50); });
 else setTimeout(v2CheckRecovery, 50);
+
+// ─── OUTLET: Freigabe und Zugehörigkeit ─────────────────────────────────────
+async function v2OutletRefresh() {
+  if (!db || !_aUser) return;
+  try {
+    var m = await db.from('outlet_members').select('outlet_id, role').eq('user_id', _aUser.id);
+    if (m.error) return;
+    var ids = (m.data || []).map(function(x) { return x.outlet_id; });
+    var hostRes = await db.from('outlets').select('id').eq('host_id', _aUser.id);
+    (hostRes.data || []).forEach(function(x) { if (ids.indexOf(x.id) < 0) ids.push(x.id); });
+    if (!ids.length) {
+      if (_outlet) { _outlet = null; localStorage.removeItem('thyme_outlet'); outletUpdateBar(); outletUpdateSettings(); applyRoleUI(); }
+      return;
+    }
+    var pickId = (_outlet && ids.indexOf(_outlet.id) >= 0) ? _outlet.id : ids[0];
+    var o = await db.from('outlets').select('id, name, invite_code, host_id').eq('id', pickId).maybeSingle();
+    if (o.error || !o.data) return;
+    _outlet = { id: o.data.id, name: o.data.name, role: o.data.host_id === _aUser.id ? 'host' : 'guest', invite_code: o.data.invite_code };
+    localStorage.setItem('thyme_outlet', JSON.stringify(_outlet));
+    outletUpdateBar(); outletUpdateSettings(); applyRoleUI();
+  } catch(e) { console.warn('[Outlet]', e); }
+}
+function v2ToggleShare(on) {
+  if (!currentRecipe || !_outlet || _outlet.role !== 'host') return;
+  var id = currentRecipe.id;
+  patchRecipe(id, { outlet_id: on ? _outlet.id : null });
+  cloudSaveRecipe(id);
+  var sub = document.getElementById('v2-share-sub');
+  if (sub) sub.textContent = _outlet.name + (on ? ': sichtbar für dein Team' : ': nur für dich');
+  showToast(on ? 'Für dein Team freigegeben' : 'Freigabe aufgehoben', 'success');
+}
+function v2ShareAll() {
+  if (!_outlet || _outlet.role !== 'host') return;
+  var own = recipes.filter(function(r) { return isSyncable(r) && r.outlet_id !== _outlet.id; });
+  if (!own.length) { showToast('Alle eigenen Rezepte sind bereits geteilt', 'success'); return; }
+  showConfirm(own.length + ' Rezepte im Outlet „' + _outlet.name + '“ teilen?', 'Teilen', function() {
+    own.forEach(function(r) { patchRecipe(r.id, { outlet_id: _outlet.id }); cloudSaveRecipe(r.id); });
+    renderGrid();
+    showToast(own.length + ' Rezepte freigegeben', 'success');
+  });
+}
 
 </script>
 
