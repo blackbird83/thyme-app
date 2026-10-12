@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<meta name="build" content="20261012190000">
+<meta name="build" content="20261012193000">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -20,6 +20,30 @@ var CLAUDE_PROXY_URL = 'https://thyme-proxy.basti-der-rabe.workers.dev';
 // SMART: Foodpairing und Warenkunde · FAST: Allergene, Nährwerte, Scan, Import
 var CLAUDE_MODEL_SMART = 'claude-sonnet-5';
 var CLAUDE_MODEL_FAST  = 'claude-haiku-4-5-20251001';
+
+
+// Claude-Antworten robust als JSON lesen: alle Textblöcke, ohne Markdown, nur der JSON-Teil
+var CLAUDE_JSON_SYSTEM = 'Antworte ausschliesslich mit einem einzigen gültigen JSON-Wert, ohne Einleitung, ohne Erklärung, ohne Markdown. Verwende innerhalb von Textwerten keine doppelten Anführungszeichen.';
+function parseClaudeJSON(d) {
+  if (!d || !Array.isArray(d.content)) throw new Error('Keine Antwort');
+  var txt = d.content.filter(function(b) { return b && b.type === 'text' && b.text; })
+                     .map(function(b) { return b.text; }).join('').trim();
+  if (!txt) throw new Error('Leere Antwort');
+  txt = txt.replace(/```(?:json)?/gi, '').trim();
+  var candidates = [txt];
+  var start = txt.search(/[\{\[]/);
+  var end = Math.max(txt.lastIndexOf('}'), txt.lastIndexOf(']'));
+  if (start >= 0 && end > start) candidates.push(txt.slice(start, end + 1));
+  for (var i = 0; i < candidates.length; i++) {
+    var c = candidates[i];
+    try { return JSON.parse(c); } catch (e) {}
+    try { return JSON.parse(c.replace(/,\s*([}\]])/g, '$1')); } catch (e) {}          // überzählige Kommas
+    try { return JSON.parse(c.replace(/[\u201C\u201D]/g, '"')); } catch (e) {}          // typografische Anführungszeichen als Syntax
+  }
+  console.warn('[Claude] Antwort nicht als JSON lesbar:', txt.slice(0, 600));
+  if (d.stop_reason === 'max_tokens') throw new Error('Die Antwort war zu lang und wurde abgeschnitten. Bitte nochmals versuchen.');
+  throw new Error('Die Antwort konnte nicht gelesen werden. Bitte nochmals versuchen.');
+}
 
 async function callClaude(payload) {
   if (!CLAUDE_PROXY_URL || CLAUDE_PROXY_URL.includes('DEIN-NAME')) {
@@ -2218,11 +2242,12 @@ async function runPairing() {
   try {
     var d = await callClaude({
       model: CLAUDE_MODEL_SMART,
-      max_tokens: 1800,
+      max_tokens: 3000,
+      system: CLAUDE_JSON_SYSTEM,
       messages: [{role:'user', content: prompt}]
     });
     if (!d.content || !d.content[0]) throw new Error('Keine Antwort');
-    var r = JSON.parse(d.content[0].text.replace(/```json|```/g,'').trim());
+    var r = parseClaudeJSON(d);
 
     var html = '';
 
@@ -2287,7 +2312,7 @@ async function runPairing() {
     pmFillList(r);
 
   } catch(e) {
-    results.innerHTML = '<div style="color:#FFAAAA;padding:20px;font-size:16px">Fehler: ' + e.message + '</div>';
+    results.innerHTML = '<div style="color:var(--danger);padding:20px;font-size:17px;line-height:1.45">Foodpairing nicht möglich: ' + e.message + '</div>';
   }
 }
 
@@ -2326,7 +2351,7 @@ async function calcNährwerteWithClaude(recipeId, ingredients, portions) {
 
     var d = await callClaude({model:CLAUDE_MODEL_FAST, max_tokens:200, messages:[{role:'user',content:prompt}]});
     if (!d.content || !d.content[0]) return;
-    var nw = JSON.parse(d.content[0].text.replace(/```json|```/g,'').trim());
+    var nw = parseClaudeJSON(d);
 
     // In Rezept speichern
     recipeId = resolveRecipeId(recipeId);
@@ -2378,11 +2403,12 @@ async function runWarenkunde() {
   try {
     var d = await callClaude({
       model: CLAUDE_MODEL_SMART,
-      max_tokens: 1200,
+      max_tokens: 2000,
+      system: CLAUDE_JSON_SYSTEM,
       messages: [{role:'user', content: prompt}]
     });
     if (!d.content || !d.content[0]) throw new Error('Keine Antwort');
-    var r = JSON.parse(d.content[0].text.replace(/```json|```/g,'').trim());
+    var r = parseClaudeJSON(d);
 
     var html = '';
 
@@ -2419,7 +2445,7 @@ async function runWarenkunde() {
 
     results.innerHTML = html;
   } catch(e) {
-    results.innerHTML = '<div style="color:#FFAAAA;padding:20px;font-size:16px">Fehler: ' + e.message + '</div>';
+    results.innerHTML = '<div style="color:var(--danger);padding:20px;font-size:17px;line-height:1.45">Foodpairing nicht möglich: ' + e.message + '</div>';
   }
 }
 
@@ -4322,7 +4348,7 @@ async function detectAllergensWithClaude(recipeId, ingredientNames) {
       + 'Nur sicher enthaltene Allergene angeben. Leeres Array wenn keine vorhanden.';
     var d = await callClaude({model:CLAUDE_MODEL_FAST,max_tokens:100,messages:[{role:'user',content:prompt}]});
     if (!d.content || !d.content[0]) return;
-    var ids = JSON.parse(d.content[0].text.replace(/```json|```/g,'').trim());
+    var ids = parseClaudeJSON(d);
     if (!Array.isArray(ids)) return;
     // Allergene in das Rezept speichern
     var targetId = resolveRecipeId(recipeId) || (recipes[0] && recipes[0].id);
@@ -4470,7 +4496,7 @@ async function extractWithClaude(text, source) {
   try {
     const d = await callClaude({model:CLAUDE_MODEL_FAST,max_tokens:1000,messages:[{role:'user',content:prompt}]});
     if (!d.content || !d.content[0]) throw new Error('Keine Antwort');
-    const r = JSON.parse(d.content[0].text.replace(/```json|```/g, '').trim());
+    const r = parseClaudeJSON(d);
     editId = null;
     document.getElementById('f-title').value = r.title || '';
     // Zutaten in strukturierte Zeilen laden
