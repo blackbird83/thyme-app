@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<meta name="build" content="20261013190000">
+<meta name="build" content="20261018200000">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -3831,6 +3831,7 @@ async function processPendingDeletes() {
 
 async function syncToCloud() {
   if (!db || !isOnline || !_aUser) return;
+  if (v2EnsureOwner(_aUser.id)) return;          // nie Daten eines anderen Nutzers hochladen
   if (_syncRunning) { _syncQueued = true; return; }
   _syncRunning = true;
   try {
@@ -6777,6 +6778,7 @@ async function aSubmit() {
       var res = await c.auth.signInWithPassword({email:email,password:pw});
       if (res.error) throw res.error;
       _aUser = res.data.user;
+      if (v2EnsureOwner(_aUser.id)) return;
       aClose(); aUpdateUI();
       setTimeout(syncToCloud, 500);
     }
@@ -6837,6 +6839,7 @@ async function aInit() {
     var res = await c.auth.getSession();
     if (res.data&&res.data.session) { 
       _aUser=res.data.session.user; 
+      if (v2EnsureOwner(_aUser.id)) return _aUser;   // anderer Nutzer: Gerät wird geleert und neu geladen
       aUpdateUI(); 
       return _aUser; 
     }
@@ -6845,10 +6848,17 @@ async function aInit() {
   return null;
 }
 async function aLogout() {
-  var c=_aSC(); if(c) await c.auth.signOut();
-  v2StopRealtime();
-  _aUser=null; localStorage.removeItem('thyme_skip_auth'); aUpdateUI();
-  showToast('Abgemeldet','success');
+  showConfirm('Abmelden? Deine Rezepte bleiben in der Cloud gespeichert und werden von diesem Gerät entfernt.', 'Abmelden', async function() {
+    var owner = _aUser ? _aUser.id : null;
+    try {
+      if (isOnline && v2UnsyncedCount() > 0) { showToast('Offene Änderungen werden hochgeladen …', '', 6000); await v2SyncAndWait(); }
+    } catch(e) {}
+    v2StopRealtime();
+    var c = _aSC(); try { if (c) await c.auth.signOut(); } catch(e) {}
+    v2WipeUserData(owner);
+    _aUser = null; try { localStorage.removeItem('thyme_skip_auth'); } catch(e) {}
+    location.reload();
+  });
 }
 
 // ── OUTLET MODUS ──────────────────────────────────────────────────────────────
@@ -7325,7 +7335,9 @@ async function v2SaveNewPw() {
   try {
     var sess = await c.auth.getSession();
     if (sess.data && sess.data.session) {
-      _aUser = sess.data.session.user; aUpdateUI();
+      _aUser = sess.data.session.user;
+      if (v2EnsureOwner(_aUser.id)) return;
+      aUpdateUI();
       var as = document.getElementById('screen-auth'); if (as) as.classList.remove('visible');
       setTimeout(syncToCloud, 500);
     }
@@ -7582,6 +7594,85 @@ document.addEventListener('visibilitychange', function() {
   if (!_rtChannel || _rtStatus !== 'live') { v2StopRealtime(); v2StartRealtime(); }
 });
 window.addEventListener('online', function() { if (_aUser) { v2StopRealtime(); v2StartRealtime(); } });
+
+// ─── GETEILTE GERÄTE: Daten gehören immer dem angemeldeten Nutzer ───────────
+var V2_USER_KEYS = ['thyme_recipes','thyme_recent','thyme_outlet','thyme_pending_deletes','thyme_pending_join','thyme_categories'];
+var V2_USER_PREFIXES = ['thyme_photo_','thyme_rating_'];
+var V2_STASH_KEYS = ['thyme_mep','thyme_shoplist'];   // nur lokal gespeichert: wird pro Nutzer aufbewahrt
+function v2UnsyncedCount() {
+  return recipes.filter(function(r) { return isSyncable(r) && (r._dirty || !isCloudId(r.id)); }).length;
+}
+async function v2SyncAndWait() {
+  var t0 = Date.now();
+  while (_syncRunning && Date.now() - t0 < 10000) await new Promise(function(r) { setTimeout(r, 250); });
+  await syncToCloud();
+  t0 = Date.now();
+  while (_syncRunning && Date.now() - t0 < 10000) await new Promise(function(r) { setTimeout(r, 250); });
+}
+function v2StashSet(key, value) { try { localStorage.setItem(key, value); return true; } catch(e) { return false; } }
+function v2WipeUserData(owner) {
+  try {
+    if (owner) {
+      V2_STASH_KEYS.forEach(function(k) { var v = localStorage.getItem(k); if (v !== null) v2StashSet('thyme_stash_' + owner + '_' + k, v); });
+      // Rezepte, die noch nicht in der Cloud sind, für diesen Nutzer aufbewahren (nie löschen)
+      var stored = []; try { stored = JSON.parse(localStorage.getItem('thyme_recipes') || '[]'); } catch(e) {}
+      var unsynced = stored.filter(function(r) {
+        return r && !r.readonly && String(r.id).indexOf('arch-') !== 0 && !(r.user_id && r.user_id !== owner) && (r._dirty || !isCloudId(r.id));
+      });
+      if (unsynced.length) {
+        var withPhotos = unsynced.map(function(r) { var ph = localStorage.getItem('thyme_photo_' + r.id); return ph ? Object.assign({}, r, { photo: ph }) : r; });
+        if (!v2StashSet('thyme_stash_' + owner + '_unsynced', JSON.stringify(withPhotos)))
+          v2StashSet('thyme_stash_' + owner + '_unsynced', JSON.stringify(unsynced));   // ohne Fotos, falls der Speicher knapp ist
+      }
+    }
+    var remove = [];
+    for (var i = 0; i < localStorage.length; i++) {
+      var k = localStorage.key(i); if (!k) continue;
+      if (V2_USER_KEYS.indexOf(k) >= 0 || V2_STASH_KEYS.indexOf(k) >= 0 || V2_USER_PREFIXES.some(function(pf) { return k.indexOf(pf) === 0; })) remove.push(k);
+    }
+    remove.forEach(function(k) { localStorage.removeItem(k); });
+    localStorage.removeItem('thyme_data_owner');
+  } catch(e) { console.warn('[Abmelden]', e); }
+}
+function v2RestoreStash(uid) {
+  try {
+    V2_STASH_KEYS.forEach(function(k) {
+      var sk = 'thyme_stash_' + uid + '_' + k, v = localStorage.getItem(sk);
+      if (v !== null) { if (localStorage.getItem(k) === null) localStorage.setItem(k, v); localStorage.removeItem(sk); }
+    });
+    var uk = 'thyme_stash_' + uid + '_unsynced', u = localStorage.getItem(uk);
+    if (u) {
+      var arr = JSON.parse(u), cur = JSON.parse(localStorage.getItem('thyme_recipes') || '[]');
+      arr.forEach(function(r) { if (!cur.some(function(c) { return String(c.id) === String(r.id); })) cur.push(Object.assign({}, r, { _dirty: true })); });
+      localStorage.setItem('thyme_recipes', JSON.stringify(cur));
+      localStorage.removeItem(uk);
+    }
+  } catch(e) { console.warn('[Wiederherstellen]', e); }
+}
+function v2HasStash(uid) {
+  try {
+    if (localStorage.getItem('thyme_stash_' + uid + '_unsynced')) return true;
+    return V2_STASH_KEYS.some(function(k) { return localStorage.getItem('thyme_stash_' + uid + '_' + k) !== null; });
+  } catch(e) { return false; }
+}
+// true = Gerät wird gerade für diesen Nutzer vorbereitet und neu geladen
+function v2EnsureOwner(uid) {
+  if (!uid) return false;
+  var owner = null; try { owner = localStorage.getItem('thyme_data_owner'); } catch(e) {}
+  if (owner === uid) return false;
+  if (!owner) {
+    // erstes Anmelden auf diesem Gerät (oder nach dem Abmelden)
+    try { localStorage.setItem('thyme_data_owner', uid); } catch(e) {}
+    if (v2HasStash(uid)) { v2RestoreStash(uid); location.reload(); return true; }
+    return false;
+  }
+  // ein anderer Nutzer meldet sich an: Daten des Vorgängers aufbewahren bzw. entfernen
+  v2WipeUserData(owner);
+  try { localStorage.setItem('thyme_data_owner', uid); } catch(e) {}
+  v2RestoreStash(uid);
+  location.reload();
+  return true;
+}
 
 </script>
 
