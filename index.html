@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<meta name="build" content="20261013000000">
+<meta name="build" content="20261013190000">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -1254,6 +1254,11 @@ a.action-sheet-item{display:flex;align-items:center;text-decoration:none;color:i
 #v2-sharesheet{z-index:901 !important}
 
 #confirm-ok.v2-safe{background:var(--fill) !important;color:var(--on-fill) !important}
+
+.v2-live{display:flex;align-items:flex-start;gap:10px}
+.v2-live-dot{width:10px;height:10px;border-radius:5px;flex-shrink:0;margin-top:7px;background:var(--smoke)}
+.v2-live-dot.live{background:#4E9A5B}
+.v2-live-dot.verbinde{background:var(--gold)}
 </style>
 </head>
 <body>
@@ -1949,6 +1954,7 @@ a.action-sheet-item{display:flex;align-items:center;text-decoration:none;color:i
       <h2>Daten</h2>
       <div class="v2-card">
         <p class="v2-settext">Rezepte werden auf dem Gerät gespeichert und bei Internetverbindung mit der Cloud abgeglichen.</p>
+        <p class="v2-settext v2-live"><span class="v2-live-dot aus" id="v2-live-dot"></span><span id="v2-live-status">Live-Abgleich pausiert. Änderungen kommen beim nächsten Sync.</span></p>
         <button class="v2-btn-outline" onclick="syncNow()">Jetzt synchronisieren</button>
         <button class="v2-btn-outline" onclick="exportBackup()">Backup exportieren</button>
         <label class="v2-btn-outline" style="display:flex">
@@ -3884,6 +3890,7 @@ async function syncToCloud() {
     // 7) Lokal neuere Stände hochladen
     for (var j = 0; j < toPush.length; j++) await pushWithLock(toPush[j]);
 
+    try { v2StartRealtime(); } catch(e) { console.warn('[Realtime]', e); }
     console.log('[Sync] Cloud:', cloud.length, '| neu lokal:', added, '| aktualisiert:', pulled, '| hochgeladen:', toPush.length + newOnes.length);
 
     var cRes = await db.from('categories').select('*').order('sort_order');
@@ -6839,6 +6846,7 @@ async function aInit() {
 }
 async function aLogout() {
   var c=_aSC(); if(c) await c.auth.signOut();
+  v2StopRealtime();
   _aUser=null; localStorage.removeItem('thyme_skip_auth'); aUpdateUI();
   showToast('Abgemeldet','success');
 }
@@ -7489,6 +7497,91 @@ function v2TryPendingJoin() {
     outletJoin();
   });
 }
+
+// ─── REALTIME: Änderungen anderer Geräte sofort übernehmen ──────────────────
+var _rtChannel = null, _rtUserId = null, _rtRetry = null, _rtQueue = [], _rtTimer = null, _rtStatus = 'aus';
+function v2RtSetStatus(st) {
+  _rtStatus = st;
+  var el = document.getElementById('v2-live-status');
+  if (el) el.textContent = st === 'live' ? 'Live-Abgleich aktiv: Änderungen erscheinen sofort auf allen Geräten.'
+                        : st === 'verbinde' ? 'Live-Abgleich wird verbunden …'
+                        : 'Live-Abgleich pausiert. Änderungen kommen beim nächsten Sync.';
+  var dot = document.getElementById('v2-live-dot'); if (dot) dot.className = 'v2-live-dot ' + st;
+}
+function v2StartRealtime() {
+  if (!db || !_aUser || !db.channel) return;
+  if (_rtChannel && _rtUserId === _aUser.id) return;          // läuft bereits
+  v2StopRealtime();
+  _rtUserId = _aUser.id;
+  v2RtSetStatus('verbinde');
+  _rtChannel = db.channel('thyme-recipes-' + _aUser.id)
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'recipes' }, function(payload) {
+      _rtQueue.push(payload);
+      clearTimeout(_rtTimer); _rtTimer = setTimeout(v2RtFlush, 250);   // mehrere Änderungen gebündelt verarbeiten
+    })
+    .subscribe(function(status) {
+      if (status === 'SUBSCRIBED') { v2RtSetStatus('live'); clearTimeout(_rtRetry); }
+      else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
+        v2RtSetStatus('aus');
+        if (status !== 'CLOSED' && _aUser) { clearTimeout(_rtRetry); _rtRetry = setTimeout(function() { v2StopRealtime(); v2StartRealtime(); }, 8000); }
+      }
+    });
+}
+function v2StopRealtime() {
+  clearTimeout(_rtRetry);
+  if (_rtChannel && db) { try { db.removeChannel(_rtChannel); } catch(e) {} }
+  _rtChannel = null; _rtUserId = null; v2RtSetStatus('aus');
+}
+function v2RtFlush() {
+  var events = _rtQueue.splice(0), changed = false, currentChanged = false, removedCurrent = false;
+  var pendingDel = getPendingDeletes();
+  events.forEach(function(ev) {
+    var type = ev.eventType;
+    if (type === 'DELETE') {
+      var oid = ev.old && ev.old.id; if (!oid) return;
+      var before = recipes.length;
+      recipes = recipes.filter(function(r) { return String(r.id) !== String(oid) || r._dirty; });
+      if (recipes.length !== before) { changed = true; if (currentRecipe && String(currentRecipe.id) === String(oid)) removedCurrent = true; }
+      return;
+    }
+    var row = ev.new; if (!row || !row.id) return;
+    if (pendingDel.indexOf(row.id) >= 0) return;
+    var local = recipes.find(function(r) { return String(r.id) === String(row.id); });
+    var rowTs = Date.parse(row.updated_at || row.created_at || '') || 0;
+    if (local) {
+      var localTs = Date.parse(local.updated_at || '') || 0;
+      if (rowTs <= localTs) return;                     // eigenes Echo oder älterer Stand
+      if (local._dirty && localTs > rowTs) return;      // lokale Änderung ist neuer
+      recipes = recipes.map(function(r) { return String(r.id) === String(row.id) ? recipeFromDb(row, r) : r; });
+      changed = true;
+      if (currentRecipe && String(currentRecipe.id) === String(row.id)) currentChanged = true;
+    } else {
+      recipes.push(recipeFromDb(row, null));
+      changed = true;
+    }
+  });
+  if (!changed) return;
+  localSave();
+  var active = document.querySelector('.screen.active');
+  var onScreen = active ? active.id.replace('screen-', '') : '';
+  if (onScreen === 'home') { try { renderGrid(); } catch(e) {} }
+  if (onScreen === 'detail') {
+    if (removedCurrent) { showToast('Dieses Rezept wurde auf einem anderen Gerät gelöscht', 'error'); try { goBack(); } catch(e) {} }
+    else if (currentChanged) {
+      var y = window.scrollY;
+      var fresh = recipes.find(function(r) { return String(r.id) === String(currentRecipe.id); });
+      if (fresh) { openDetail(fresh); window.scrollTo(0, y); showToast('Rezept wurde aktualisiert', 'success'); }
+    }
+  }
+}
+// Beim Zurückkehren in die App: verpasste Änderungen nachholen und Verbindung prüfen
+var _v2LastResumeSync = 0;
+document.addEventListener('visibilitychange', function() {
+  if (document.visibilityState !== 'visible' || !_aUser) return;
+  if (Date.now() - _v2LastResumeSync > 30000) { _v2LastResumeSync = Date.now(); syncToCloud(); }
+  if (!_rtChannel || _rtStatus !== 'live') { v2StopRealtime(); v2StartRealtime(); }
+});
+window.addEventListener('online', function() { if (_aUser) { v2StopRealtime(); v2StartRealtime(); } });
 
 </script>
 
