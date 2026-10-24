@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<meta name="build" content="20261025120000">
+<meta name="build" content="20261025150000">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -1263,6 +1263,20 @@ a.action-sheet-item{display:flex;align-items:center;text-decoration:none;color:i
 .v2-live-dot{width:10px;height:10px;border-radius:5px;flex-shrink:0;margin-top:7px;background:var(--smoke)}
 .v2-live-dot.live{background:#4E9A5B}
 .v2-live-dot.verbinde{background:var(--gold)}
+
+/* Marke: App-Icon auf Startbildschirm, Anmeldung und Onboarding (siehe marke.md) */
+#splash{background:#2F4A35 !important;gap:18px;z-index:970 !important}
+#splash .v2-splash-mark{width:min(46vw,220px);aspect-ratio:1}
+#splash .v2-splash-mark svg{width:100% !important;height:100% !important;display:block}
+#splash .v2-splash-word{font-family:'Cormorant Garamond',Georgia,serif;font-size:46px;font-weight:600;letter-spacing:0.02em;color:#ECE8DF;line-height:1;margin-top:-6px}
+.v2-auth-icon{width:120px;height:120px;border-radius:27px;overflow:hidden;margin-bottom:18px;flex-shrink:0;box-shadow:0 10px 30px rgba(20,30,20,.18)}
+.v2-auth-icon svg{display:block;width:100%;height:100%}
+.a-logo{font-weight:600 !important;letter-spacing:0.02em !important}
+.v2-ob-icon{width:120px;height:120px;border-radius:27px;overflow:hidden;margin:0 auto;box-shadow:0 10px 30px rgba(20,30,20,.18)}
+.v2-ob-icon svg{display:block;width:100%;height:100%}
+@media (max-height:700px){.v2-auth-icon{width:88px;height:88px;border-radius:20px;margin-bottom:12px}}
+
+#onboarding{background:var(--cream) !important;z-index:960 !important}
 </style>
 </head>
 <body>
@@ -1306,6 +1320,7 @@ a.action-sheet-item{display:flex;align-items:center;text-decoration:none;color:i
   &#127869; <span id="outlet-bar-name"></span> &nbsp;·&nbsp; <span id="outlet-bar-role"></span>
 </div>
 <div id="screen-auth">
+  <div class="v2-auth-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="100%" height="100%" role="img" aria-label="thyme"><rect width="1024" height="1024" fill="#2F4A35"/><g transform="translate(512 512) scale(1.1) translate(-547 -546)"><path d="M500 820 L500 330" stroke="#DCE6D8" stroke-width="30" stroke-linecap="round"/><path transform="translate(497 410) rotate(-172)" d="M0 0 Q 74.8 -46 178 0 Q 74.8 46 0 0 Z" fill="#9DBB9F"/><path transform="translate(503 410) rotate(-8)" d="M0 0 Q 74.8 -46 178 0 Q 74.8 46 0 0 Z" fill="#E6EEE3"/><path transform="translate(497 510) rotate(-172)" d="M0 0 Q 74.8 -46 178 0 Q 74.8 46 0 0 Z" fill="#9DBB9F"/><path transform="translate(503 510) rotate(-8)" d="M0 0 Q 74.8 -46 178 0 Q 74.8 46 0 0 Z" fill="#E6EEE3"/><path transform="translate(497 610) rotate(-172)" d="M0 0 Q 74.8 -46 178 0 Q 74.8 46 0 0 Z" fill="#9DBB9F"/><path transform="translate(503 610) rotate(-8)" d="M0 0 Q 74.8 -46 178 0 Q 74.8 46 0 0 Z" fill="#E6EEE3"/><path d="M500 728 C 565 694, 648 682, 722 690" fill="none" stroke="#C9D8C6" stroke-width="20" stroke-linecap="round"/><path transform="translate(582 706) rotate(-62)" d="M0 0 Q 52.1 -36 124 0 Q 52.1 36 0 0 Z" fill="#E6EEE3"/><path transform="translate(652 692) rotate(-52)" d="M0 0 Q 43.7 -31 104 0 Q 43.7 31 0 0 Z" fill="#E6EEE3"/><circle cx="752" cy="692" r="42" fill="#B8913A"/><circle cx="752" cy="692" r="30.2" fill="#CDA54E"/><circle cx="752" cy="692" r="15.1" fill="#E6C574"/><circle cx="500" cy="296" r="62" fill="#B8913A"/><circle cx="500" cy="296" r="44.6" fill="#CDA54E"/><circle cx="500" cy="296" r="22.3" fill="#E6C574"/><circle cx="424" cy="318" r="26" fill="#C59B3E"/><circle cx="574" cy="330" r="21" fill="#E3C473"/></g></svg></div>
   <div class="a-logo">thyme</div>
   <div class="a-tag">Recipe Archive</div>
   <div class="a-tabs">
@@ -1338,26 +1353,7 @@ a.action-sheet-item{display:flex;align-items:center;text-decoration:none;color:i
 
   <!-- Slide 1: Willkommen -->
   <div class="ob-slide active" id="ob0">
-    <div class="ob-icon">
-      <svg width="110" height="130" viewBox="0 0 100 120">
-        <line x1="50" y1="108" x2="50" y2="38" stroke="#3D5A3E" stroke-width="2.5" stroke-linecap="round"/>
-        <circle cx="50" cy="32" r="8" fill="#B8973A"/>
-        <circle cx="50" cy="32" r="5" fill="#C9A84C"/>
-        <circle cx="50" cy="32" r="2.2" fill="#DDB85A"/>
-        <circle cx="37" cy="37" r="4" fill="#C9A84C"/>
-        <circle cx="63" cy="41" r="3.5" fill="#DDB85A" opacity="0.85"/>
-        <path d="M48 52 Q32 42 20 47 Q32 58 48 52Z" fill="#3D5A3E"/>
-        <path d="M52 52 Q68 41 80 46 Q68 57 52 52Z" fill="#5C7F5D"/>
-        <path d="M48 66 Q30 55 18 60 Q30 71 48 66Z" fill="#3D5A3E"/>
-        <path d="M52 66 Q70 54 82 59 Q70 70 52 66Z" fill="#5C7F5D"/>
-        <path d="M48 80 Q32 69 20 74 Q32 85 48 80Z" fill="#3D5A3E"/>
-        <path d="M52 80 Q68 68 80 73 Q68 84 52 80Z" fill="#5C7F5D"/>
-        <path d="M50 96 Q62 90 74 94" stroke="#5C7F5D" stroke-width="1.8" fill="none" stroke-linecap="round"/>
-        <circle cx="76" cy="95" r="5.5" fill="#B8973A"/>
-        <circle cx="76" cy="95" r="3.5" fill="#C9A84C"/>
-        <circle cx="76" cy="95" r="1.5" fill="#DDB85A"/>
-      </svg>
-    </div>
+    <div class="ob-icon"><div class="v2-ob-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="100%" height="100%" role="img" aria-label="thyme"><rect width="1024" height="1024" fill="#2F4A35"/><g transform="translate(512 512) scale(1.1) translate(-547 -546)"><path d="M500 820 L500 330" stroke="#DCE6D8" stroke-width="30" stroke-linecap="round"/><path transform="translate(497 410) rotate(-172)" d="M0 0 Q 74.8 -46 178 0 Q 74.8 46 0 0 Z" fill="#9DBB9F"/><path transform="translate(503 410) rotate(-8)" d="M0 0 Q 74.8 -46 178 0 Q 74.8 46 0 0 Z" fill="#E6EEE3"/><path transform="translate(497 510) rotate(-172)" d="M0 0 Q 74.8 -46 178 0 Q 74.8 46 0 0 Z" fill="#9DBB9F"/><path transform="translate(503 510) rotate(-8)" d="M0 0 Q 74.8 -46 178 0 Q 74.8 46 0 0 Z" fill="#E6EEE3"/><path transform="translate(497 610) rotate(-172)" d="M0 0 Q 74.8 -46 178 0 Q 74.8 46 0 0 Z" fill="#9DBB9F"/><path transform="translate(503 610) rotate(-8)" d="M0 0 Q 74.8 -46 178 0 Q 74.8 46 0 0 Z" fill="#E6EEE3"/><path d="M500 728 C 565 694, 648 682, 722 690" fill="none" stroke="#C9D8C6" stroke-width="20" stroke-linecap="round"/><path transform="translate(582 706) rotate(-62)" d="M0 0 Q 52.1 -36 124 0 Q 52.1 36 0 0 Z" fill="#E6EEE3"/><path transform="translate(652 692) rotate(-52)" d="M0 0 Q 43.7 -31 104 0 Q 43.7 31 0 0 Z" fill="#E6EEE3"/><circle cx="752" cy="692" r="42" fill="#B8913A"/><circle cx="752" cy="692" r="30.2" fill="#CDA54E"/><circle cx="752" cy="692" r="15.1" fill="#E6C574"/><circle cx="500" cy="296" r="62" fill="#B8913A"/><circle cx="500" cy="296" r="44.6" fill="#CDA54E"/><circle cx="500" cy="296" r="22.3" fill="#E6C574"/><circle cx="424" cy="318" r="26" fill="#C59B3E"/><circle cx="574" cy="330" r="21" fill="#E3C473"/></g></svg></div></div>
     <div class="ob-title">Willkommen bei thyme</div>
     <div class="ob-sub">Dein persönliches Premium-Rezeptarchiv — elegant, übersichtlich und immer griffbereit.</div>
     <div class="ob-dots">
@@ -1435,84 +1431,8 @@ a.action-sheet-item{display:flex;align-items:center;text-decoration:none;color:i
 
 <!-- SPLASH -->
 <div id="splash">
-  <svg viewBox="0 0 340 420" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:340px">
-    <defs>
-      <linearGradient id="splL" x1="100%" y1="0%" x2="0%" y2="0%">
-        <stop offset="0%" stop-color="#3D5A3E"/><stop offset="100%" stop-color="#5C7F5D"/>
-      </linearGradient>
-      <linearGradient id="splR" x1="0%" y1="0%" x2="100%" y2="0%">
-        <stop offset="0%" stop-color="#6B9E6E"/><stop offset="100%" stop-color="#9DC49D"/>
-      </linearGradient>
-      <linearGradient id="splS" x1="0%" y1="0%" x2="100%" y2="0%">
-        <stop offset="0%" stop-color="#6B9E6E"/><stop offset="100%" stop-color="#9DC49D"/>
-      </linearGradient>
-      <linearGradient id="goldFrame" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stop-color="#DDB85A"/>
-        <stop offset="40%" stop-color="#B8973A"/>
-        <stop offset="100%" stop-color="#8A6E20"/>
-      </linearGradient>
-      <filter id="glow">
-        <feGaussianBlur stdDeviation="6" result="blur"/>
-        <feComposite in="SourceGraphic" in2="blur" operator="over"/>
-      </filter>
-      <clipPath id="iconClip">
-        <rect x="95" y="20" width="150" height="150" rx="34"/>
-      </clipPath>
-    </defs>
-
-    <!-- Goldene Aura -->
-    <ellipse cx="170" cy="98" rx="90" ry="85" fill="#B8973A" opacity="0.07"/>
-
-    <!-- Icon Rahmen aussen (3D Effekt) -->
-    <rect x="92" y="17" width="156" height="156" rx="36" fill="#8A6E20" opacity="0.6"/>
-    <!-- Icon Rahmen Gold -->
-    <rect x="93" y="18" width="154" height="154" rx="35" fill="none" stroke="url(#goldFrame)" stroke-width="2.5"/>
-    <!-- Icon Hintergrund -->
-    <rect x="95" y="20" width="150" height="150" rx="34" fill="#0E0C06"/>
-    <!-- Glanzlicht oben -->
-    <rect x="95" y="20" width="150" height="50" rx="34" fill="rgba(255,255,255,0.04)" clip-path="url(#iconClip)"/>
-    <!-- Goldkante oben -->
-    <line x1="115" y1="21" x2="225" y2="21" stroke="#DDB85A" stroke-width="0.8" opacity="0.5"/>
-
-    <!-- Logo: Stamm -->
-    <line x1="170" y1="148" x2="170" y2="62" stroke="#3D5A3E" stroke-width="3" stroke-linecap="round"/>
-    <!-- Goldknospe oben -->
-    <circle cx="170" cy="54" r="8.5" fill="#B8973A"/>
-    <circle cx="170" cy="54" r="5.5" fill="#C9A84C"/>
-    <circle cx="170" cy="54" r="2.5" fill="#DDB85A"/>
-    <circle cx="158" cy="58" r="3.8" fill="#C9A84C"/>
-    <circle cx="182" cy="62" r="3.3" fill="#DDB85A" opacity="0.85"/>
-    <!-- Blattpaar oben -->
-    <path d="M168 78 Q144 66 127 72 Q144 84 168 78Z" fill="url(#splL)"/>
-    <path d="M172 78 Q196 65 213 71 Q196 83 172 78Z" fill="url(#splR)"/>
-    <!-- Blattpaar Mitte -->
-    <path d="M168 100 Q142 88 124 94 Q142 106 168 100Z" fill="url(#splL)"/>
-    <path d="M172 100 Q198 87 216 93 Q198 105 172 100Z" fill="url(#splR)"/>
-    <!-- Blattpaar unten -->
-    <path d="M168 122 Q144 110 127 116 Q144 128 168 122Z" fill="url(#splL)"/>
-    <path d="M172 122 Q196 109 213 115 Q196 127 172 122Z" fill="url(#splR)"/>
-    <!-- Seitenast -->
-    <path d="M170 138 Q192 128 214 136" stroke="#5C7F5D" stroke-width="2" fill="none" stroke-linecap="round"/>
-    <path d="M188 128 Q200 115 210 119 Q203 132 188 128Z" fill="url(#splS)"/>
-    <path d="M202 134 Q214 122 222 127 Q215 140 202 134Z" fill="url(#splS)"/>
-    <!-- Seitenknospe -->
-    <circle cx="224" cy="133" r="6" fill="#B8973A"/>
-    <circle cx="224" cy="133" r="4" fill="#C9A84C"/>
-    <circle cx="224" cy="133" r="1.8" fill="#DDB85A"/>
-
-    <!-- Trennlinie -->
-    <line x1="100" y1="208" x2="240" y2="208" stroke="#B8973A" stroke-width="0.6" opacity="0.6"/>
-
-    <!-- thyme Schriftzug -->
-    <text x="170" y="248" text-anchor="middle"
-      font-family="'Cormorant Garamond','Palatino Linotype',Palatino,Georgia,serif"
-      font-size="52" font-weight="300" fill="#F0E8D8" letter-spacing="8">thyme</text>
-
-    <!-- RECIPE ARCHIVE -->
-    <text x="170" y="278" text-anchor="middle"
-      font-family="'DM Sans',system-ui,sans-serif"
-      font-size="11" fill="#B8973A" letter-spacing="6">RECIPE ARCHIVE</text>
-  </svg>
+  <div class="v2-splash-mark"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="100%" height="100%" aria-hidden="true"><g transform="translate(512 512) scale(1.1) translate(-547 -546)"><path d="M500 820 L500 330" stroke="#DCE6D8" stroke-width="30" stroke-linecap="round"/><path transform="translate(497 410) rotate(-172)" d="M0 0 Q 74.8 -46 178 0 Q 74.8 46 0 0 Z" fill="#9DBB9F"/><path transform="translate(503 410) rotate(-8)" d="M0 0 Q 74.8 -46 178 0 Q 74.8 46 0 0 Z" fill="#E6EEE3"/><path transform="translate(497 510) rotate(-172)" d="M0 0 Q 74.8 -46 178 0 Q 74.8 46 0 0 Z" fill="#9DBB9F"/><path transform="translate(503 510) rotate(-8)" d="M0 0 Q 74.8 -46 178 0 Q 74.8 46 0 0 Z" fill="#E6EEE3"/><path transform="translate(497 610) rotate(-172)" d="M0 0 Q 74.8 -46 178 0 Q 74.8 46 0 0 Z" fill="#9DBB9F"/><path transform="translate(503 610) rotate(-8)" d="M0 0 Q 74.8 -46 178 0 Q 74.8 46 0 0 Z" fill="#E6EEE3"/><path d="M500 728 C 565 694, 648 682, 722 690" fill="none" stroke="#C9D8C6" stroke-width="20" stroke-linecap="round"/><path transform="translate(582 706) rotate(-62)" d="M0 0 Q 52.1 -36 124 0 Q 52.1 36 0 0 Z" fill="#E6EEE3"/><path transform="translate(652 692) rotate(-52)" d="M0 0 Q 43.7 -31 104 0 Q 43.7 31 0 0 Z" fill="#E6EEE3"/><circle cx="752" cy="692" r="42" fill="#B8913A"/><circle cx="752" cy="692" r="30.2" fill="#CDA54E"/><circle cx="752" cy="692" r="15.1" fill="#E6C574"/><circle cx="500" cy="296" r="62" fill="#B8913A"/><circle cx="500" cy="296" r="44.6" fill="#CDA54E"/><circle cx="500" cy="296" r="22.3" fill="#E6C574"/><circle cx="424" cy="318" r="26" fill="#C59B3E"/><circle cx="574" cy="330" r="21" fill="#E3C473"/></g></svg></div>
+  <div class="v2-splash-word">thyme</div>
 </div>
 
 <!-- KATEGORIE SHEET -->
