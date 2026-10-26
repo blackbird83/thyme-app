@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<meta name="build" content="20261025180000">
+<meta name="build" content="20261026200000">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -1281,6 +1281,31 @@ a.action-sheet-item{display:flex;align-items:center;text-decoration:none;color:i
 @media (max-height:700px){.v2-auth-icon{width:88px;height:88px;border-radius:20px;margin-bottom:12px}}
 
 #onboarding{background:var(--cream) !important;z-index:960 !important}
+
+.v2-net{min-height:36px;padding:0 12px;margin-right:6px;border-radius:18px;border:1px solid var(--border);background:var(--surface2);color:var(--bark);font:600 14px 'DM Sans',sans-serif;display:inline-flex;align-items:center;gap:6px;cursor:pointer}
+.v2-net[hidden]{display:none}
+
+/* Meldungen: mehrzeilig, über unterer Leiste und Kochmodus-Leiste, gut lesbar */
+#toast{white-space:normal !important;width:max-content;max-width:min(88vw,420px) !important;line-height:1.4;
+  bottom:calc(150px + env(safe-area-inset-bottom,0px)) !important;padding:13px 18px !important;font-weight:500;letter-spacing:0 !important;
+  box-shadow:0 6px 28px rgba(0,0,0,.28) !important}
+#toast.success{border-color:var(--fill) !important;color:var(--bark) !important}
+#toast.error{border-color:var(--danger) !important;color:var(--bark) !important}
+
+/* Netz-Info: fährt oben herein wie eine Mitteilung */
+#v2-netpop{position:fixed;left:50%;top:calc(10px + env(safe-area-inset-top,0px));z-index:1200;
+  width:min(92vw,440px);display:flex;align-items:flex-start;gap:12px;padding:14px 16px;border-radius:18px;
+  background:var(--parchment);color:var(--bark);border:1px solid var(--border);box-shadow:0 10px 34px rgba(0,0,0,.28);
+  transform:translate(-50%,-140%);opacity:0;transition:transform .35s cubic-bezier(.2,.8,.2,1),opacity .25s ease;cursor:pointer;
+  font-family:'DM Sans',sans-serif}
+#v2-netpop.show{transform:translate(-50%,0);opacity:1}
+#v2-netpop.online{background:var(--fill);border-color:var(--fill);color:var(--on-fill)}
+#v2-netpop.offline{border-left:5px solid var(--gold)}
+.v2-netpop-icon{flex-shrink:0;width:28px;height:28px;display:flex;align-items:center;justify-content:center;margin-top:1px}
+#v2-netpop.offline .v2-netpop-icon{color:var(--gold)}
+.v2-netpop-text{display:flex;flex-direction:column;gap:2px;min-width:0}
+.v2-netpop-text b{font-size:17px;font-weight:600;line-height:1.3}
+.v2-netpop-text span{font-size:15px;line-height:1.4;opacity:.92}
 </style>
 </head>
 <body>
@@ -1486,6 +1511,7 @@ a.action-sheet-item{display:flex;align-items:center;text-decoration:none;color:i
       </svg>
     </div>
     <div class="header-right">
+      <button id="v2-net" class="v2-net" onclick="v2NetInfo()" hidden><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3l18 18"/><path d="M8.5 8.6A5.5 5.5 0 0 0 7 12.5a4.5 4.5 0 0 0 .5 8.5h10a3.5 3.5 0 0 0 2-.6"/><path d="M11.5 6.1A6 6 0 0 1 18 11a3.5 3.5 0 0 1 2.8 5.2"/></svg>Offline</button>
       <button class="v2-add" onclick="openAddSheet()" aria-label="Neues Rezept"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
       <div id="mode-badge" class="mode-badge online" style="display:none"><span class="mode-dot"></span><span id="mode-label">Online</span></div>
     </div>
@@ -2126,11 +2152,12 @@ function obFinish() {
 var _toastTimer = null;
 function showToast(msg, type, duration) {
   var el = document.getElementById('toast');
-  if (!el) return;
+  if (!el || !msg) return;
+  msg = String(msg);
   el.textContent = msg;
   el.className = 'show' + (type ? ' ' + type : '');
   if (_toastTimer) clearTimeout(_toastTimer);
-  _toastTimer = setTimeout(function() { el.className = ''; }, duration || 2800);
+  _toastTimer = setTimeout(function() { el.className = ''; }, duration || Math.max(3000, Math.min(7000, msg.length * 70)));
 }
 var _confirmCallback = null;
 function showConfirm(msg, okLabel, cb) {
@@ -3554,6 +3581,11 @@ function isSyncable(r) {
 }
 function syncErr(what, e) {
   var msg = (e && (e.message || e.error_description)) || String(e);
+  if (/Failed to fetch|Load failed|NetworkError|Network request failed/i.test(msg)) {
+    window._v2NetFailed = true; try { v2NetCheck('fehler'); } catch(x) {}
+    setTimeout(function() { window._v2NetFailed = false; }, 20000);   // in 20 s wieder versuchen
+    return;
+  }
   console.warn('[Sync] ' + what + ':', msg, e);
   if (Date.now() - _lastSyncErrToast > 8000) {
     _lastSyncErrToast = Date.now();
@@ -3828,8 +3860,10 @@ async function syncToCloud() {
     renderCatScroll(); activeCat = savedCat;
     renderGrid(); renderCatList(); renderCatPicker('');
     var open = recipes.filter(function(r) { return r._dirty || (isSyncable(r) && !isCloudId(r.id)); }).length;
-    if (open > 0) showToast('Sync: ' + open + ' Rezept(e) noch nicht in der Cloud', 'error');
-    else showToast('Sync: ' + recipes.length + ' Rezepte', 'success');
+    var uploaded = toPush.length + newOnes.length;
+    if (open > 0) showToast(open + (open === 1 ? ' Rezept ist' : ' Rezepte sind') + ' noch nicht in der Cloud', 'error');
+    else if (uploaded > 0) showToast(uploaded + (uploaded === 1 ? ' Änderung' : ' Änderungen') + ' hochgeladen', 'success');
+    else showToast('Alles abgeglichen · ' + recipes.length + ' Rezepte', 'success');
   } catch(e) {
     syncErr('Sync', e);
   } finally {
@@ -3922,8 +3956,7 @@ function updateModeBadge() {
   if (in2) in2.style.display = isOnline ? 'none' : 'block';
 }
 
-window.addEventListener('online',  () => { isOnline = true;  updateModeBadge(); if (db) syncToCloud(); });
-window.addEventListener('offline', () => { isOnline = false; updateModeBadge(); });
+// Online/Offline-Wechsel übernimmt der Netz-Wächter (v2NetCheck) am Ende des Hauptskripts
 
 // ─── INIT ──────────────────────────────────────────────────────────────────
 async function init() {
@@ -7630,9 +7663,9 @@ function v2LastUser() {
   } catch(e) { return null; }
 }
 // Zurück im Netz: Verbindung aufbauen, Anmeldung prüfen, nachholen
-window.addEventListener('online', async function() {
+async function v2OnBackOnline(quiet) {
   isOnline = true;
-  showToast('Wieder online – Änderungen werden abgeglichen', 'success');
+  if (!quiet) { window._v2NetToastAt = Date.now(); v2NetPop('online', 'Wieder online', 'Änderungen werden jetzt abgeglichen.'); }
   try {
     if (!db && typeof supabase !== 'undefined' && supabase.createClient) db = _aSC();
     var c = _aSC(); if (!c) return;
@@ -7645,14 +7678,72 @@ window.addEventListener('online', async function() {
       window._v2OfflineUser = false; _aUser = null; aOpen();
     }
   } catch(e) { console.warn('[Online]', e); }
-});
+}
 (function() {
   var o = aUpdateUI;
   aUpdateUI = function() { o.apply(this, arguments); if (_aUser && !window._v2OfflineUser) v2RememberUser(_aUser); };
 })();
-window.addEventListener('offline', function() {
-  showToast('Offline – du kannst weiterarbeiten, Änderungen werden später hochgeladen', '', 5000);
+// Netz-Wächter: iPhone-Web-Apps melden Netzwechsel nicht zuverlässig. Deshalb zusätzlich
+// beim Zurückkehren in die App und alle 5 Sekunden prüfen und einen sichtbaren Status zeigen.
+var _v2NetState = null;
+function v2NetCheck(source) {
+  var online = navigator.onLine && !window._v2NetFailed;
+  var pill = document.getElementById('v2-net');
+  if (pill) pill.hidden = online;
+  if (_v2NetState === online) return;
+  var first = _v2NetState === null;
+  _v2NetState = online;
+  isOnline = online;
+  try { updateModeBadge(); } catch(e) {}
+  // Echter Netzwechsel (Flugmodus, WLAN weg) wird immer gemeldet. Nur bei wackligem Empfang
+  // (Gerät meldet „online“, Anfragen scheitern) höchstens eine Meldung pro Minute.
+  var byFailure = navigator.onLine;            // offline, obwohl das Gerät „online“ meldet
+  var quiet = false;
+  if (!online) {
+    window._v2OfflineByFailure = byFailure;
+    quiet = byFailure && Date.now() - (window._v2NetToastAt || 0) < 60000;
+  } else {
+    quiet = !!window._v2OfflineByFailure;
+  }
+  if (!online) {
+    if (!quiet) {
+      window._v2NetToastAt = Date.now();
+      v2NetPop('offline', first ? 'Offline gestartet' : 'Offline',
+        first ? 'Deine Rezepte sind verfügbar. Änderungen werden hochgeladen, sobald wieder Internet da ist.'
+              : 'Du kannst weiterarbeiten. Änderungen werden später hochgeladen.');
+    }
+  } else if (!first) {
+    v2OnBackOnline(quiet);
+  }
+}
+function v2NetInfo() {
+  v2NetPop('offline', 'Du bist offline', 'Rezepte, Kochmodus, Einkaufsliste und Mise en Place funktionieren. Änderungen werden hochgeladen, sobald wieder Internet da ist. Foodpairing, Warenkunde und Scan brauchen Internet.', 7000);
+}
+var _v2NetPopTimer = null;
+function v2NetPop(kind, title, sub, ms) {
+  var el = document.getElementById('v2-netpop'); if (!el) return;
+  var icons = {
+    offline: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3l18 18"/><path d="M8.5 8.6A5.5 5.5 0 0 0 7 12.5a4.5 4.5 0 0 0 .5 8.5h10a3.5 3.5 0 0 0 2-.6"/><path d="M11.5 6.1A6 6 0 0 1 18 11a3.5 3.5 0 0 1 2.8 5.2"/></svg>',
+    online: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 18a4.5 4.5 0 0 1-.5-9 5.5 5.5 0 0 1 10.6-1.5A4 4 0 0 1 17.5 18z"/><path d="M9.5 12.5l2 2 3.5-3.5"/></svg>'
+  };
+  document.getElementById('v2-netpop-icon').innerHTML = icons[kind] || '';
+  document.getElementById('v2-netpop-title').textContent = title;
+  document.getElementById('v2-netpop-sub').textContent = sub || '';
+  el.className = 'show ' + kind;
+  if (navigator.vibrate) { try { navigator.vibrate(kind === 'offline' ? [30, 40, 30] : 20); } catch(e) {} }
+  clearTimeout(_v2NetPopTimer);
+  _v2NetPopTimer = setTimeout(v2NetPopHide, ms || 4500);
+}
+function v2NetPopHide() {
+  var el = document.getElementById('v2-netpop'); if (el) el.classList.remove('show');
+}
+['online','offline','focus','pageshow'].forEach(function(ev) {
+  window.addEventListener(ev, function() { if (ev === 'online') window._v2NetFailed = false; v2NetCheck(ev); });
 });
+document.addEventListener('visibilitychange', function() { if (document.visibilityState === 'visible') v2NetCheck('visible'); });
+setInterval(function() { v2NetCheck('intervall'); }, 5000);
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function() { setTimeout(function() { v2NetCheck('start'); }, 1800); });
+else setTimeout(function() { v2NetCheck('start'); }, 1800);
 
 </script>
 
@@ -8069,6 +8160,10 @@ window.addEventListener('offline', function() {
   </div>
 </div>
 
+<div id="v2-netpop" role="status" aria-live="polite" onclick="v2NetPopHide()">
+  <span class="v2-netpop-icon" id="v2-netpop-icon"></span>
+  <span class="v2-netpop-text"><b id="v2-netpop-title"></b><span id="v2-netpop-sub"></span></span>
+</div>
 <div id="toast"></div>
 <div id="confirm-overlay">
   <div id="confirm-panel">
