@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<meta name="build" content="20261025150000">
+<meta name="build" content="20261025180000">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -50,6 +50,10 @@ function parseClaudeJSON(d) {
 }
 
 async function callClaude(payload) {
+  if (!navigator.onLine) {
+    showToast('Diese Funktion braucht Internet', 'error');
+    throw new Error('Keine Internetverbindung – Foodpairing, Warenkunde, Scan und Allergenerkennung brauchen Internet.');
+  }
   if (!CLAUDE_PROXY_URL || CLAUDE_PROXY_URL.includes('DEIN-NAME')) {
     showToast('Bitte Proxy-URL in index.html eintragen', 'error');
     throw new Error('Kein Proxy konfiguriert');
@@ -3947,6 +3951,7 @@ async function init() {
   // aInit zuerst — setzt _aUser, dann erst Sync
   await aInit();
   outletInit();
+  try { if (_aUser) renderGrid(); } catch(e) {}   // Begrüssung mit Namen, auch ohne Sync (offline)
   // Sync erst nachdem User eingeloggt
   if (db && isOnline && _aUser) {
     await syncToCloud();
@@ -6757,17 +6762,25 @@ function aUpdateUI() {
   }
 }
 async function aInit() {
-  // Login ist Pflicht — kein Skip mehr möglich
-  var c = _aSC(); if (!c) return;
-  try {
-    var res = await c.auth.getSession();
-    if (res.data&&res.data.session) { 
-      _aUser=res.data.session.user; 
-      if (v2EnsureOwner(_aUser.id)) return _aUser;   // anderer Nutzer: Gerät wird geleert und neu geladen
-      aUpdateUI(); 
-      return _aUser; 
-    }
-  } catch(e) {}
+  // Login ist Pflicht — kein Skip mehr möglich (ausser offline mit bekanntem Nutzer)
+  var c = _aSC();
+  if (c) {
+    try {
+      var res = await c.auth.getSession();
+      if (res.data&&res.data.session) { 
+        _aUser=res.data.session.user; 
+        if (v2EnsureOwner(_aUser.id)) return _aUser;   // anderer Nutzer: Gerät wird geleert und neu geladen
+        v2RememberUser(_aUser);
+        aUpdateUI(); 
+        return _aUser; 
+      }
+    } catch(e) {}
+  }
+  // Ohne Netz kann sich niemand anmelden: mit dem zuletzt angemeldeten Nutzer weiterarbeiten
+  if (!navigator.onLine) {
+    var last = v2LastUser();
+    if (last) { _aUser = last; window._v2OfflineUser = true; aUpdateUI(); return _aUser; }
+  }
   setTimeout(aOpen, 1200);
   return null;
 }
@@ -7520,7 +7533,7 @@ document.addEventListener('visibilitychange', function() {
 window.addEventListener('online', function() { if (_aUser) { v2StopRealtime(); v2StartRealtime(); } });
 
 // ─── GETEILTE GERÄTE: Daten gehören immer dem angemeldeten Nutzer ───────────
-var V2_USER_KEYS = ['thyme_recipes','thyme_recent','thyme_outlet','thyme_pending_deletes','thyme_pending_join','thyme_categories'];
+var V2_USER_KEYS = ['thyme_last_user','thyme_recipes','thyme_recent','thyme_outlet','thyme_pending_deletes','thyme_pending_join','thyme_categories'];
 var V2_USER_PREFIXES = ['thyme_photo_','thyme_rating_'];
 var V2_STASH_KEYS = ['thyme_mep','thyme_shoplist'];   // nur lokal gespeichert: wird pro Nutzer aufbewahrt
 function v2UnsyncedCount() {
@@ -7597,6 +7610,49 @@ function v2EnsureOwner(uid) {
   location.reload();
   return true;
 }
+
+// ─── OFFLINE ─────────────────────────────────────────────────────────────────
+// Service Worker speichert App, Schriften, Bibliotheken, Icons und angesehene Fotos
+if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('sw.js').catch(function(e) { console.warn('[Offline] Service Worker:', e); });
+  });
+}
+function v2RememberUser(u) {
+  if (!u || !u.id) return;
+  try { localStorage.setItem('thyme_last_user', JSON.stringify({ id: u.id, email: u.email, user_metadata: u.user_metadata || {} })); } catch(e) {}
+}
+function v2LastUser() {
+  try {
+    var u = JSON.parse(localStorage.getItem('thyme_last_user') || 'null');
+    var owner = localStorage.getItem('thyme_data_owner');
+    return (u && u.id && owner === u.id) ? u : null;     // nur, wenn die Daten auf dem Gerät diesem Nutzer gehören
+  } catch(e) { return null; }
+}
+// Zurück im Netz: Verbindung aufbauen, Anmeldung prüfen, nachholen
+window.addEventListener('online', async function() {
+  isOnline = true;
+  showToast('Wieder online – Änderungen werden abgeglichen', 'success');
+  try {
+    if (!db && typeof supabase !== 'undefined' && supabase.createClient) db = _aSC();
+    var c = _aSC(); if (!c) return;
+    var res = await c.auth.getSession();
+    if (res.data && res.data.session) {
+      _aUser = res.data.session.user; window._v2OfflineUser = false; v2RememberUser(_aUser); aUpdateUI();
+      if (!_syncRunning) syncToCloud();
+    } else if (window._v2OfflineUser) {
+      // Sitzung abgelaufen: Daten bleiben, aber zum Hochladen ist eine Anmeldung nötig
+      window._v2OfflineUser = false; _aUser = null; aOpen();
+    }
+  } catch(e) { console.warn('[Online]', e); }
+});
+(function() {
+  var o = aUpdateUI;
+  aUpdateUI = function() { o.apply(this, arguments); if (_aUser && !window._v2OfflineUser) v2RememberUser(_aUser); };
+})();
+window.addEventListener('offline', function() {
+  showToast('Offline – du kannst weiterarbeiten, Änderungen werden später hochgeladen', '', 5000);
+});
 
 </script>
 
